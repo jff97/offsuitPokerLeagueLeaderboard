@@ -35,10 +35,27 @@ def rank_players_by_round_points(df_round):
 
     return results
 
+def normalize_player_name(name):
+    """Normalize player names:
+    - Trim whitespace
+    - Lowercase
+    - Collapse multiple spaces into one
+    - Remove non-alphanumeric characters except space
+    """
+    name = str(name).strip().lower()
+    name = re.sub(r'\s+', ' ', name)                  # replace multiple spaces with one
+    name = re.sub(r'[^a-z0-9 ]', '', name)            # remove non-alphanumeric chars except space
+    name = re.sub(r'\s+', ' ', name).strip()          # collapse spaces again just in case
+    return name
+
+
 def process_csv(file_path):
     """Process a single CSV file and return a list of (player, percentage rank) tuples from all rounds."""
     df = pd.read_csv(file_path)
     df = df.rename(columns={df.columns[1]: "Player"})  # standardize name column
+    
+    df['Player'] = df['Player'].apply(normalize_player_name)
+    
     rounds = [col for col in df.columns if "Round" in col]
 
     all_results = []
