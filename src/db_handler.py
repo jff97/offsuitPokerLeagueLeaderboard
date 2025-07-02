@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-connection_string = "mongodb://your_primary_connection_string_here"
+connection_string = "mongodb+srv://jff97:<password>@cosmosoffsuitstorage.global.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
 client = MongoClient(connection_string)
 db = client["testdb"]
 collection = db["testcollection"]
