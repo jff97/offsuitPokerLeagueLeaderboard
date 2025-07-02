@@ -12,32 +12,56 @@ def parse_points(value):
     match = re.search(r'\d+', str(value))  # find the first number in the string
     return int(match.group()) if match else 0  # return the number if found, otherwise 0
 
+def extract_points_from_column(df, points_col_index=1):
+    """Extract numeric points from the specified column and add as 'Points'."""
+    df['Points'] = df.iloc[:, points_col_index].apply(parse_points)
+    return df
+
+def filter_participating_players(df):
+    """Return only players with Points greater than zero."""
+    return df[df['Points'] > 0]
+
+def sort_players_by_points(df):
+    """Sort players by descending points and reset the index."""
+    return df.sort_values(by='Points', ascending=False).reset_index(drop=True)
+
+def assign_placements(df):
+    """Assign placement ranks to players based on points with ties getting the same rank."""
+    df['Placement'] = df['Points'].rank(ascending=False, method='min').astype(int)
+    return df
+
+def calculate_percentage_rank(placement, total_players):
+    """Convert a placement rank into a percentage rank (higher is better)."""
+    if total_players <= 1:
+        return 100.0
+    return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
+
+def build_results_list(df):
+    """Build and return a list of tuples (player, percentage rank)."""
+    total_players = len(df)
+    results = []
+    for _, row in df.iterrows():
+        pct_rank = calculate_percentage_rank(row['Placement'], total_players)
+        results.append((row['Player'], pct_rank))
+    return results
+
 def rank_players_by_round_points(df_round):
     """
     Given a DataFrame with players and their points for a single round,
     return a list of (player, percentage rank) for players who showed up.
     """
-    df_round['Points'] = df_round.iloc[:, 1].apply(parse_points)  # extract points from second column
-    df_round = df_round[df_round['Points'] > 0]  # Only players who participated (nonzero points)
+    df_round = extract_points_from_column(df_round)
+    df_round = filter_participating_players(df_round)
 
     if df_round.empty:
-        return []  # return empty if no one participated
+        return []
 
-    # Sort players by points descending
-    df_round = df_round.sort_values(by='Points', ascending=False).reset_index(drop=True)
-    
-    # Assign placement ranks
-    df_round['Placement'] = df_round['Points'].rank(ascending=False, method='min').astype(int)
-    total_players = len(df_round)
+    df_round = sort_players_by_points(df_round)
+    df_round = assign_placements(df_round)
 
-    results = []
-    for _, row in df_round.iterrows():
-        placement = row['Placement']
-        # Convert placement to a percentage rank (higher is better)
-        pct_rank = round((1 - (placement - 1) / (total_players - 1)) * 100, 2) if total_players > 1 else 100.0
-        results.append((row['Player'], pct_rank))  # Store (player, percent rank)
-
+    results = build_results_list(df_round)
     return results
+
 
 def normalize_player_name(name):
     """Normalize player names:
