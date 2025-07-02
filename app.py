@@ -1,12 +1,16 @@
-from flask import Flask, jsonify
-import os
+from flask import Flask, Response
+from src.nonsense import get_nonsense
 
 app = Flask(__name__)
 
 @app.route('/')
-def hello():
-    return jsonify(message="Hello, world!")
+def home():
+    return Response("<h1>Hello this is the default endpoint for johns api</h1>", mimetype='text/html')
+
+@app.route('/getNonsense')
+def get_nonsense_route():
+    return Response(get_nonsense(), mimetype='text/html')
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
+
