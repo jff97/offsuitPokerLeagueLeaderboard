@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from collections import defaultdict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from itertools import groupby
 from operator import itemgetter
 from keep_the_score_api_service import get_simplified_month_json
@@ -28,45 +28,43 @@ def fix_special_name_cases(name: str) -> str:
 def calculate_percentile_rank(placement: int, total_players: int) -> float:
     """
     Convert a placement into a percentile rank.
-
-    100 means top player (1st place),
-    0 means last place,
-    linearly scaled in between.
+    100 means 1st place, 0 means last place.
     """
     if total_players <= 1:
         return 100.0
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
 
-def flatten_game_data_to_tuples(raw_json_data: Dict[str, Any]) -> List[tuple]:
+def flatten_all_months_to_tuples(month_jsons: List[Dict[str, Any]]) -> List[Tuple[str, str, str, int]]:
     """
-    Convert nested service response into a flat list of tuples:
+    Convert multiple nested JSON month responses into a combined flat list:
     (player_name, round_id, bar_name, points_scored)
     """
-    flat_game_records = []
+    all_flat_game_records = []
 
-    for bar_token, bar_details in raw_json_data["bars"].items():
-        bar_name = bar_details["bar_name"]
+    for raw_json_data in month_jsons:
+        for bar_token, bar_details in raw_json_data["bars"].items():
+            bar_name = bar_details["bar_name"]
 
-        for round_info in bar_details["rounds"]:
-            round_id = round_info["round_id"]
+            for round_info in bar_details["rounds"]:
+                round_id = round_info["round_id"]
 
-            for score_entry in round_info["scores"]:
-                normalized_name = normalize_player_name(score_entry["name"])
-                points_scored = score_entry["points"]
-                flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
+                for score_entry in round_info["scores"]:
+                    normalized_name = normalize_player_name(score_entry["name"])
+                    points_scored = score_entry["points"]
+                    all_flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
 
-    return flat_game_records
+    return all_flat_game_records
 
 
-def rank_players_in_each_round(flat_game_records: List[tuple]) -> List[Dict[str, Any]]:
+def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]]) -> List[Dict[str, Any]]:
     """
-    Takes flat records and returns a list of dicts with:
+    Given a combined list of flattened records, rank players per round and
+    return a list of:
     {Player, RoundID, BarName, PercentileRank}
     """
     ranked_results = []
 
-    # Sort list so groupby works properly
     flat_game_records.sort(key=itemgetter(1))  # sort by round_id
 
     for round_id, entries_for_round in groupby(flat_game_records, key=itemgetter(1)):
@@ -76,12 +74,10 @@ def rank_players_in_each_round(flat_game_records: List[tuple]) -> List[Dict[str,
         total_players_in_round = len(players_sorted_by_points)
         point_to_placement_map = {}
 
-        # Assign placement ranks with ties having the same rank
         for index, (player_name, _, _, player_points) in enumerate(players_sorted_by_points):
             if player_points not in point_to_placement_map:
-                point_to_placement_map[player_points] = index + 1  # rank starts at 1
+                point_to_placement_map[player_points] = index + 1
 
-        # Calculate percentile ranks for each player
         for player_name, _, bar_name, player_points in players_sorted_by_points:
             placement_rank = point_to_placement_map[player_points]
             percentile_rank = calculate_percentile_rank(placement_rank, total_players_in_round)
@@ -102,7 +98,6 @@ def build_percentile_leaderboard(
 ) -> pd.DataFrame:
     """
     Aggregate ranked results into a leaderboard sorted by average percentile rank.
-    Only include players with at least `min_rounds_required` rounds played.
     """
     player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
@@ -129,36 +124,73 @@ def build_percentile_leaderboard(
     return leaderboard_df
 
 
-def run_leaderboard_from_service_json(service_json: Dict[str, Any]) -> pd.DataFrame:
+def get_percentile_leaderboard_from_month_json_list(month_json_list: List[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Orchestrates the leaderboard generation:
-    1. Flatten JSON to tuples
-    2. Rank players per round
-    3. Aggregate into percentile leaderboard
+    Orchestrate full leaderboard from multiple month JSON objects.
     """
-    flat_records = flatten_game_data_to_tuples(service_json)
-    ranked_results = rank_players_in_each_round(flat_records)
-    leaderboard = build_percentile_leaderboard(ranked_results)
-
-    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
-    print(leaderboard.to_string(index=False))
+    all_flat_records = flatten_all_months_to_tuples(month_json_list)
+    all_ranked_results = rank_players_in_each_round(all_flat_records)
+    leaderboard = build_percentile_leaderboard(all_ranked_results)
 
     return leaderboard
 
 
 def main():
-    tokens_and_names = [
-        ("pcynjwvnvgqme", "Hosed on Brady"),
-        ("qdtgqhtjkrtpe", "Alibi"),
-    ]
-    # Replace this with your actual JSON object (Python dict)
-    service_json_data_for_one_month = get_simplified_month_json(tokens_and_names)
+    # Step 1: define which months (each month is a list of tokens and bar names)
+    month_1 = [("pcynjwvnvgqme", "Hosed on Brady"), ("qdtgqhtjkrtpe", "Alibi")]
+    
+    # Step 2: fetch each month's JSON (you could add more here)
+    json_month_1 = get_simplified_month_json(month_1)
+    json_month_2 = {
+    "_id": "202506",
+    "month": "2025-06",
+    "bars": {
+        "hbrz1234bar": {
+            "bar_name": "Old Town Pub",
+            "rounds": [
+                {
+                    "date": "Wed, 12 Jun 2025 20:00:00 GMT",
+                    "round_id": "5338888",
+                    "scores": [
+                        {"name": "Troy R", "player_id": "50311379", "points": 38},
+                        {"name": "John F", "player_id": "50838511", "points": 32},
+                        {"name": "Bonnie L", "player_id": "55075343", "points": 28},
+                        {"name": "Sean G", "player_id": "52682799", "points": 20},
+                        {"name": "Cindy R", "player_id": "50319129", "points": 16},
+                        {"name": "Joe G", "player_id": "53919576", "points": 12}
+                    ]
+                }
+            ]
+        },
+        "bkgx5678bar": {
+            "bar_name": "The Daily Draw",
+            "rounds": [
+                {
+                    "date": "Thu, 20 Jun 2025 19:00:00 GMT",
+                    "round_id": "5339999",
+                    "scores": [
+                        {"name": "Will G", "player_id": "53926243", "points": 40},
+                        {"name": "Greg S", "player_id": "52353907", "points": 35},
+                        {"name": "Ahmad B", "player_id": "51920113", "points": 26},
+                        {"name": "Nico A", "player_id": "50711851", "points": 21},
+                        {"name": "Miguel Q", "player_id": "51973743", "points": 18},
+                        {"name": "Amar", "player_id": "50625303", "points": 15},
+                        {"name": "Mike M", "player_id": "41741662", "points": 12}
+                    ]
+                }
+            ]
+        }
+    }
+}
 
-    if not service_json_data_for_one_month:
-        print("No data provided.")
-        return
 
-    run_leaderboard_from_service_json(service_json_data_for_one_month)
+    # Step 3: run leaderboard across all selected months
+    leaderboard = get_percentile_leaderboard_from_month_json_list([
+        json_month_1,
+        json_month_2
+    ])
+    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
+    print(leaderboard.to_string(index=False))
 
 
 if __name__ == "__main__":
