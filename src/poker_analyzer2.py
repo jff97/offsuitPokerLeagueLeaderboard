@@ -61,7 +61,7 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
     """
     Given a combined list of flattened records, rank players per round and
     return a list of:
-    {Player, RoundID, BarName, PercentileRank}
+    {Player, RoundID, BarName, PercentileRank, Placement}
     """
     ranked_results = []
 
@@ -87,22 +87,24 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
                 "RoundID": round_id,
                 "BarName": bar_name,
                 "PercentileRank": percentile_rank,
-                "Placement": placement_rank  # Added Placement here for new function use
+                "Placement": placement_rank
             })
 
     return ranked_results
 
 
 def build_percentile_leaderboard(
-    ranked_player_results: List[Dict[str, Any]],
+    flat_game_records: List[Tuple[str, str, str, int]],
     min_rounds_required: int = 1
 ) -> pd.DataFrame:
     """
-    Aggregate ranked results into a leaderboard sorted by average percentile rank.
+    Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
     """
+    ranked_results = rank_players_in_each_round(flat_game_records)
+
     player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
-    for result in ranked_player_results:
+    for result in ranked_results:
         player_name = result["Player"]
         player_aggregate_stats[player_name]["TotalPercentile"] += result["PercentileRank"]
         player_aggregate_stats[player_name]["RoundsPlayed"] += 1
@@ -125,27 +127,16 @@ def build_percentile_leaderboard(
     return leaderboard_df
 
 
-def get_percentile_leaderboard_from_month_json_list(month_json_list: List[Dict[str, Any]]) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, str, int]]) -> pd.DataFrame:
     """
-    Orchestrate full leaderboard from multiple month JSON objects.
+    Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     """
-    all_flat_records = flatten_all_months_to_tuples(month_json_list)
-    all_ranked_results = rank_players_in_each_round(all_flat_records)
-    leaderboard = build_percentile_leaderboard(all_ranked_results)
+    ranked_results = rank_players_in_each_round(flat_game_records)
 
-    return leaderboard
-
-
-# New function added below:
-
-def build_top_3_finish_rate_leaderboard(ranked_player_results: List[Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Build a leaderboard showing percentage of times each player finishes in top 3.
-    """
     top3_counts = defaultdict(int)
     total_counts = defaultdict(int)
 
-    for result in ranked_player_results:
+    for result in ranked_results:
         player = result["Player"]
         placement = result.get("Placement", None)
         total_counts[player] += 1
@@ -169,71 +160,71 @@ def build_top_3_finish_rate_leaderboard(ranked_player_results: List[Dict[str, An
     return leaderboard_df
 
 
+def test_month2_data():
+    return {
+        "_id": "202506",
+        "month": "2025-06",
+        "bars": {
+            "hbrz1234bar": {
+                "bar_name": "Old Town Pub",
+                "rounds": [
+                    {
+                        "date": "Wed, 12 Jun 2025 20:00:00 GMT",
+                        "round_id": "5338888",
+                        "scores": [
+                            {"name": "Troy R", "player_id": "50311379", "points": 38},
+                            {"name": "John F", "player_id": "50838511", "points": 32},
+                            {"name": "Bonnie L", "player_id": "55075343", "points": 28},
+                            {"name": "Sean G", "player_id": "52682799", "points": 20},
+                            {"name": "Cindy R", "player_id": "50319129", "points": 16},
+                            {"name": "Joe G", "player_id": "53919576", "points": 12}
+                        ]
+                    }
+                ]
+            },
+            "bkgx5678bar": {
+                "bar_name": "The Daily Draw",
+                "rounds": [
+                    {
+                        "date": "Thu, 20 Jun 2025 19:00:00 GMT",
+                        "round_id": "5339999",
+                        "scores": [
+                            {"name": "Will G", "player_id": "53926243", "points": 40},
+                            {"name": "Greg S", "player_id": "52353907", "points": 35},
+                            {"name": "Ahmad B", "player_id": "51920113", "points": 26},
+                            {"name": "Nico A", "player_id": "50711851", "points": 21},
+                            {"name": "Miguel Q", "player_id": "51973743", "points": 18},
+                            {"name": "Amar", "player_id": "50625303", "points": 15},
+                            {"name": "Mike M", "player_id": "41741662", "points": 12}
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+
+
 def main():
     # Step 1: define which months (each month is a list of tokens and bar names)
     month_1 = [("pcynjwvnvgqme", "Hosed on Brady"), ("qdtgqhtjkrtpe", "Alibi")]
-    
+
     # Step 2: fetch each month's JSON (you could add more here)
     json_month_1 = get_simplified_month_json(month_1)
     json_month_2 = test_month2_data()
 
-
-    # Step 3: run leaderboard across all selected months
-    leaderboard = get_percentile_leaderboard_from_month_json_list([
-        json_month_1,
-        json_month_2
-    ])
-    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
-    print(leaderboard.to_string(index=False))
-    
-    # New: also print top 3 finish rate leaderboard, using same ranked results
+    # Step 3: flatten once
     all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2])
-    ranked_results = rank_players_in_each_round(all_flat_records)
-    top3_leaderboard = build_top_3_finish_rate_leaderboard(ranked_results)
+
+    # Step 4: build and print percentile leaderboard (ranking inside)
+    percentile_leaderboard = build_percentile_leaderboard(all_flat_records)
+    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
+    print(percentile_leaderboard.to_string(index=False))
+
+    # Step 5: build and print top 3 finish rate leaderboard (ranking inside)
+    top3_leaderboard = build_top_3_finish_rate_leaderboard(all_flat_records)
     print("\n🥇 Leaderboard by Top 3 Finish Percentage:\n")
     print(top3_leaderboard.to_string(index=False))
 
-def test_month2_data(): 
-    return {
-    "_id": "202506",
-    "month": "2025-06",
-    "bars": {
-        "hbrz1234bar": {
-            "bar_name": "Old Town Pub",
-            "rounds": [
-                {
-                    "date": "Wed, 12 Jun 2025 20:00:00 GMT",
-                    "round_id": "5338888",
-                    "scores": [
-                        {"name": "Troy R", "player_id": "50311379", "points": 38},
-                        {"name": "John F", "player_id": "50838511", "points": 32},
-                        {"name": "Bonnie L", "player_id": "55075343", "points": 28},
-                        {"name": "Sean G", "player_id": "52682799", "points": 20},
-                        {"name": "Cindy R", "player_id": "50319129", "points": 16},
-                        {"name": "Joe G", "player_id": "53919576", "points": 12}
-                    ]
-                }
-            ]
-        },
-        "bkgx5678bar": {
-            "bar_name": "The Daily Draw",
-            "rounds": [
-                {
-                    "date": "Thu, 20 Jun 2025 19:00:00 GMT",
-                    "round_id": "5339999",
-                    "scores": [
-                        {"name": "Will G", "player_id": "53926243", "points": 40},
-                        {"name": "Greg S", "player_id": "52353907", "points": 35},
-                        {"name": "Ahmad B", "player_id": "51920113", "points": 26},
-                        {"name": "Nico A", "player_id": "50711851", "points": 21},
-                        {"name": "Miguel Q", "player_id": "51973743", "points": 18},
-                        {"name": "Amar", "player_id": "50625303", "points": 15},
-                        {"name": "Mike M", "player_id": "41741662", "points": 12}
-                    ]
-                }
-            ]
-        }
-    }
-}
+
 if __name__ == "__main__":
     main()
