@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.tester import test2, percentile_leaderboard  # now src is in path so this import works
+from src.tester import test2, percentile_leaderboard, placement_leaderboard  # now src is in path so this import works
 from flask import Flask, Response, jsonify
 
 
@@ -19,6 +19,11 @@ def test():
 @app.route('/percentileleaderboard')
 def percentile():
     csv_string = percentile_leaderboard()  # make sure this returns a str
+    return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
+
+@app.route('/placementleaderboard')
+def placement():
+    csv_string = placement_leaderboard()  # make sure this returns a str
     return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
 
 if __name__ == '__main__':

@@ -22,7 +22,6 @@ tokens_and_names = [
     ]
 
 def percentile_leaderboard():
-    print("thisgothit")
     json_month_1 = get_month_document("202506") #this one is legacy allways stays there
     json_month_2 = get_month_document("202507")
 
@@ -31,6 +30,16 @@ def percentile_leaderboard():
     # Step 5: build and print percentile leaderboard (ranking inside)
     percentile_leaderboard = build_percentile_leaderboard(all_flat_records)
     return percentile_leaderboard.to_string(index=False)
+
+def placement_leaderboard():
+    json_month_1 = get_month_document("202506") #this one is legacy allways stays there
+    json_month_2 = get_month_document("202507")
+
+    all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2]) 
+
+    top3_leaderboard = build_top_3_finish_rate_leaderboard(all_flat_records)
+    return top3_leaderboard.to_string(index=False)
+
 
 def test2():
     # Step 1: wipe all data to start fresh

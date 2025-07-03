@@ -154,13 +154,13 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
     for player, total in total_counts.items():
         top3 = top3_counts[player]
         rate = round((top3 / total) * 100, 2)
-        if total > 4:
-            leaderboard_records.append({
+        leaderboard_records.append({
                 "Player": player,
                 "Top3Finishes": top3,
                 "RoundsPlayed": total,
                 "Top3RatePercent": rate
             })
+            
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
     leaderboard_df.sort_values(by="Top3RatePercent", ascending=False, inplace=True)
