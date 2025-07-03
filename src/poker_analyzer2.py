@@ -1,78 +1,23 @@
-import os  # for file and folder path operations
-import pandas as pd  # for working with CSV files and DataFrames
-import re  # for regex operations (parsing strings)
-from collections import defaultdict  # for handling grouped data cleanly
-
-def get_csv_files(folder_path):
-    """Get list of all CSV files in the provided folder."""
-    return [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith(".csv")]
-
-def parse_points(value):
-    """Extract numeric points from a string like '21 points'."""
-    match = re.search(r'\d+', str(value))  # find the first number in the string
-    return int(match.group()) if match else 0  # return the number if found, otherwise 0
-
-def extract_points_from_column(df):
-    """Extract numeric points from the specified column and add as 'Points'."""
-    df['Points'] = df.iloc[:, 1].apply(parse_points)
-    return df
-
-def sort_players_by_points(df):
-    """Sort players by descending points and reset the index."""
-    return df.sort_values(by='Points', ascending=False).reset_index(drop=True)
-
-def assign_placements(df):
-    """Assign placement ranks to players based on points with ties getting the same rank."""
-    df['Placement'] = df['Points'].rank(ascending=False, method='min').astype(int)
-    return df
-
-def calculate_percentage_rank(placement, total_players):
-    """Convert a placement rank into a percentage rank (higher is better)."""
-    if total_players <= 1:
-        return 100.0
-    return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
-
-def build_results_list(df):
-    """Build and return a list of tuples (player, percentage rank)."""
-    total_players = len(df)
-    results = []
-    for _, row in df.iterrows():
-        pct_rank = calculate_percentage_rank(row['Placement'], total_players)
-        results.append((row['Player'], pct_rank))
-    return results
-
-def rank_players_by_round_points(df_round):
-    """
-    Given a DataFrame with players and their points for a single round,
-    return a list of (player, percentage rank) for players who showed up.
-    """
-    df_round = extract_points_from_column(df_round)
-
-    if df_round.empty:
-        return []
-
-    df_round = sort_players_by_points(df_round)
-    df_round = assign_placements(df_round)
-
-    results = build_results_list(df_round)
-    return results
+import pandas as pd
+import re
+from collections import defaultdict
+from typing import List, Dict, Any
+from itertools import groupby
+from operator import itemgetter
+from keep_the_score_api_service import get_simplified_month_json
 
 
-def normalize_player_name(name):
-    """Normalize player names:
-    - Trim whitespace
-    - Lowercase
-    - Collapse multiple spaces into one
-    - Remove non-alphanumeric characters except space
-    """
-    name = str(name).strip().lower()  # trim and lowercase
-    name = re.sub(r'\s+', ' ', name)  # replace multiple spaces with one
-    name = re.sub(r'[^a-z0-9 ]', '', name)  # remove non-alphanumeric chars excepC:\Users\jicfo\OneDrive\Documents\GitHub\pokerScraper\june2025\outputt space
-    name = re.sub(r'\s+', ' ', name).strip()  # ensure single spacing again
-    name = fix_special_name_cases(name)
-    return name
+def normalize_player_name(raw_name: str) -> str:
+    """Clean and standardize player names."""
+    name = str(raw_name).strip().lower()
+    name = re.sub(r'\s+', ' ', name)
+    name = re.sub(r'[^a-z0-9 ]', '', name)
+    name = re.sub(r'\s+', ' ', name).strip()
+    return fix_special_name_cases(name)
 
-def fix_special_name_cases(name):
+
+def fix_special_name_cases(name: str) -> str:
+    """Apply specific corrections for known name inconsistencies."""
     if "pyerre" in name:
         return "pyerre l"
     if "bonnie" in name:
@@ -80,63 +25,133 @@ def fix_special_name_cases(name):
     return name
 
 
-def process_csv(file_path):
-    """Process a single CSV file and return a list of (player, percentage rank) tuples from all rounds."""
-    df = pd.read_csv(file_path)  # load CSV file into DataFrame
-    df = df.rename(columns={df.columns[1]: "Player"})  # standardize name column to "Player"
-    
-    df['Player'] = df['Player'].apply(normalize_player_name)  # normalize all player names
-    
-    rounds = [col for col in df.columns if "Round" in col]  # find all round columns
+def calculate_percentage_rank(placement: int, total_players: int) -> float:
+    """Convert a placement into a percentile ranking."""
+    if total_players <= 1:
+        return 100.0
+    return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
-    all_results = []
-    for round_col in rounds:
-        df_round = df[['Player', round_col]].copy()  # extract only player and round columns
-        round_results = rank_players_by_round_points(df_round)  # rank for that round
-        all_results.extend(round_results)  # accumulate results
 
-    return all_results
+def flatten_game_data_to_tuples(raw_json_data: Dict[str, Any]) -> List[tuple]:
+    """
+    Converts nested service response into a flat list of tuples:
+    (player_name, round_id, bar_name, points_scored)
+    """
+    flat_game_records = []
 
-def aggregate_results(all_results):
-    """Aggregate all round results into a cumulative leaderboard."""
-    player_stats = defaultdict(lambda: {'TotalPercent': 0, 'RoundsPlayed': 0})  # track total % and round count
+    for bar_token, bar_details in raw_json_data["bars"].items():
+        bar_name = bar_details["bar_name"]
 
-    for player, pct_rank in all_results:
-        player_stats[player]['TotalPercent'] += pct_rank  # sum of percentage ranks
-        player_stats[player]['RoundsPlayed'] += 1  # count of rounds played
+        for round_info in bar_details["rounds"]:
+            round_id = round_info["round_id"]
 
-    records = []
-    for player, stats in player_stats.items():
-        avg_pct = round(stats['TotalPercent'] / stats['RoundsPlayed'], 2)  # average percentage rank
-        if stats['RoundsPlayed'] > 4:  # only include players with more than 4 rounds
-            records.append({
-            'Player': player,
-            'RoundsPlayed': stats['RoundsPlayed'],
-            'AveragePercentageRank': avg_pct
+            for score_entry in round_info["scores"]:
+                normalized_name = normalize_player_name(score_entry["name"])
+                points_scored = score_entry["points"]
+                flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
+
+    return flat_game_records
+
+
+def rank_players_in_each_round(flat_game_records: List[tuple]) -> List[Dict[str, Any]]:
+    """
+    Takes flat records and returns:
+    [{Player, RoundID, BarName, PercentageRank}, ...]
+    """
+    ranked_results = []
+
+    # Sort list so groupby works properly
+    flat_game_records.sort(key=itemgetter(1))  # sort by round_id
+
+    for round_id, entries_for_round in groupby(flat_game_records, key=itemgetter(1)):
+        players_in_round = list(entries_for_round)
+        players_sorted_by_points = sorted(players_in_round, key=lambda x: x[3], reverse=True)
+
+        total_players_in_round = len(players_sorted_by_points)
+        point_to_placement_map = {}
+
+        for index, (player_name, _, _, player_points) in enumerate(players_sorted_by_points):
+            if player_points not in point_to_placement_map:
+                point_to_placement_map[player_points] = index + 1  # rank starts at 1
+
+        for player_name, _, bar_name, player_points in players_sorted_by_points:
+            placement_rank = point_to_placement_map[player_points]
+            percentage_rank = calculate_percentage_rank(placement_rank, total_players_in_round)
+
+            ranked_results.append({
+                "Player": player_name,
+                "RoundID": round_id,
+                "BarName": bar_name,
+                "PercentageRank": percentage_rank
             })
 
-    leaderboard = pd.DataFrame(records)  # create DataFrame from summary
-    leaderboard.sort_values(by='AveragePercentageRank', ascending=False, inplace=True)  # sort descending
-    leaderboard.reset_index(drop=True, inplace=True)  # reset index for clean display
+    return ranked_results
+
+
+def build_percentile_leaderboard(
+    ranked_player_results: List[Dict[str, Any]],
+    min_rounds_required: int = 1
+) -> pd.DataFrame:
+    """
+    Aggregates ranked results into leaderboard sorted by average % rank.
+    """
+    player_aggregate_stats = defaultdict(lambda: {"TotalPercentage": 0, "RoundsPlayed": 0})
+
+    for result in ranked_player_results:
+        player_name = result["Player"]
+        player_aggregate_stats[player_name]["TotalPercentage"] += result["PercentageRank"]
+        player_aggregate_stats[player_name]["RoundsPlayed"] += 1
+
+    leaderboard_records = []
+
+    for player_name, stats in player_aggregate_stats.items():
+        if stats["RoundsPlayed"] >= min_rounds_required:
+            average_percentage = round(stats["TotalPercentage"] / stats["RoundsPlayed"], 2)
+            leaderboard_records.append({
+                "Player": player_name,
+                "RoundsPlayed": stats["RoundsPlayed"],
+                "AveragePercentageRank": average_percentage
+            })
+
+    leaderboard_df = pd.DataFrame(leaderboard_records)
+    leaderboard_df.sort_values(by="AveragePercentageRank", ascending=False, inplace=True)
+    leaderboard_df.reset_index(drop=True, inplace=True)
+
+    return leaderboard_df
+
+
+def run_leaderboard_from_service_json(service_json: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Orchestrates the entire leaderboard generation:
+    1. Flattens raw JSON to tuples
+    2. Ranks players per round
+    3. Aggregates into leaderboard
+    """
+    flat_records = flatten_game_data_to_tuples(service_json)
+    ranked_results = rank_players_in_each_round(flat_records)
+    leaderboard = build_percentile_leaderboard(ranked_results)
+
+    print("\n🏆 Cumulative Leaderboard (sorted by average percentage rank):\n")
+    print(leaderboard.to_string(index=False))
+
     return leaderboard
 
+
+
 def main():
-    folder = input("Enter the folder path with CSV files: ").strip()  # ask user for CSV folder path
-    if not os.path.isdir(folder):  # check if valid directory
-        print("Invalid folder.")
+    tokens_and_names = [
+        ("pcynjwvnvgqme", "Hosed on Brady"),
+        ("qdtgqhtjkrtpe", "Alibi"),
+    ]
+    # Replace this with your actual JSON object (Python dict)
+    service_json_data_for_one_month = get_simplified_month_json(tokens_and_names)
+
+    if not service_json_data_for_one_month:
+        print("No data provided.")
         return
 
-    all_results = []
-    for csv_file in get_csv_files(folder):  # iterate over all CSV files in folder
-        all_results.extend(process_csv(csv_file))  # collect all player rankings
+    run_leaderboard_from_service_json(service_json_data_for_one_month)
 
-    leaderboard = aggregate_results(all_results)  # compute final leaderboard
-    print("\nCumulative Leaderboard (based on average % rank):\n")
-    print(leaderboard.to_string(index=False))  # pretty print leaderboard
-
-    output_path = os.path.join(folder, "cumulative_leaderboard.csv")  # prepare output file path
-    leaderboard.to_csv(output_path, index=False)  # save leaderboard to CSV
-    print(f"\nSaved to {output_path}")  # notify user
 
 if __name__ == "__main__":
-    main()  # run the script
+    main()
