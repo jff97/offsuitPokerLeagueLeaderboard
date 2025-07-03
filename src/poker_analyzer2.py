@@ -86,7 +86,8 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
                 "Player": player_name,
                 "RoundID": round_id,
                 "BarName": bar_name,
-                "PercentileRank": percentile_rank
+                "PercentileRank": percentile_rank,
+                "Placement": placement_rank  # Added Placement here for new function use
             })
 
     return ranked_results
@@ -135,13 +136,65 @@ def get_percentile_leaderboard_from_month_json_list(month_json_list: List[Dict[s
     return leaderboard
 
 
+# New function added below:
+
+def build_top_3_finish_rate_leaderboard(ranked_player_results: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Build a leaderboard showing percentage of times each player finishes in top 3.
+    """
+    top3_counts = defaultdict(int)
+    total_counts = defaultdict(int)
+
+    for result in ranked_player_results:
+        player = result["Player"]
+        placement = result.get("Placement", None)
+        total_counts[player] += 1
+        if placement is not None and placement <= 3:
+            top3_counts[player] += 1
+
+    leaderboard_records = []
+    for player, total in total_counts.items():
+        top3 = top3_counts[player]
+        rate = round((top3 / total) * 100, 2)
+        leaderboard_records.append({
+            "Player": player,
+            "Top3Finishes": top3,
+            "RoundsPlayed": total,
+            "Top3RatePercent": rate
+        })
+
+    leaderboard_df = pd.DataFrame(leaderboard_records)
+    leaderboard_df.sort_values(by="Top3RatePercent", ascending=False, inplace=True)
+    leaderboard_df.reset_index(drop=True, inplace=True)
+    return leaderboard_df
+
+
 def main():
     # Step 1: define which months (each month is a list of tokens and bar names)
     month_1 = [("pcynjwvnvgqme", "Hosed on Brady"), ("qdtgqhtjkrtpe", "Alibi")]
     
     # Step 2: fetch each month's JSON (you could add more here)
     json_month_1 = get_simplified_month_json(month_1)
-    json_month_2 = {
+    json_month_2 = test_month2_data()
+
+
+    # Step 3: run leaderboard across all selected months
+    leaderboard = get_percentile_leaderboard_from_month_json_list([
+        json_month_1,
+        json_month_2
+    ])
+    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
+    print(leaderboard.to_string(index=False))
+    
+    # New: also print top 3 finish rate leaderboard, using same ranked results
+    all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2])
+    ranked_results = rank_players_in_each_round(all_flat_records)
+    top3_leaderboard = build_top_3_finish_rate_leaderboard(ranked_results)
+    print("\n🥇 Leaderboard by Top 3 Finish Percentage:\n")
+    print(top3_leaderboard.to_string(index=False))
+
+def test_month2_data(): 
+    return {
     "_id": "202506",
     "month": "2025-06",
     "bars": {
@@ -182,16 +235,5 @@ def main():
         }
     }
 }
-
-
-    # Step 3: run leaderboard across all selected months
-    leaderboard = get_percentile_leaderboard_from_month_json_list([
-        json_month_1,
-        json_month_2
-    ])
-    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
-    print(leaderboard.to_string(index=False))
-
-
 if __name__ == "__main__":
     main()
