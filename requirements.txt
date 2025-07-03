@@ -2,3 +2,4 @@ flask
 pymongo
 python-dotenv
 requests
+pandas

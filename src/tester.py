@@ -3,8 +3,6 @@ from cosmos_handler import store_month_document, get_month_document, delete_all_
 from poker_analyzer2 import flatten_all_months_to_tuples, build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
 from wipe import wipe_all
 from script_to_migrate_legacy_csv import migrate_start
-import pprint
-import io
 
 tokens_and_names = [
         ("jykjlbzxzkqye", "Cork N Barrel"),
@@ -66,7 +64,3 @@ def test2():
     top3_leaderboard = build_top_3_finish_rate_leaderboard(all_flat_records)
     print("\n🥇 Leaderboard by Top 3 Finish Percentage:\n")
     print(top3_leaderboard.to_string(index=False))
-
-
-if __name__ == "__main__":
-    test2()
