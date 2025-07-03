@@ -5,6 +5,7 @@ from typing import List, Dict, Any, Tuple
 from itertools import groupby
 from operator import itemgetter
 from keep_the_score_api_service import get_simplified_month_json
+from cosmos_handler import get_month_document
 
 
 def normalize_player_name(raw_name: str) -> str:
@@ -95,7 +96,7 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
 
 def build_percentile_leaderboard(
     flat_game_records: List[Tuple[str, str, str, int]],
-    min_rounds_required: int = 1
+    min_rounds_required: int = 5
 ) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
@@ -209,11 +210,11 @@ def main():
     month_1 = [("pcynjwvnvgqme", "Hosed on Brady"), ("qdtgqhtjkrtpe", "Alibi")]
 
     # Step 2: fetch each month's JSON (you could add more here)
-    json_month_1 = get_simplified_month_json(month_1)
-    json_month_2 = test_month2_data()
+    #json_month_1 = get_simplified_month_json(month_1)
+    json_month_2 = get_month_document("202506")
 
     # Step 3: flatten once
-    all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2])
+    all_flat_records = flatten_all_months_to_tuples([ json_month_2])
 
     # Step 4: build and print percentile leaderboard (ranking inside)
     percentile_leaderboard = build_percentile_leaderboard(all_flat_records)

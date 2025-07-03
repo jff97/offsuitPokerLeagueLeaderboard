@@ -30,11 +30,9 @@ def extract_scores_from_round(round_obj: dict, players: list) -> list:
         if idx < len(players):
             player = players[idx]
             scores.append({
-                "player_id": str(player.get("id")),
                 "name": player.get("name"),
                 "points": score
             })
-    # Proxy step: filter out zero-point scores here
     return filter_zero_point_scores(scores)
 
 def build_rounds_list(bar_json: dict) -> list:
@@ -49,17 +47,17 @@ def build_rounds_list(bar_json: dict) -> list:
     return rounds_list
 
 def remove_zero_total_players_from_bar(rounds: list) -> list:
-    # Find players who have points > 0 in any round within this bar
+    # Find player names who scored > 0 in any round
     players_with_points = set()
     for round_obj in rounds:
         for score in round_obj.get("scores", []):
             if score["points"] > 0:
-                players_with_points.add(score["player_id"])
+                players_with_points.add(score["name"])
 
-    # Filter scores in all rounds to keep only those players
+    # Filter out players with 0 total points
     filtered_rounds = []
     for round_obj in rounds:
-        filtered_scores = [s for s in round_obj.get("scores", []) if s["player_id"] in players_with_points]
+        filtered_scores = [s for s in round_obj["scores"] if s["name"] in players_with_points]
         filtered_rounds.append({
             "round_id": round_obj["round_id"],
             "date": round_obj["date"],

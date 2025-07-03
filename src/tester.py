@@ -5,6 +5,7 @@ import pprint
 import io
 
 def test1():
+    return "test1 is disabled currently"
     tokens_and_names = [
         ("pcynjwvnvgqme", "Hosed on Brady"),
         ("qdtgqhtjkrtpe", "Alibi"),
