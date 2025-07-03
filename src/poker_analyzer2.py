@@ -51,12 +51,13 @@ def flatten_all_months_to_tuples(month_jsons: List[Dict[str, Any]]) -> List[Tupl
                 round_id = round_info["round_id"]
 
                 for score_entry in round_info["scores"]:
-                    normalized_name = normalize_player_name(score_entry["name"])
                     points_scored = score_entry["points"]
+                    if points_scored == 0:
+                        continue  #  Skip players with 0 points (like original script)
+                    normalized_name = normalize_player_name(score_entry["name"])
                     all_flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
 
     return all_flat_game_records
-
 
 def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]]) -> List[Dict[str, Any]]:
     """
@@ -210,11 +211,11 @@ def main():
     month_1 = [("pcynjwvnvgqme", "Hosed on Brady"), ("qdtgqhtjkrtpe", "Alibi")]
 
     # Step 2: fetch each month's JSON (you could add more here)
-    #json_month_1 = get_simplified_month_json(month_1)
+    json_month_1 = get_simplified_month_json(month_1)
     json_month_2 = get_month_document("202506")
 
     # Step 3: flatten once
-    all_flat_records = flatten_all_months_to_tuples([ json_month_2])
+    all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2])
 
     # Step 4: build and print percentile leaderboard (ranking inside)
     percentile_leaderboard = build_percentile_leaderboard(all_flat_records)
