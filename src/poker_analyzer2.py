@@ -23,6 +23,8 @@ def fix_special_name_cases(name: str) -> str:
         return "pyerre l"
     if "bonnie" in name:
         return "bonnie l"
+    if "jarrett fre" in name:
+        return "jarrett f"
     return name
 
 
@@ -44,6 +46,9 @@ def flatten_all_months_to_tuples(month_jsons: List[Dict[str, Any]]) -> List[Tupl
     all_flat_game_records = []
 
     for raw_json_data in month_jsons:
+        if not raw_json_data or "bars" not in raw_json_data:
+            print("error one of the months is not returning data")
+            continue  # Skip invalid or empty month JSON
         for bar_token, bar_details in raw_json_data["bars"].items():
             bar_name = bar_details["bar_name"]
 
@@ -97,7 +102,7 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
 
 def build_percentile_leaderboard(
     flat_game_records: List[Tuple[str, str, str, int]],
-    min_rounds_required: int = 5
+    min_rounds_required: int = 8
 ) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
@@ -149,12 +154,13 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
     for player, total in total_counts.items():
         top3 = top3_counts[player]
         rate = round((top3 / total) * 100, 2)
-        leaderboard_records.append({
-            "Player": player,
-            "Top3Finishes": top3,
-            "RoundsPlayed": total,
-            "Top3RatePercent": rate
-        })
+        if total > 4:
+            leaderboard_records.append({
+                "Player": player,
+                "Top3Finishes": top3,
+                "RoundsPlayed": total,
+                "Top3RatePercent": rate
+            })
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
     leaderboard_df.sort_values(by="Top3RatePercent", ascending=False, inplace=True)
@@ -162,57 +168,13 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
     return leaderboard_df
 
 
-def test_month2_data():
-    return {
-        "_id": "202506",
-        "month": "2025-06",
-        "bars": {
-            "hbrz1234bar": {
-                "bar_name": "Old Town Pub",
-                "rounds": [
-                    {
-                        "date": "Wed, 12 Jun 2025 20:00:00 GMT",
-                        "round_id": "5338888",
-                        "scores": [
-                            {"name": "Troy R", "player_id": "50311379", "points": 38},
-                            {"name": "John F", "player_id": "50838511", "points": 32},
-                            {"name": "Bonnie L", "player_id": "55075343", "points": 28},
-                            {"name": "Sean G", "player_id": "52682799", "points": 20},
-                            {"name": "Cindy R", "player_id": "50319129", "points": 16},
-                            {"name": "Joe G", "player_id": "53919576", "points": 12}
-                        ]
-                    }
-                ]
-            },
-            "bkgx5678bar": {
-                "bar_name": "The Daily Draw",
-                "rounds": [
-                    {
-                        "date": "Thu, 20 Jun 2025 19:00:00 GMT",
-                        "round_id": "5339999",
-                        "scores": [
-                            {"name": "Will G", "player_id": "53926243", "points": 40},
-                            {"name": "Greg S", "player_id": "52353907", "points": 35},
-                            {"name": "Ahmad B", "player_id": "51920113", "points": 26},
-                            {"name": "Nico A", "player_id": "50711851", "points": 21},
-                            {"name": "Miguel Q", "player_id": "51973743", "points": 18},
-                            {"name": "Amar", "player_id": "50625303", "points": 15},
-                            {"name": "Mike M", "player_id": "41741662", "points": 12}
-                        ]
-                    }
-                ]
-            }
-        }
-    }
-
-
 def main():
     # Step 1: define which months (each month is a list of tokens and bar names)
-    month_1 = [("pcynjwvnvgqme", "Hosed on Brady"), ("qdtgqhtjkrtpe", "Alibi")]
 
     # Step 2: fetch each month's JSON (you could add more here)
-    json_month_1 = get_simplified_month_json(month_1)
-    json_month_2 = get_month_document("202506")
+    json_month_1 = get_month_document("202506") #this one is legacy allways stays there
+    json_month_2 = get_month_document("202507")
+    
 
     # Step 3: flatten once
     all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2])

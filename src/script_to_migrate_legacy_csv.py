@@ -72,8 +72,8 @@ def build_and_store_full_month(month_id: str, bars: list):
         entry = parse_csv_to_bar_entry(csv_data, month_id, bar_token, bar_name)
         month_doc["bars"].update(entry)
 
-    #store_month_document(month_doc)
-    printthingy(month_doc)
+    store_month_document(month_doc)
+    #printthingy(month_doc)
 
     
     print(f"✅ Stored month document for {month_id} with {len(bars)} bars.")
@@ -411,7 +411,7 @@ def get_csv_literal_bar_witts() -> str:
 """
 
 
-def main():
+def migrate_start():
     month_id = "202506"  # YYYYMM
 
     bars = [
@@ -433,4 +433,4 @@ def main():
     build_and_store_full_month(month_id, bars)
 
 if __name__ == "__main__":
-    main()
+    migrate_start()

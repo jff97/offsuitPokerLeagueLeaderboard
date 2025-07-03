@@ -107,7 +107,6 @@ def get_simplified_month_json(api_tokens_and_bar_names):
 
 if __name__ == "__main__":
     tokens_and_names = [
-        ("pcynjwvnvgqme", "Hosed on Brady"),
         ("qdtgqhtjkrtpe", "Alibi"),
     ]
 
