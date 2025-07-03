@@ -1,6 +1,10 @@
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from src.tester import test1  # now src is in path so this import works
 from flask import Flask, Response, jsonify
-from src.nonsense import get_nonsense
-from src.db_handler import increment_hit_count
+
 
 app = Flask(__name__)
 
@@ -8,15 +12,9 @@ app = Flask(__name__)
 def home():
     return Response("<h1>Hello this is the default endpoint for johns api</h1>", mimetype='text/html')
 
-@app.route('/getNonsense')
-def get_nonsense_route():
-    return Response(get_nonsense(), mimetype='text/html')
-
-@app.route("/hitcount")
-def hello_endpoint():
-    hits = increment_hit_count()
-    return jsonify({"hits": hits})
+@app.route('/test1')
+def test():
+    return Response(test1())
 
 if __name__ == '__main__':
     app.run(debug=True)
-
