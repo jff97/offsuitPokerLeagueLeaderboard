@@ -34,10 +34,8 @@ def extract_scores_from_round(round_obj: dict, players: list) -> list:
                 "name": player.get("name"),
                 "points": score
             })
-            
     # Proxy step: filter out zero-point scores here
     return filter_zero_point_scores(scores)
-
 
 def build_rounds_list(bar_json: dict) -> list:
     rounds_list = []
@@ -50,10 +48,32 @@ def build_rounds_list(bar_json: dict) -> list:
         })
     return rounds_list
 
+def remove_zero_total_players_from_bar(rounds: list) -> list:
+    # Find players who have points > 0 in any round within this bar
+    players_with_points = set()
+    for round_obj in rounds:
+        for score in round_obj.get("scores", []):
+            if score["points"] > 0:
+                players_with_points.add(score["player_id"])
+
+    # Filter scores in all rounds to keep only those players
+    filtered_rounds = []
+    for round_obj in rounds:
+        filtered_scores = [s for s in round_obj.get("scores", []) if s["player_id"] in players_with_points]
+        filtered_rounds.append({
+            "round_id": round_obj["round_id"],
+            "date": round_obj["date"],
+            "scores": filtered_scores
+        })
+
+    return filtered_rounds
+
 def build_bar_entry(token: str, bar_name: str, bar_json: dict) -> dict:
+    rounds = build_rounds_list(bar_json)
+    filtered_rounds = remove_zero_total_players_from_bar(rounds)
     return {
         "bar_name": bar_name,
-        "rounds": build_rounds_list(bar_json)
+        "rounds": filtered_rounds
     }
 
 def build_simplified_month_doc(bar_data_list: list) -> dict:
