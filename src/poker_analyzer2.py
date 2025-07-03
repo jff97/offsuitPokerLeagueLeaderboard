@@ -25,6 +25,8 @@ def fix_special_name_cases(name: str) -> str:
         return "bonnie l"
     if "jarrett fre" in name:
         return "jarrett f"
+    if "bartman" in name:
+        return "brian p"
     return name
 
 
