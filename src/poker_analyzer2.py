@@ -25,8 +25,14 @@ def fix_special_name_cases(name: str) -> str:
     return name
 
 
-def calculate_percentage_rank(placement: int, total_players: int) -> float:
-    """Convert a placement into a percentile ranking."""
+def calculate_percentile_rank(placement: int, total_players: int) -> float:
+    """
+    Convert a placement into a percentile rank.
+
+    100 means top player (1st place),
+    0 means last place,
+    linearly scaled in between.
+    """
     if total_players <= 1:
         return 100.0
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
@@ -34,7 +40,7 @@ def calculate_percentage_rank(placement: int, total_players: int) -> float:
 
 def flatten_game_data_to_tuples(raw_json_data: Dict[str, Any]) -> List[tuple]:
     """
-    Converts nested service response into a flat list of tuples:
+    Convert nested service response into a flat list of tuples:
     (player_name, round_id, bar_name, points_scored)
     """
     flat_game_records = []
@@ -55,8 +61,8 @@ def flatten_game_data_to_tuples(raw_json_data: Dict[str, Any]) -> List[tuple]:
 
 def rank_players_in_each_round(flat_game_records: List[tuple]) -> List[Dict[str, Any]]:
     """
-    Takes flat records and returns:
-    [{Player, RoundID, BarName, PercentageRank}, ...]
+    Takes flat records and returns a list of dicts with:
+    {Player, RoundID, BarName, PercentileRank}
     """
     ranked_results = []
 
@@ -70,19 +76,21 @@ def rank_players_in_each_round(flat_game_records: List[tuple]) -> List[Dict[str,
         total_players_in_round = len(players_sorted_by_points)
         point_to_placement_map = {}
 
+        # Assign placement ranks with ties having the same rank
         for index, (player_name, _, _, player_points) in enumerate(players_sorted_by_points):
             if player_points not in point_to_placement_map:
                 point_to_placement_map[player_points] = index + 1  # rank starts at 1
 
+        # Calculate percentile ranks for each player
         for player_name, _, bar_name, player_points in players_sorted_by_points:
             placement_rank = point_to_placement_map[player_points]
-            percentage_rank = calculate_percentage_rank(placement_rank, total_players_in_round)
+            percentile_rank = calculate_percentile_rank(placement_rank, total_players_in_round)
 
             ranked_results.append({
                 "Player": player_name,
                 "RoundID": round_id,
                 "BarName": bar_name,
-                "PercentageRank": percentage_rank
+                "PercentileRank": percentile_rank
             })
 
     return ranked_results
@@ -93,28 +101,29 @@ def build_percentile_leaderboard(
     min_rounds_required: int = 1
 ) -> pd.DataFrame:
     """
-    Aggregates ranked results into leaderboard sorted by average % rank.
+    Aggregate ranked results into a leaderboard sorted by average percentile rank.
+    Only include players with at least `min_rounds_required` rounds played.
     """
-    player_aggregate_stats = defaultdict(lambda: {"TotalPercentage": 0, "RoundsPlayed": 0})
+    player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
     for result in ranked_player_results:
         player_name = result["Player"]
-        player_aggregate_stats[player_name]["TotalPercentage"] += result["PercentageRank"]
+        player_aggregate_stats[player_name]["TotalPercentile"] += result["PercentileRank"]
         player_aggregate_stats[player_name]["RoundsPlayed"] += 1
 
     leaderboard_records = []
 
     for player_name, stats in player_aggregate_stats.items():
         if stats["RoundsPlayed"] >= min_rounds_required:
-            average_percentage = round(stats["TotalPercentage"] / stats["RoundsPlayed"], 2)
+            average_percentile = round(stats["TotalPercentile"] / stats["RoundsPlayed"], 2)
             leaderboard_records.append({
                 "Player": player_name,
                 "RoundsPlayed": stats["RoundsPlayed"],
-                "AveragePercentageRank": average_percentage
+                "AveragePercentileRank": average_percentile
             })
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
-    leaderboard_df.sort_values(by="AveragePercentageRank", ascending=False, inplace=True)
+    leaderboard_df.sort_values(by="AveragePercentileRank", ascending=False, inplace=True)
     leaderboard_df.reset_index(drop=True, inplace=True)
 
     return leaderboard_df
@@ -122,20 +131,19 @@ def build_percentile_leaderboard(
 
 def run_leaderboard_from_service_json(service_json: Dict[str, Any]) -> pd.DataFrame:
     """
-    Orchestrates the entire leaderboard generation:
-    1. Flattens raw JSON to tuples
-    2. Ranks players per round
-    3. Aggregates into leaderboard
+    Orchestrates the leaderboard generation:
+    1. Flatten JSON to tuples
+    2. Rank players per round
+    3. Aggregate into percentile leaderboard
     """
     flat_records = flatten_game_data_to_tuples(service_json)
     ranked_results = rank_players_in_each_round(flat_records)
     leaderboard = build_percentile_leaderboard(ranked_results)
 
-    print("\n🏆 Cumulative Leaderboard (sorted by average percentage rank):\n")
+    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
     print(leaderboard.to_string(index=False))
 
     return leaderboard
-
 
 
 def main():
