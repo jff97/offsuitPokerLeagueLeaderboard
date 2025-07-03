@@ -134,9 +134,10 @@ def build_percentile_leaderboard(
     return leaderboard_df
 
 
-def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, str, int]]) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, str, int]], min_rounds: int = 8) -> pd.DataFrame:
     """
     Rank and build a leaderboard showing percentage of times each player finishes in top 3.
+    Only includes players with more than `min_rounds` rounds.
     """
     ranked_results = rank_players_in_each_round(flat_game_records)
 
@@ -152,20 +153,23 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
 
     leaderboard_records = []
     for player, total in total_counts.items():
+        if total <= min_rounds:
+            continue  # Skip players with insufficient rounds
+
         top3 = top3_counts[player]
         rate = round((top3 / total) * 100, 2)
         leaderboard_records.append({
-                "Player": player,
-                "Top3Finishes": top3,
-                "RoundsPlayed": total,
-                "Top3RatePercent": rate
-            })
-            
+            "Player": player,
+            "Top3Finishes": top3,
+            "RoundsPlayed": total,
+            "Top3RatePercent": rate
+        })
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
     leaderboard_df.sort_values(by="Top3RatePercent", ascending=False, inplace=True)
     leaderboard_df.reset_index(drop=True, inplace=True)
     return leaderboard_df
+
 
 
 def main():
