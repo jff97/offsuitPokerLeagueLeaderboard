@@ -97,19 +97,10 @@ def get_simplified_month_json(api_tokens_and_bar_names):
     bar_data_list = []
 
     for token, bar_name in api_tokens_and_bar_names:
-        bar_json = fetch_board_json(token)
-        if "error" in bar_json:
-            print(f"Error fetching {bar_name}: {bar_json['error']}")
+        bar_json_from_api = fetch_board_json(token)
+        if "error" in bar_json_from_api:
+            print(f"Error fetching {bar_name}: {bar_json_from_api['error']}")
             continue
-        bar_data_list.append((token, bar_name, bar_json))
+        bar_data_list.append((token, bar_name, bar_json_from_api))
 
     return build_simplified_month_doc(bar_data_list)
-
-if __name__ == "__main__":
-    tokens_and_names = [
-        ("qdtgqhtjkrtpe", "Alibi"),
-    ]
-
-    import pprint
-    month_doc = get_simplified_month_json(tokens_and_names)
-    pprint.pprint(month_doc, depth=8, compact=True)

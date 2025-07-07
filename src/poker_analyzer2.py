@@ -170,30 +170,3 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
     leaderboard_df.sort_values(by="Top3RatePercent", ascending=False, inplace=True)
     leaderboard_df.reset_index(drop=True, inplace=True)
     return leaderboard_df
-
-
-
-def main():
-    # Step 1: define which months (each month is a list of tokens and bar names)
-
-    # Step 2: fetch each month's JSON (you could add more here)
-    json_month_1 = get_month_document("202506") #this one is legacy allways stays there
-    json_month_2 = get_month_document("202507")
-    
-
-    # Step 3: flatten once
-    all_flat_records = flatten_all_months_to_tuples([json_month_1, json_month_2])
-
-    # Step 4: build and print percentile leaderboard (ranking inside)
-    percentile_leaderboard = build_percentile_leaderboard(all_flat_records)
-    print("\n🏆 Cumulative Leaderboard (sorted by average percentile rank):\n")
-    print(percentile_leaderboard.to_string(index=False))
-
-    # Step 5: build and print top 3 finish rate leaderboard (ranking inside)
-    top3_leaderboard = build_top_3_finish_rate_leaderboard(all_flat_records)
-    print("\n🥇 Leaderboard by Top 3 Finish Percentage:\n")
-    print(top3_leaderboard.to_string(index=False))
-
-
-if __name__ == "__main__":
-    main()
