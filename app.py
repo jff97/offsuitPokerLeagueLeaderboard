@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.tester import test2, percentile_leaderboard, placement_leaderboard  # now src is in path so this import works
-from flask import Flask, Response, jsonify
+from flask import Flask, Response
 
 
 app = Flask(__name__)

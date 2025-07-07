@@ -23,7 +23,7 @@ def parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_nam
     for idx, rnd in enumerate(round_cols, start=1):
         rounds_list.append({
             "round_id": f"{month_id}_{bar_token}_{idx}",
-            "date": datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT"),
+            "date": datetime(datetime.utcnow().year, 6, 15 + idx, 12, 0, 0).strftime("%a, %d %b %Y %H:%M:%S GMT"),
             "scores": []
         })
 
