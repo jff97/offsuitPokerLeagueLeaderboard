@@ -4,7 +4,6 @@ from collections import defaultdict
 from typing import List, Dict, Any, Tuple
 from itertools import groupby
 from operator import itemgetter
-from keep_the_score_api_service import get_simplified_month_json
 from cosmos_handler import get_month_document
 
 

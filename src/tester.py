@@ -66,5 +66,5 @@ def test2():
     print("\n🥇 Leaderboard by Top 3 Finish Percentage:\n")
     print(top3_leaderboard.to_string(index=False))
 
-    with open("output.json", "w") as f: f.write(json.dumps(json_month_1, indent=2))
+    with open("output.json", "w") as f: f.write(json.dumps(month_doc, indent=2))
 
