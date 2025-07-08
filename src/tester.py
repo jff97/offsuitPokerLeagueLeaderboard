@@ -1,11 +1,12 @@
 from poker_data_transformer import get_flat_list_of_rounds_from_api, legacy_month_list_of_rounds_getter
 
-from cosmos_handler import store_flattened_rounds, get_all_rounds, delete_all_round_data
+from cosmos_handler import store_flattened_rounds, get_all_rounds, delete_all_round_data, save_log, get_all_logs
 
 from poker_analyzer2 import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
 from script_to_migrate_legacy_csv import migrate_start
 
 from typing import List, Tuple
+from datetime import datetime
 
 tokens_and_names = [
         ("jykjlbzxzkqye", "Cork N Barrel"),
@@ -21,6 +22,17 @@ tokens_and_names = [
         ("ybmwcqckckdhe", "South Bound Again"),
         ("pwtmrylcjnjye", "Anticipation Sunday"),
     ]
+
+def log_time():
+    string_to_log = f"[Daily Task] Ran at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    save_log(string_to_log)
+
+def get_all_logs_to_display_for_api() -> str:
+    list_of_all_log_strings = get_all_logs()
+    combined_logs = "\n".join(list_of_all_log_strings)
+    html_ready = combined_logs.replace("\n", "<br>")
+    return html_ready
+
 def placement_leaderboard_by_month_method():
     all_flat_records = legacy_month_list_of_rounds_getter(tokens_and_names)
     top3_leaderboard = build_top_3_finish_rate_leaderboard(all_flat_records)

@@ -16,8 +16,9 @@ client = MongoClient(connection_string)
 db = client["offsuitpokeranalyzerdb"]
 if _is_localhost():
     rounds_collection = db["pokerRoundsCollectionTest"]
+    logs_collection = db["logsCollectionTest"]
 else:
-    rounds_collection = db["pokerRoundsCollectionProd"]
+    rounds_collection = db["logsCollectionProd"]
 
 def store_flattened_rounds(list_of_rounds: list[Tuple[str, str, str, int]]):
     for r in list_of_rounds:
@@ -46,3 +47,12 @@ def get_all_rounds() -> List[Tuple[str, str, str, int]]:
 
 def delete_all_round_data():
     return rounds_collection.delete_many({})
+
+
+def save_log(log_str: str):
+    log_doc = {"log": log_str}
+    logs_collection.insert_one(log_doc)
+
+def get_all_logs() -> List[str]:
+    docs = list(logs_collection.find({}, {"_id": 0, "log": 1}))
+    return [doc["log"] for doc in docs if "log" in doc]
