@@ -52,7 +52,7 @@ def _rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int
 
 def build_percentile_leaderboard(
     flat_game_records: List[Tuple[str, str, str, int]],
-    min_rounds_required: int = 2
+    min_rounds_required: int = 9
 ) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
@@ -78,8 +78,11 @@ def build_percentile_leaderboard(
             })
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
-    leaderboard_df.sort_values(by="AveragePercentileRank", ascending=False, inplace=True)
-    leaderboard_df.reset_index(drop=True, inplace=True)
+    if leaderboard_df.empty:
+        leaderboard_df = pd.DataFrame([["No players met the minimum round requirement"]], columns=["Message"])
+    else:
+        leaderboard_df.sort_values(by="AveragePercentileRank", ascending=False, inplace=True)
+        leaderboard_df.reset_index(drop=True, inplace=True)
 
     return leaderboard_df
 

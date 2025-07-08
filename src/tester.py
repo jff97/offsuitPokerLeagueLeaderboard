@@ -3,6 +3,7 @@ from poker_data_transformer import get_flat_list_of_rounds_from_api, legacy_mont
 from cosmos_handler import store_flattened_rounds, get_all_rounds, delete_all_round_data
 
 from poker_analyzer2 import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
+from script_to_migrate_legacy_csv import migrate_start
 
 from typing import List, Tuple
 
@@ -34,6 +35,7 @@ def refresh_rounds_database():
     delete_all_round_data()
     flattened_records_from_round_format = get_flat_list_of_rounds_from_api(tokens_and_names)
     store_flattened_rounds(flattened_records_from_round_format)
+    refresh_june_legacy_csv_rounds()
 
 def get_percentile_leaderboard_from_rounds():
     database_fetched_rounds = get_all_rounds()
@@ -94,7 +96,18 @@ def _test_month_method_no_db():
     print("Percentile Leaderboard from months method")
     print(percentile_leaderboard_by_month_method())
 
+def legacy_test():
+    (flat_records_new_method, flat_records_old_method) = migrate_start()
+    _compare_flattened_records(flat_records_new_method, flat_records_old_method)
+
+def refresh_june_legacy_csv_rounds():
+    (flat_records_new_method, _) = migrate_start()
+    store_flattened_rounds(flat_records_new_method)
+    
+
 if __name__ == "__main__":
-    _test_month_method_no_db
-    _test_round_method_with_database()
+    #1
+    # _test_month_method_no_db
+    # _test_round_method_with_database()
+    legacy_test()
 

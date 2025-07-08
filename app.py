@@ -27,12 +27,12 @@ def monthsplacement():
     return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
 
 
-@app.route('/placementleaderboardrounds')
+@app.route('/placementleaderboard')
 def placement():
     csv_string = get_placement_leaderboard_from_rounds()
     return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
 
-@app.route('/percentileleaderboardrounds')
+@app.route('/percentileleaderboard')
 def percentile():
     csv_string = get_percentile_leaderboard_from_rounds()
     return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')

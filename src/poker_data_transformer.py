@@ -66,6 +66,10 @@ def _fix_special_name_cases(name: str) -> str:
         return "cindy r"
     if "wyatt" in name:
         return "wyatt s"
+    if "rieley" in name:
+        return "rieley p"
+    if "ben" in name:
+        return "ben d"
     return name
 
 def _normalize_player_name(raw_name: str) -> str:
