@@ -1,38 +1,11 @@
 import pandas as pd
-import re
 from collections import defaultdict
 from typing import List, Dict, Any, Tuple
 from itertools import groupby
 from operator import itemgetter
 
 
-def normalize_player_name(raw_name: str) -> str:
-    """Clean and standardize player names."""
-    name = str(raw_name).strip().lower()
-    name = re.sub(r'\s+', ' ', name)
-    name = re.sub(r'[^a-z0-9 ]', '', name)
-    name = re.sub(r'\s+', ' ', name).strip()
-    return fix_special_name_cases(name)
-
-
-def fix_special_name_cases(name: str) -> str:
-    """Apply specific corrections for known name inconsistencies."""
-    if "pyerre" in name:
-        return "pyerre l"
-    if "bonnie" in name:
-        return "bonnie l"
-    if "jarrett fre" in name:
-        return "jarrett f"
-    if "bartman" in name:
-        return "brian p"
-    if "cindy" in name:
-        return "cindy r"
-    if "wyatt" in name:
-        return "wyatt s"
-    return name
-
-
-def calculate_percentile_rank(placement: int, total_players: int) -> float:
+def _calculate_percentile_rank(placement: int, total_players: int) -> float:
     """
     Convert a placement into a percentile rank.
     100 means 1st place, 0 means last place.
@@ -41,34 +14,7 @@ def calculate_percentile_rank(placement: int, total_players: int) -> float:
         return 100.0
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
-
-def flatten_all_months_to_tuples(month_jsons: List[Dict[str, Any]]) -> List[Tuple[str, str, str, int]]:
-    """
-    Convert multiple nested JSON month responses into a combined flat list:
-    (player_name, round_id, bar_name, points_scored)
-    """
-    all_flat_game_records = []
-
-    for raw_json_data in month_jsons:
-        if not raw_json_data or "bars" not in raw_json_data:
-            print("error one of the months is not returning data")
-            continue  # Skip invalid or empty month JSON
-        for bar_token, bar_details in raw_json_data["bars"].items():
-            bar_name = bar_details["bar_name"]
-
-            for round_info in bar_details["rounds"]:
-                round_id = round_info["round_id"]
-
-                for score_entry in round_info["scores"]:
-                    points_scored = score_entry["points"]
-                    if points_scored == 0:
-                        continue  #  Skip players with 0 points (like original script)
-                    normalized_name = normalize_player_name(score_entry["name"])
-                    all_flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
-
-    return all_flat_game_records
-
-def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]]) -> List[Dict[str, Any]]:
+def _rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]]) -> List[Dict[str, Any]]:
     """
     Given a combined list of flattened records, rank players per round and
     return a list of:
@@ -91,7 +37,7 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
 
         for player_name, _, bar_name, player_points in players_sorted_by_points:
             placement_rank = point_to_placement_map[player_points]
-            percentile_rank = calculate_percentile_rank(placement_rank, total_players_in_round)
+            percentile_rank = _calculate_percentile_rank(placement_rank, total_players_in_round)
 
             ranked_results.append({
                 "Player": player_name,
@@ -111,7 +57,7 @@ def build_percentile_leaderboard(
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
     """
-    ranked_results = rank_players_in_each_round(flat_game_records)
+    ranked_results = _rank_players_in_each_round(flat_game_records)
 
     player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
@@ -143,7 +89,7 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
     Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     Only includes players with more than `min_rounds` rounds.
     """
-    ranked_results = rank_players_in_each_round(flat_game_records)
+    ranked_results = _rank_players_in_each_round(flat_game_records)
 
     top3_counts = defaultdict(int)
     total_counts = defaultdict(int)
