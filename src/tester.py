@@ -42,6 +42,11 @@ def get_percentile_leaderboard_from_rounds():
     percentile_leaderboard = build_percentile_leaderboard(database_fetched_rounds)
     return percentile_leaderboard.to_string(index=False)
 
+def get_percentile_leaderboard_from_rounds_no_round_limit():
+    database_fetched_rounds = get_all_rounds()
+    percentile_leaderboard = build_percentile_leaderboard(database_fetched_rounds, 1)
+    return percentile_leaderboard.to_string(index=False)
+
 def get_placement_leaderboard_from_rounds():
     database_fetched_rounds = get_all_rounds()
     top3_leaderboard = build_top_3_finish_rate_leaderboard(database_fetched_rounds)

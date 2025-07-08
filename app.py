@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from src.tester import percentile_leaderboard_by_month_method, placement_leaderboard_by_month_method
 
 #new round granular methods
-from src.tester import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, refresh_rounds_database 
+from src.tester import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds_no_round_limit, refresh_rounds_database 
 
 from flask import Flask, Response
 
@@ -35,6 +35,11 @@ def placement():
 @app.route('/percentileleaderboard')
 def percentile():
     csv_string = get_percentile_leaderboard_from_rounds()
+    return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
+
+@app.route('/percentileleaderboardnoroundlimit')
+def percentile_no_round_limit():
+    csv_string = get_percentile_leaderboard_from_rounds_no_round_limit()
     return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
 
 @app.route('/refreshroundsdb')
