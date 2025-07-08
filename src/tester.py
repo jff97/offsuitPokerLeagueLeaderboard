@@ -1,10 +1,8 @@
-from poker_data_transformer import get_simplified_month_json, flatten_months_to_tuples, _normalize_player_name, get_flat_list_of_rounds
+from poker_data_transformer import get_flat_list_of_rounds_from_api, legacy_month_list_of_rounds_getter
 
-from cosmos_handler import store_month_document, get_month_document, delete_all_month_data, store_flattened_rounds, get_all_rounds, delete_all_round_data
+from cosmos_handler import store_flattened_rounds, get_all_rounds, delete_all_round_data
 
-from poker_analyzer2 import  build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
-
-import json
+from poker_analyzer2 import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
 
 from typing import List, Tuple
 
@@ -22,77 +20,41 @@ tokens_and_names = [
         ("ybmwcqckckdhe", "South Bound Again"),
         ("pwtmrylcjnjye", "Anticipation Sunday"),
     ]
-
-def percentile_leaderboard():
-    json_month_2 = get_month_document("202507")
-    all_flat_records = flatten_months_to_tuples([ json_month_2])
-
-    # Step 5: build and print percentile leaderboard (ranking inside)
-    percentile_leaderboard = build_percentile_leaderboard(all_flat_records)
-    print("Percentile Leaderboard from month database")
-    return percentile_leaderboard.to_string(index=False)
-
-def placement_leaderboard():
-    json_month_2 = get_month_document("202507")
-
-    all_flat_records = flatten_months_to_tuples([json_month_2]) 
-
+def placement_leaderboard_by_month_method():
+    all_flat_records = legacy_month_list_of_rounds_getter(tokens_and_names)
     top3_leaderboard = build_top_3_finish_rate_leaderboard(all_flat_records)
     return top3_leaderboard.to_string(index=False)
 
-def test2():
-    # Step 1: wipe all data to start fresh
-    delete_all_month_data
+def percentile_leaderboard_by_month_method():
+    all_flat_records = legacy_month_list_of_rounds_getter(tokens_and_names)
+    percentile_leaderboard = build_percentile_leaderboard(all_flat_records)
+    return percentile_leaderboard.to_string(index=False)
 
-    # Step 3: Get current month document
-    month_doc = get_simplified_month_json(tokens_and_names)
-    store_month_document(month_doc)
-    
-    with open("output.json", "w") as f: f.write(json.dumps(month_doc, indent=2))
-
-def test3():
-    flattened_records_from_round_format = get_flat_list_of_rounds(tokens_and_names)
-
-    flattened_records_from_month_data_format = flatten_months_to_tuples([get_simplified_month_json(tokens_and_names)])
-    compare_flattened_records(flattened_records_from_round_format, flattened_records_from_month_data_format)
-
-def test4():
-    flattened_records_from_round_format = get_flat_list_of_rounds(tokens_and_names)
-    percentile_leaderboard = build_percentile_leaderboard(flattened_records_from_round_format)
-    print()
-    print(percentile_leaderboard.to_string(index=False))
-
-    # top3_leaderboard = build_top_3_finish_rate_leaderboard(flattened_records_from_round_format)
-    # print(top3_leaderboard.to_string(index=False))
-
-def test5():
-    flattened_records_from_round_format = get_flat_list_of_rounds(tokens_and_names)
-
+def refresh_rounds_database():
+    delete_all_round_data()
+    flattened_records_from_round_format = get_flat_list_of_rounds_from_api(tokens_and_names)
     store_flattened_rounds(flattened_records_from_round_format)
 
+def get_percentile_leaderboard_from_rounds():
     database_fetched_rounds = get_all_rounds()
-
     percentile_leaderboard = build_percentile_leaderboard(database_fetched_rounds)
-    print("Percentile Leaderboard from rounds database")
-    print(percentile_leaderboard.to_string(index=False))
+    return percentile_leaderboard.to_string(index=False)
 
-    # top3_leaderboard = build_top_3_finish_rate_leaderboard(database_fetched_rounds)
-    # print(top3_leaderboard.to_string(index=False))
+def get_placement_leaderboard_from_rounds():
+    database_fetched_rounds = get_all_rounds()
+    top3_leaderboard = build_top_3_finish_rate_leaderboard(database_fetched_rounds)
+    return top3_leaderboard.to_string(index=False)
 
-def compare_flattened_records(
+def _compare_flat_rounds_from_months_and_rounds_based():
+    flattened_records_from_round_format = get_flat_list_of_rounds_from_api(tokens_and_names)
+    flattened_records_from_month_data_format = legacy_month_list_of_rounds_getter(tokens_and_names)
+    _compare_flattened_records(flattened_records_from_round_format, flattened_records_from_month_data_format)
+
+def _compare_flattened_records(
     new_records: List[Tuple[str, str, str, int]],
     old_records: List[Tuple[str, str, str, int]]
 ) -> None:
-    """
-    Compare two lists of flattened records and print differences.
-
-    Args:
-        new_records: List of tuples from new method.
-        old_records: List of tuples from old method.
-
-    Returns:
-        None. Prints detailed comparison result.
-    """
+    
 
     # Convert lists to sets for unordered comparison
     set_new = set(new_records)
@@ -116,38 +78,23 @@ def compare_flattened_records(
             for rec in sorted(only_in_old):
                 print(f"  {rec}")
 
-def verify_flattened_rounds(simplified_rounds, flattened_records):
-    """
-    Check that every (normalized_name, round_id, bar_name, points) in simplified_rounds
-    exists in flattened_records. Prints mismatches if found.
-    """
-    # Convert flattened list to a set for fast lookup
-    flattened_set = set(flattened_records)
-    mismatches_found = False
+def _test_round_method_with_database():
+    refresh_rounds_database()
+    database_fetched_rounds = get_all_rounds()
 
-    for round_doc in simplified_rounds:
-        round_id = round_doc["round_id"]
-        bar_name = round_doc["bar_name"]
-        scores = round_doc.get("scores", [])
+    percentile_leaderboard = build_percentile_leaderboard(database_fetched_rounds)
+    print("Percentile Leaderboard from rounds database")
+    print(percentile_leaderboard.to_string(index=False))
 
-        for score in scores:
-            normalized_name = _normalize_player_name(score["name"])
-            points = score["points"]
-            if points == 0:
-                continue  # Skip players with 0 points
-            expected_tuple = (normalized_name, round_id, bar_name, points)
+    top3_leaderboard = build_top_3_finish_rate_leaderboard(database_fetched_rounds)
+    print("Placement Leaderboard from rounds database")
+    print(top3_leaderboard.to_string(index=False))
 
-            if expected_tuple not in flattened_set:
-                print(f"❌ Missing: {expected_tuple}")
-                mismatches_found = True
-
-    if not mismatches_found:
-        print("✅ All round scores correctly represented in flattened data.")
+def _test_month_method_no_db():
+    print("Percentile Leaderboard from months method")
+    print(percentile_leaderboard_by_month_method())
 
 if __name__ == "__main__":
-    delete_all_month_data()
-    delete_all_round_data()
-    test2()
-    print(percentile_leaderboard())
-    test5()
+    _test_month_method_no_db
+    _test_round_method_with_database()
 

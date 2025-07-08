@@ -15,22 +15,9 @@ connection_string = (
 client = MongoClient(connection_string)
 db = client["offsuitpokeranalyzerdb"]
 if _is_localhost():
-    months_collection = db["monthly_data_test"]   # Local/testing collection
     rounds_collection = db["pokerRoundsCollectionTest"]
 else:
-    months_collection = db["monthly_data_prod"]   # Production collection
     rounds_collection = db["pokerRoundsCollectionProd"]
-
-def store_month_document(month_doc: dict):
-    if "_id" not in month_doc:
-        raise ValueError("month_doc must have an '_id' field")
-    return months_collection.replace_one({"_id": month_doc["_id"]}, month_doc, upsert=True)
-
-def delete_all_month_data():
-    return months_collection.delete_many({})
-
-def get_month_document(month_id: str) -> dict:
-    return months_collection.find_one({"_id": month_id})
 
 def store_flattened_rounds(list_of_rounds: list[Tuple[str, str, str, int]]):
     for r in list_of_rounds:
@@ -40,18 +27,17 @@ def store_flattened_rounds(list_of_rounds: list[Tuple[str, str, str, int]]):
             "Player": r[2],
             "Placement": r[3],
         }
-        months_collection.replace_one(
+        rounds_collection.replace_one(
             {"RoundId": round_doc["RoundId"], "BarId": round_doc["BarId"]},
             round_doc,
             upsert=True
         )
 
 def get_round_by_id(round_id: str) -> List[dict]:
-    return list(months_collection.find({"round_id": round_id}))
+    return list(rounds_collection.find({"round_id": round_id}))
 
-# Get all flattened player-round records from the collection
 def get_all_rounds() -> List[Tuple[str, str, str, int]]:
-    raw_docs = list(months_collection.find({}))
+    raw_docs = list(rounds_collection.find({}))
     return [
         (doc["RoundId"], doc["BarId"], doc["Player"], doc["Placement"])
         for doc in raw_docs

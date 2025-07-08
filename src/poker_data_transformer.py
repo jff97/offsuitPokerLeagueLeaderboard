@@ -214,10 +214,10 @@ def _extract_month_from_update_date(update_date_str: str) -> str:
     except Exception:
         return "unknown_month"
 
-def get_flat_list_of_rounds(api_tokens_and_bar_names):
+def get_flat_list_of_rounds_from_api(api_tokens_and_bar_names):
     list_of_simplified_rounds = _get_list_of_rounds(api_tokens_and_bar_names)
     flattened_records_from_round_format = _flatten_rounds_to_tuples(list_of_simplified_rounds)
     return flattened_records_from_round_format
 
-def new_month_legacy_list_of_rounds_getter(api_tokens_and_bar_names):
+def legacy_month_list_of_rounds_getter(api_tokens_and_bar_names):
     return flatten_months_to_tuples([get_simplified_month_json(api_tokens_and_bar_names)])
