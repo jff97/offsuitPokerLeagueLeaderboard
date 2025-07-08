@@ -102,5 +102,50 @@ def get_simplified_month_json(api_tokens_and_bar_names):
             print(f"Error fetching {bar_name}: {bar_json_from_api['error']}")
             continue
         bar_data_list.append((token, bar_name, bar_json_from_api))
-
     return build_simplified_month_doc(bar_data_list)
+
+def _map_month_to_list_of_rounds(monthly_data):
+    flattened_rounds = []
+
+    general_month_info = {}
+    for key, value in monthly_data.items():
+        if key != 'bars' and key != '_id' and key != 'month':
+            general_month_info[key] = value
+
+    bars = monthly_data.get('bars', {})
+
+    for bar_id in bars:
+        bar_info = bars[bar_id]
+
+        bar_name = bar_info.get('bar_name')
+
+        rounds = bar_info.get('rounds', [])
+
+        for round_info in rounds:
+            round_document = {}
+
+            for key in general_month_info:
+                round_document[key] = general_month_info[key]
+
+            round_document['bar_id'] = bar_id
+            round_document['bar_name'] = bar_name
+
+            for key, value in round_info.items():
+                round_document[key] = value
+
+            flattened_rounds.append(round_document)
+
+    return flattened_rounds
+
+def get_list_of_rounds(api_tokens_and_bar_names):
+    bar_data_list = []
+
+    for token, bar_name in api_tokens_and_bar_names:
+        bar_json_from_api = fetch_board_json(token)
+        if "error" in bar_json_from_api:
+            print(f"Error fetching {bar_name}: {bar_json_from_api['error']}")
+            continue
+        bar_data_list.append((token, bar_name, bar_json_from_api))
+
+    old_schema = build_simplified_month_doc(bar_data_list)
+    return _map_month_to_list_of_rounds(old_schema)

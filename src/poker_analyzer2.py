@@ -4,7 +4,6 @@ from collections import defaultdict
 from typing import List, Dict, Any, Tuple
 from itertools import groupby
 from operator import itemgetter
-from cosmos_handler import get_month_document
 
 
 def normalize_player_name(raw_name: str) -> str:
@@ -26,6 +25,10 @@ def fix_special_name_cases(name: str) -> str:
         return "jarrett f"
     if "bartman" in name:
         return "brian p"
+    if "cindy" in name:
+        return "cindy r"
+    if "wyatt" in name:
+        return "wyatt s"
     return name
 
 
@@ -103,7 +106,7 @@ def rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]
 
 def build_percentile_leaderboard(
     flat_game_records: List[Tuple[str, str, str, int]],
-    min_rounds_required: int = 8
+    min_rounds_required: int = 2
 ) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
@@ -135,7 +138,7 @@ def build_percentile_leaderboard(
     return leaderboard_df
 
 
-def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, str, int]], min_rounds: int = 8) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, str, int]], min_rounds: int = 2) -> pd.DataFrame:
     """
     Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     Only includes players with more than `min_rounds` rounds.
@@ -154,7 +157,7 @@ def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, 
 
     leaderboard_records = []
     for player, total in total_counts.items():
-        if total <= min_rounds:
+        if total < min_rounds:
             continue  # Skip players with insufficient rounds
 
         top3 = top3_counts[player]
