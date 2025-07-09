@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from src.tester import percentile_leaderboard_by_month_method, placement_leaderboard_by_month_method
 #new round granular methods
 from src.tester import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds_no_round_limit, refresh_rounds_database
-from src.tester import log_time, get_all_logs_to_display_for_api
+from src.tester import log_time, get_all_logs_to_display_for_api, delete_logs
 from src.timed_daily_events import DailyTimeScheduler
 from flask import Flask, Response
 
@@ -62,6 +62,11 @@ def start_scheduler():
 def get_logs():
     log_string = get_all_logs_to_display_for_api()
     return Response(f"<pre>{log_string}</pre>", mimetype='text/html')
+
+@app.route('/deletelogs')
+def delete_logs_endpoint():
+    delete_logs()
+    return Response(f"<pre>Logs deleted</pre>", mimetype='text/html')
 
 if __name__ == '__main__':
     log_time()

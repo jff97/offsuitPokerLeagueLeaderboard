@@ -18,7 +18,8 @@ if _is_localhost():
     rounds_collection = db["pokerRoundsCollectionTest"]
     logs_collection = db["logsCollectionTest"]
 else:
-    rounds_collection = db["logsCollectionProd"]
+    rounds_collection = db["pokerRoundsCollectionProd"]
+    logs_collection = db["logsCollectionProd"]
 
 def store_flattened_rounds(list_of_rounds: list[Tuple[str, str, str, int]]):
     for r in list_of_rounds:
@@ -56,3 +57,6 @@ def save_log(log_str: str):
 def get_all_logs() -> List[str]:
     docs = list(logs_collection.find({}, {"_id": 0, "log": 1}))
     return [doc["log"] for doc in docs if "log" in doc]
+
+def delete_all_logs():
+    logs_collection.delete_many({})
