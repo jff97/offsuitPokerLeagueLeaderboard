@@ -1,0 +1,21 @@
+name: Refresh Rounds DB
+
+on:
+  schedule:
+    - cron: '30 7 * * *'   # 2:30 AM CT (7:30 AM UTC)
+    - cron: '0 14 * * *'   # 9:00 AM CT (2:00 PM UTC)
+    - cron: '0 22 * * *'   # 5:00 PM CT (10:00 PM UTC)
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit refresh rounds DB endpoint
+        run: |
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/refreshroundsdb)
+          echo "Status code: $STATUS_CODE"
+          if [ "$STATUS_CODE" -ne 200 ]; then
+            echo "Request failed"
+            exit 1
+          fi
