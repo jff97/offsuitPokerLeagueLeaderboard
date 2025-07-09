@@ -21,34 +21,38 @@ else:
     rounds_collection = db["pokerRoundsCollectionProd"]
     logs_collection = db["logsCollectionProd"]
 
-def store_flattened_rounds(list_of_rounds: list[Tuple[str, str, str, int]]):
+def store_flattened_rounds(list_of_rounds: List[Tuple[str, str, str, int]]):
     for r in list_of_rounds:
+        # (player_name, round_id, bar_name, points_scored)
         round_doc = {
-            "RoundId": r[0],
-            "BarId": r[1],
-            "Player": r[2],
-            "Placement": r[3],
+            "Player": r[0],   # player_name
+            "RoundId": r[1],  # round_id
+            "BarName": r[2],    # bar_name
+            "Points": r[3],   # points_scored
         }
         rounds_collection.replace_one(
-            {"RoundId": round_doc["RoundId"], "BarId": round_doc["BarId"]},
+            {
+                "Player": round_doc["Player"],
+                "RoundId": round_doc["RoundId"],
+                "BarName": round_doc["BarName"]
+            },
             round_doc,
             upsert=True
         )
 
 def get_round_by_id(round_id: str) -> List[dict]:
-    return list(rounds_collection.find({"round_id": round_id}))
+    return list(rounds_collection.find({"RoundId": round_id}))
 
 def get_all_rounds() -> List[Tuple[str, str, str, int]]:
     raw_docs = list(rounds_collection.find({}))
     return [
-        (doc["RoundId"], doc["BarId"], doc["Player"], doc["Placement"])
+        (doc["Player"], doc["RoundId"], doc["BarName"], doc["Points"])
         for doc in raw_docs
-        if all(k in doc for k in ["RoundId", "BarId", "Player", "Placement"])
+        if all(k in doc for k in ["Player", "RoundId", "BarName", "Points"])
     ]
 
 def delete_all_round_data():
     return rounds_collection.delete_many({})
-
 
 def save_log(log_str: str):
     log_doc = {"log": log_str}
