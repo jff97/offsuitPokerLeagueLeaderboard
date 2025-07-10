@@ -47,6 +47,7 @@ def percentile_leaderboard_by_month_method():
     return percentile_leaderboard.to_string(index=False)
 
 def refresh_rounds_database():
+    log_time()
     delete_all_round_data()
     flattened_records_from_round_format = get_flat_list_of_rounds_from_api(tokens_and_names)
     store_flattened_rounds(flattened_records_from_round_format)
