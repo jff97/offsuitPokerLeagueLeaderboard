@@ -1,4 +1,4 @@
-from cosmos_handler import get_all_round_entries
+from cosmos_handler import get_all_player_round_entries
 import re
 from collections import defaultdict
 
@@ -139,7 +139,7 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
     print(f"Analysis written to {full_path}")
     
 if __name__ == "__main__":
-    rounds = get_all_round_entries() 
+    rounds = get_all_player_round_entries() 
     entries = [(r.player_name, r.bar_name) for r in rounds]
 
     write_results_to_txt(entries)

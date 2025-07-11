@@ -2,7 +2,7 @@ from dataclasses import dataclass, fields
 from typing import Dict, Any
 
 @dataclass
-class PlayerAtRoundResult:
+class PlayerRoundEntry:
     player_name: str
     round_id: str
     bar_name: str
@@ -13,7 +13,7 @@ class PlayerAtRoundResult:
         return {field.name: getattr(self, field.name) for field in fields(self)}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PlayerAtRoundResult":
+    def from_dict(cls, data: Dict[str, Any]) -> "PlayerRoundEntry":
         """Create object from dict with snake_case keys."""
         init_args = {field.name: data[field.name] for field in fields(cls)}
         return cls(**init_args)

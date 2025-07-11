@@ -1,7 +1,7 @@
 from typing import List
 from pymongo import MongoClient
 import socket
-from player_at_round_result import PlayerAtRoundResult
+from player_round_entry import PlayerRoundEntry
 
 def _is_localhost():
     try:
@@ -22,22 +22,22 @@ else:
     rounds_collection = db["pokerRoundsCollectionProd"]
     logs_collection = db["logsCollectionProd"]
 
-def store_flattened_rounds(entries: List[PlayerAtRoundResult]):
-    for entry in entries:
+def store_player_round_entries(player_round_entries: List[PlayerRoundEntry]):
+    for entry in player_round_entries:
         rounds_collection.replace_one(
             filter=entry.unique_id(),
             replacement=entry.to_dict(),
             upsert=True
         )
 
-def get_all_round_entries() -> List[PlayerAtRoundResult]:
+def get_all_player_round_entries() -> List[PlayerRoundEntry]:
     docs = list(rounds_collection.find({}))
-    return [PlayerAtRoundResult.from_dict(doc) for doc in docs]
+    return [PlayerRoundEntry.from_dict(doc) for doc in docs]
 
-def delete_all_round_data():
+def delete_all_round_data() -> None:
     return rounds_collection.delete_many({})
 
-def save_log(log_str: str):
+def save_log(log_str: str) -> None:
     log_doc = {"log": log_str}
     logs_collection.insert_one(log_doc)
 
@@ -45,5 +45,5 @@ def get_all_logs() -> List[str]:
     docs = list(logs_collection.find({}, {"_id": 0, "log": 1}))
     return [doc["log"] for doc in docs if "log" in doc]
 
-def delete_all_logs():
+def delete_all_logs() -> None:
     logs_collection.delete_many({})

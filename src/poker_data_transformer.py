@@ -2,13 +2,13 @@ import re
 from typing import List, Dict, Any
 from datetime import datetime
 from keep_the_score_api_service import fetch_board_json
-from player_at_round_result import PlayerAtRoundResult
+from player_round_entry import PlayerRoundEntry
 
-def _flatten_json_rounds_to_round_objects(rounds) -> List[PlayerAtRoundResult]:
+def _flatten_json_rounds_to_player_round_entries(rounds) -> List[PlayerRoundEntry]:
     """
     Convert a list of round documents into a flattened list of round entry objects:
     """
-    entries = []
+    player_round_entries = []
     for round_document in rounds:
         bar_name = round_document.get("bar_name", "")
         round_id = round_document.get("round_id", "")
@@ -21,14 +21,14 @@ def _flatten_json_rounds_to_round_objects(rounds) -> List[PlayerAtRoundResult]:
             raw_name = score_entry.get("name", "")
             normalized_name = _normalize_player_name(raw_name)
 
-            entry = PlayerAtRoundResult(
+            player_round_entry = PlayerRoundEntry(
                 player_name=normalized_name,
                 round_id=round_id,
                 bar_name=bar_name,
                 points=points_scored
             )
-            entries.append(entry)
-    return entries
+            player_round_entries.append(player_round_entry)
+    return player_round_entries
 
 def _fix_special_name_cases(name: str) -> str:
     """Apply specific corrections for known name inconsistencies."""
@@ -194,7 +194,7 @@ def _extract_month_from_update_date(update_date_str: str) -> str:
     except Exception:
         return "unknown_month"
 
-def get_flat_list_of_rounds_from_api(api_tokens_and_bar_names) -> List[PlayerAtRoundResult]:
+def get_list_of_player_round_entries_from_api(api_tokens_and_bar_names) -> List[PlayerRoundEntry]:
     list_of_simplified_rounds = _get_list_of_rounds(api_tokens_and_bar_names)
-    flattened_records_from_round_format = _flatten_json_rounds_to_round_objects(list_of_simplified_rounds)
+    flattened_records_from_round_format = _flatten_json_rounds_to_player_round_entries(list_of_simplified_rounds)
     return flattened_records_from_round_format

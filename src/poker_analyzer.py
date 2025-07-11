@@ -2,7 +2,7 @@ import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
 from itertools import groupby
-from player_at_round_result import PlayerAtRoundResult
+from player_round_entry import PlayerRoundEntry
 
 
 def _calculate_percentile_rank(placement: int, total_players: int) -> float:
@@ -15,15 +15,15 @@ def _calculate_percentile_rank(placement: int, total_players: int) -> float:
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
 
-def _rank_players_in_each_round(round_entries: List[PlayerAtRoundResult]) -> List[Dict[str, Any]]:
+def _rank_players_in_each_round(player_round_entries: List[PlayerRoundEntry]) -> List[Dict[str, Any]]:
 
     ranked_results = []
 
     # Sort by round_id
-    round_entries.sort(key=lambda e: e.round_id)
+    player_round_entries.sort(key=lambda e: e.round_id)
 
     # Group by round_id
-    for round_id, entries_for_round in groupby(round_entries, key=lambda e: e.round_id):
+    for round_id, entries_for_round in groupby(player_round_entries, key=lambda e: e.round_id):
         players_in_round = list(entries_for_round)
         # Sort descending by points
         players_sorted_by_points = sorted(players_in_round, key=lambda e: e.points, reverse=True)
@@ -49,14 +49,11 @@ def _rank_players_in_each_round(round_entries: List[PlayerAtRoundResult]) -> Lis
 
     return ranked_results
 
-def build_percentile_leaderboard(
-    round_entries: List[PlayerAtRoundResult],
-    min_rounds_required: int = 9
-) -> pd.DataFrame:
+def build_percentile_leaderboard(player_round_entries: List[PlayerRoundEntry], min_rounds_required: int = 9) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
     """
-    ranked_results =  _rank_players_in_each_round(round_entries)
+    ranked_results =  _rank_players_in_each_round(player_round_entries)
 
     player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
@@ -85,12 +82,12 @@ def build_percentile_leaderboard(
 
     return leaderboard_df
 
-def build_top_3_finish_rate_leaderboard(round_entries: List[PlayerAtRoundResult], min_rounds: int = 2) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(player_round_entries: List[PlayerRoundEntry], min_rounds: int = 2) -> pd.DataFrame:
     """
-  _datamodel_build_top_3_finish_rate_leaderboard  Rank and build a leaderboard showing percentage of times each player finishes in top 3.
+    Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     Only includes players with more than `min_rounds` played.
     """
-    ranked_results =  _rank_players_in_each_round(round_entries)
+    ranked_results =  _rank_players_in_each_round(player_round_entries)
 
     top3_counts = defaultdict(int)
     total_counts = defaultdict(int)

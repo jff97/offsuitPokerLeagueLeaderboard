@@ -1,7 +1,7 @@
 import csv
 import io
 from datetime import datetime
-from poker_data_transformer import _map_month_to_list_of_rounds, _flatten_json_rounds_to_round_objects
+from poker_data_transformer import _map_month_to_list_of_rounds, _flatten_json_rounds_to_player_round_entries
 
 
 def parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_name: str) -> dict:
@@ -67,7 +67,7 @@ def _get_legacy_month_as_flattened_records(month_id: str, bars: list):
         month_doc["bars"].update(entry)
 
     list_of_rounds_from_new_method = _map_month_to_list_of_rounds(month_doc)
-    flattened_rounds_from_new_method = _flatten_json_rounds_to_round_objects(list_of_rounds_from_new_method)
+    flattened_rounds_from_new_method = _flatten_json_rounds_to_player_round_entries(list_of_rounds_from_new_method)
 
     return flattened_rounds_from_new_method
 
