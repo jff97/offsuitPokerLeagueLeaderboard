@@ -1,8 +1,8 @@
 import pandas as pd
 from collections import defaultdict
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 from itertools import groupby
-from operator import itemgetter
+from round_data_object import RoundEntry
 
 
 def _calculate_percentile_rank(placement: int, total_players: int) -> float:
@@ -14,50 +14,49 @@ def _calculate_percentile_rank(placement: int, total_players: int) -> float:
         return 100.0
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
-def _rank_players_in_each_round(flat_game_records: List[Tuple[str, str, str, int]]) -> List[Dict[str, Any]]:
-    """
-    Given a combined list of flattened records, rank players per round and
-    return a list of:
-    {Player, RoundID, BarName, PercentileRank, Placement}
-    """
+
+def _rank_players_in_each_round(round_entries: List[RoundEntry]) -> List[Dict[str, Any]]:
+
     ranked_results = []
 
-    flat_game_records.sort(key=itemgetter(1))  # sort by round_id
+    # Sort by round_id
+    round_entries.sort(key=lambda e: e.round_id)
 
-    for round_id, entries_for_round in groupby(flat_game_records, key=itemgetter(1)):
+    # Group by round_id
+    for round_id, entries_for_round in groupby(round_entries, key=lambda e: e.round_id):
         players_in_round = list(entries_for_round)
-        players_sorted_by_points = sorted(players_in_round, key=lambda x: x[3], reverse=True)
+        # Sort descending by points
+        players_sorted_by_points = sorted(players_in_round, key=lambda e: e.points, reverse=True)
 
         total_players_in_round = len(players_sorted_by_points)
         point_to_placement_map = {}
 
-        for index, (player_name, _, _, player_points) in enumerate(players_sorted_by_points):
-            if player_points not in point_to_placement_map:
-                point_to_placement_map[player_points] = index + 1
+        for index, entry in enumerate(players_sorted_by_points):
+            if entry.points not in point_to_placement_map:
+                point_to_placement_map[entry.points] = index + 1
 
-        for player_name, _, bar_name, player_points in players_sorted_by_points:
-            placement_rank = point_to_placement_map[player_points]
+        for entry in players_sorted_by_points:
+            placement_rank = point_to_placement_map[entry.points]
             percentile_rank = _calculate_percentile_rank(placement_rank, total_players_in_round)
 
             ranked_results.append({
-                "Player": player_name,
-                "RoundID": round_id,
-                "BarName": bar_name,
+                "Player": entry.player,
+                "RoundID": entry.round_id,
+                "BarName": entry.bar_name,
                 "PercentileRank": percentile_rank,
                 "Placement": placement_rank
             })
 
     return ranked_results
 
-
 def build_percentile_leaderboard(
-    flat_game_records: List[Tuple[str, str, str, int]],
+    round_entries: List[RoundEntry],
     min_rounds_required: int = 9
 ) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
     """
-    ranked_results = _rank_players_in_each_round(flat_game_records)
+    ranked_results =  _rank_players_in_each_round(round_entries)
 
     player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
@@ -86,13 +85,12 @@ def build_percentile_leaderboard(
 
     return leaderboard_df
 
-
-def build_top_3_finish_rate_leaderboard(flat_game_records: List[Tuple[str, str, str, int]], min_rounds: int = 2) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(round_entries: List[RoundEntry], min_rounds: int = 2) -> pd.DataFrame:
     """
-    Rank and build a leaderboard showing percentage of times each player finishes in top 3.
-    Only includes players with more than `min_rounds` rounds.
+  _datamodel_build_top_3_finish_rate_leaderboard  Rank and build a leaderboard showing percentage of times each player finishes in top 3.
+    Only includes players with more than `min_rounds` played.
     """
-    ranked_results = _rank_players_in_each_round(flat_game_records)
+    ranked_results =  _rank_players_in_each_round(round_entries)
 
     top3_counts = defaultdict(int)
     total_counts = defaultdict(int)

@@ -1,7 +1,7 @@
 import csv
 import io
 from datetime import datetime
-from poker_data_transformer import _map_month_to_list_of_rounds, _flatten_rounds_to_tuples, flatten_months_to_tuples
+from poker_data_transformer import _map_month_to_list_of_rounds, _flatten_json_rounds_to_round_objects
 from keep_the_score_api_service import fetch_board_json
 import json
 
@@ -89,13 +89,9 @@ def get_legacy_month_as_flattened_records(month_id: str, bars: list):
 
     #printthingy(month_doc)
     list_of_rounds_from_new_method = _map_month_to_list_of_rounds(month_doc)
-    flattened_rounds_from_new_method = _flatten_rounds_to_tuples(list_of_rounds_from_new_method)
+    flattened_rounds_from_new_method = _flatten_json_rounds_to_round_objects(list_of_rounds_from_new_method)
 
-    flattened_rounds_from_old_method = flatten_months_to_tuples([month_doc])
-
-    return (flattened_rounds_from_new_method, flattened_rounds_from_old_method)
-    
-
+    return flattened_rounds_from_new_method
 
 def printthingy(month_doc): 
     output_path = "month_doc.json"
@@ -107,9 +103,8 @@ def printthingy(month_doc):
            ensure_ascii=False
         )
     print(f"Month document written to {output_path}")
-# -----------------------------
-# CSV literal functions below
-# -----------------------------
+
+
 
 def get_csv_literal_bar_alibi() -> str:
     return """
@@ -430,27 +425,26 @@ def get_csv_literal_bar_witts() -> str:
 """
 
 
-def migrate_start():
-    month_id = "202506"  # YYYYMM
+def get_june_data_as_rounds():
+    month_id = "202506"
 
     bars = [
-        ("qdtgqhtjkrtpe", "The Alibi",            get_csv_literal_bar_alibi()),
-        ("pwtmrylcjnjye", "Anticipation", get_csv_literal_bar_anticipationsun()),
-        ("fakeanticipationtuesdayapitoken","Anticipation Tues", get_csv_literal_bar_anticipationtues()),
-        ("zyqphgqxppcde",    "Brickyard Pub",        get_csv_literal_bar_brickyard()),
-        ("xpwtrdfsvdtce",     "Chatter's",         get_csv_literal_bar_chatters()),
-        ("jykjlbzxzkqye",  "Cork N Barrel",    get_csv_literal_bar_corknbarrel()),
-        ("pcynjwvnvgqme",        "HOSED ON BRADY",   get_csv_literal_bar_hosed()),
-        ("khptcxdgnpnbe",     "Lakeside Pub & Grill",         get_csv_literal_bar_lakeside()),
-        ("vvkcftdnvdvge",       "LAYTON HEIGHTS",           get_csv_literal_bar_layton()),
-        ("czyvrxfdrjbye",     "Mavericks ",         get_csv_literal_bar_mavricks()),
-        ("ybmwcqckckdhe",   "South Bound Again",       get_csv_literal_bar_southbound()),
-        ("tbyyvqmpjsvke",        "Tiny's A Neighborhood Sports Tavern",            get_csv_literal_bar_tinys()),
-        ("jkhwxjkpxycle",        "WITTS END",            get_csv_literal_bar_witts()),
+        ("qdtgqhtjkrtpe", "legacyThe Alibi",            get_csv_literal_bar_alibi()),
+        ("pwtmrylcjnjye", "legacyAnticipation", get_csv_literal_bar_anticipationsun()),
+        ("fakeanticipationtuesdayapitoken","legacyAnticipation Tues", get_csv_literal_bar_anticipationtues()),
+        ("zyqphgqxppcde",    "legacyBrickyard Pub",        get_csv_literal_bar_brickyard()),
+        ("xpwtrdfsvdtce",     "legacyChatter's",         get_csv_literal_bar_chatters()),
+        ("jykjlbzxzkqye",  "legacyCork N Barrel",    get_csv_literal_bar_corknbarrel()),
+        ("pcynjwvnvgqme",        "legacyHOSED ON BRADY",   get_csv_literal_bar_hosed()),
+        ("khptcxdgnpnbe",     "legacyLakeside Pub & Grill",         get_csv_literal_bar_lakeside()),
+        ("vvkcftdnvdvge",       "legacyLAYTON HEIGHTS",           get_csv_literal_bar_layton()),
+        ("czyvrxfdrjbye",     "legacyMavericks ",         get_csv_literal_bar_mavricks()),
+        ("ybmwcqckckdhe",   "legacySouth Bound Again",       get_csv_literal_bar_southbound()),
+        ("tbyyvqmpjsvke",        "legacyTiny's A Neighborhood Sports Tavern",            get_csv_literal_bar_tinys()),
+        ("jkhwxjkpxycle",        "legacyWITTS END",            get_csv_literal_bar_witts()),
     ]
-    #get_all_json_from_api_for_informational_purposes(bars)
 
     return get_legacy_month_as_flattened_records(month_id, bars)
 
 if __name__ == "__main__":
-    migrate_start()
+    get_june_data_as_rounds()

@@ -1,10 +1,8 @@
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-#legacy method
-from src.tester import percentile_leaderboard_by_month_method, placement_leaderboard_by_month_method
 #new round granular methods
-from src.tester import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds_no_round_limit, refresh_rounds_database
+from src.tester import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, refresh_rounds_database, get_percentile_leaderboard_from_rounds_no_round_limit
 from src.tester import get_all_logs_to_display_for_api, delete_logs
 from flask import Flask, Response
 
@@ -13,17 +11,6 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return Response("<h1>Hello this is the default endpoint for johns api</h1>", mimetype='text/html')
-
-@app.route('/percentileleaderboardmonths')
-def monthspercentile():
-    csv_string = percentile_leaderboard_by_month_method()
-    return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
-
-@app.route('/placementleaderboardmonths')
-def monthsplacement():
-    csv_string = placement_leaderboard_by_month_method()
-    return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
-
 
 @app.route('/placementleaderboard')
 def placement():

@@ -1,15 +1,14 @@
 import re
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 from datetime import datetime
 from keep_the_score_api_service import fetch_board_json
+from round_data_object import RoundEntry
 
-def _flatten_rounds_to_tuples(rounds):
+def _flatten_json_rounds_to_round_objects(rounds) -> List[RoundEntry]:
     """
-    Convert a list of round documents into a flat list of tuples:
-    (player_name, round_id, bar_name, points_scored)
+    Convert a list of round documents into a flattened list of round entry objects:
     """
-    all_flat_game_records = []
-
+    entries = []
     for round_document in rounds:
         bar_name = round_document.get("bar_name", "")
         round_id = round_document.get("round_id", "")
@@ -18,39 +17,18 @@ def _flatten_rounds_to_tuples(rounds):
         for score_entry in scores_list:
             points_scored = score_entry.get("points", 0)
             if points_scored == 0:
-                continue  # skip players with 0 points
+                continue
             raw_name = score_entry.get("name", "")
             normalized_name = _normalize_player_name(raw_name)
 
-            all_flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
-
-    return all_flat_game_records
-
-def flatten_months_to_tuples(month_jsons: List[Dict[str, Any]]) -> List[Tuple[str, str, str, int]]:
-    """
-    Convert multiple nested JSON month responses into a combined flat list:
-    (player_name, round_id, bar_name, points_scored)
-    """
-    all_flat_game_records = []
-
-    for raw_json_data in month_jsons:
-        if not raw_json_data or "bars" not in raw_json_data:
-            print("error one of the months is not returning data")
-            continue  # Skip invalid or empty month JSON
-        for bar_token, bar_details in raw_json_data["bars"].items():
-            bar_name = bar_details["bar_name"]
-
-            for round_info in bar_details["rounds"]:
-                round_id = round_info["round_id"]
-
-                for score_entry in round_info["scores"]:
-                    points_scored = score_entry["points"]
-                    if points_scored == 0:
-                        continue  #  Skip players with 0 points (like original script)
-                    normalized_name = _normalize_player_name(score_entry["name"])
-                    all_flat_game_records.append((normalized_name, round_id, bar_name, points_scored))
-
-    return all_flat_game_records
+            entry = RoundEntry(
+                player=normalized_name,
+                round_id=round_id,
+                bar_name=bar_name,
+                points=points_scored
+            )
+            entries.append(entry)
+    return entries
 
 def _fix_special_name_cases(name: str) -> str:
     """Apply specific corrections for known name inconsistencies."""
@@ -78,7 +56,7 @@ def _normalize_player_name(raw_name: str) -> str:
     name = re.sub(r'\s+', ' ', name).strip()
     return _fix_special_name_cases(name)
 
-def _map_month_to_list_of_rounds(monthly_data):
+def _map_month_to_list_of_rounds(monthly_data) -> List[Dict[str, Any]]:
     flattened_rounds = []
 
     general_month_info = {}
@@ -216,10 +194,7 @@ def _extract_month_from_update_date(update_date_str: str) -> str:
     except Exception:
         return "unknown_month"
 
-def get_flat_list_of_rounds_from_api(api_tokens_and_bar_names):
+def get_flat_list_of_rounds_from_api(api_tokens_and_bar_names) -> List[RoundEntry]:
     list_of_simplified_rounds = _get_list_of_rounds(api_tokens_and_bar_names)
-    flattened_records_from_round_format = _flatten_rounds_to_tuples(list_of_simplified_rounds)
+    flattened_records_from_round_format = _flatten_json_rounds_to_round_objects(list_of_simplified_rounds)
     return flattened_records_from_round_format
-
-def legacy_month_list_of_rounds_getter(api_tokens_and_bar_names):
-    return flatten_months_to_tuples([get_simplified_month_json(api_tokens_and_bar_names)])

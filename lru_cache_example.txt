@@ -1,0 +1,22 @@
+# data_layer.py
+_users_db = {}  # simple in-memory "database"
+
+def fetch_user_from_db(user_id):
+    return _users_db.get(user_id)
+
+def store_user_to_db(user_id, user_data):
+    _users_db[user_id] = user_data
+
+
+# service_layer.py
+from functools import lru_cache
+from data_layer import fetch_user_from_db, store_user_to_db
+
+@lru_cache(maxsize=256)
+def get_user_profile(user_id):
+    return fetch_user_from_db(user_id)
+
+def store_user_profile(user_id, user_data):
+    store_user_to_db(user_id, user_data)
+    # Clear cache to avoid stale reads
+    get_user_profile.cache_clear()

@@ -10,3 +10,4 @@ def fetch_board_json(token: str) -> dict:
         return response.json()
     except requests.RequestException as e:
         return {"error": str(e)}
+    

@@ -1,6 +1,7 @@
+from typing import List
 from pymongo import MongoClient
 import socket
-from typing import List, Tuple
+from round_data_object import RoundEntry
 
 def _is_localhost():
     try:
@@ -21,35 +22,21 @@ else:
     rounds_collection = db["pokerRoundsCollectionProd"]
     logs_collection = db["logsCollectionProd"]
 
-def store_flattened_rounds(list_of_rounds: List[Tuple[str, str, str, int]]):
-    for r in list_of_rounds:
-        # (player_name, round_id, bar_name, points_scored)
-        round_doc = {
-            "Player": r[0],   # player_name
-            "RoundId": r[1],  # round_id
-            "BarName": r[2],    # bar_name
-            "Points": r[3],   # points_scored
-        }
+def store_flattened_rounds(entries: List[RoundEntry]):
+    for entry in entries:
         rounds_collection.replace_one(
-            {
-                "Player": round_doc["Player"],
-                "RoundId": round_doc["RoundId"],
-                "BarName": round_doc["BarName"]
-            },
-            round_doc,
+            filter=entry.unique_id(),
+            replacement=entry.to_dict(),
             upsert=True
         )
 
-def get_round_by_id(round_id: str) -> List[dict]:
-    return list(rounds_collection.find({"RoundId": round_id}))
+def get_all_round_entries() -> List[RoundEntry]:
+    docs = list(rounds_collection.find({}))
+    return [RoundEntry.from_dict(doc) for doc in docs]
 
-def get_all_rounds() -> List[Tuple[str, str, str, int]]:
-    raw_docs = list(rounds_collection.find({}))
-    return [
-        (doc["Player"], doc["RoundId"], doc["BarName"], doc["Points"])
-        for doc in raw_docs
-        if all(k in doc for k in ["Player", "RoundId", "BarName", "Points"])
-    ]
+def get_round_entries_by_id(round_id: str) -> List[RoundEntry]:
+    docs = list(rounds_collection.find({"RoundId": round_id}))
+    return [RoundEntry.from_dict(doc) for doc in docs]
 
 def delete_all_round_data():
     return rounds_collection.delete_many({})
