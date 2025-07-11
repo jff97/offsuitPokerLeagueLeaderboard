@@ -2,7 +2,6 @@ from cosmos_handler import get_all_round_entries
 import re
 from collections import defaultdict
 
-
 # my steps i think are 
 # 1. do all non legacy add last names manually in website for current month
 # 2. re run list make sure we got them all and do 1 again if needed
@@ -75,6 +74,7 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
     Write the analysis results to a text file with columns:
     Name | Bars it appears at | Action | Related info (if any)
     """
+    import os
     # Adjustable column widths
     name_col_width = 15
     bars_col_width = 125
@@ -88,7 +88,6 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
         norm = normalize(player)
         norm_to_orig_bar[norm].add((player, bar))
 
-
     items = []
 
     # Separate entries by action for nicer output order
@@ -100,8 +99,15 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
         if action != "KEEP":
             items.append((norm_name, action, related, player_bar_list))
 
-    with open(filename, "w") as f:
-       
+    # Determine folder path relative to this file
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(base_dir, "temp")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Full file path
+    full_path = os.path.join(output_dir, filename)
+
+    with open(full_path, "w") as f:
         # Write entries with related info
         for norm_name, action, related, player_bar_list in items:
             bars = sorted({bar for _, bar in player_bar_list})
@@ -130,9 +136,11 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
 
             f.write(line + "\n")
 
+    print(f"Analysis written to {full_path}")
+    
 if __name__ == "__main__":
     rounds = get_all_round_entries() 
-    entries = [(r.player, r.bar_name) for r in rounds]
+    entries = [(r.player_name, r.bar_name) for r in rounds]
 
     write_results_to_txt(entries)
     print("Analysis written to ambiguous_names_analysis.txt")

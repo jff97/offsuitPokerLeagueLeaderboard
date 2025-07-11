@@ -2,7 +2,7 @@ import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
 from itertools import groupby
-from round_data_object import RoundEntry
+from player_at_round_result import PlayerAtRoundResult
 
 
 def _calculate_percentile_rank(placement: int, total_players: int) -> float:
@@ -15,7 +15,7 @@ def _calculate_percentile_rank(placement: int, total_players: int) -> float:
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
 
-def _rank_players_in_each_round(round_entries: List[RoundEntry]) -> List[Dict[str, Any]]:
+def _rank_players_in_each_round(round_entries: List[PlayerAtRoundResult]) -> List[Dict[str, Any]]:
 
     ranked_results = []
 
@@ -40,7 +40,7 @@ def _rank_players_in_each_round(round_entries: List[RoundEntry]) -> List[Dict[st
             percentile_rank = _calculate_percentile_rank(placement_rank, total_players_in_round)
 
             ranked_results.append({
-                "Player": entry.player,
+                "Player": entry.player_name,
                 "RoundID": entry.round_id,
                 "BarName": entry.bar_name,
                 "PercentileRank": percentile_rank,
@@ -50,7 +50,7 @@ def _rank_players_in_each_round(round_entries: List[RoundEntry]) -> List[Dict[st
     return ranked_results
 
 def build_percentile_leaderboard(
-    round_entries: List[RoundEntry],
+    round_entries: List[PlayerAtRoundResult],
     min_rounds_required: int = 9
 ) -> pd.DataFrame:
     """
@@ -85,7 +85,7 @@ def build_percentile_leaderboard(
 
     return leaderboard_df
 
-def build_top_3_finish_rate_leaderboard(round_entries: List[RoundEntry], min_rounds: int = 2) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(round_entries: List[PlayerAtRoundResult], min_rounds: int = 2) -> pd.DataFrame:
     """
   _datamodel_build_top_3_finish_rate_leaderboard  Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     Only includes players with more than `min_rounds` played.

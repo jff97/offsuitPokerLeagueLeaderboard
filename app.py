@@ -1,9 +1,9 @@
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-#new round granular methods
-from src.tester import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, refresh_rounds_database, get_percentile_leaderboard_from_rounds_no_round_limit
-from src.tester import get_all_logs_to_display_for_api, delete_logs
+#new player entry in round granular methods
+from src.api_service import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, refresh_rounds_database, get_percentile_leaderboard_from_rounds_no_round_limit
+from src.api_service import get_all_logs_to_display_for_api, delete_logs
 from flask import Flask, Response
 
 app = Flask(__name__)

@@ -1,7 +1,7 @@
 from typing import List
 from pymongo import MongoClient
 import socket
-from round_data_object import RoundEntry
+from player_at_round_result import PlayerAtRoundResult
 
 def _is_localhost():
     try:
@@ -22,7 +22,7 @@ else:
     rounds_collection = db["pokerRoundsCollectionProd"]
     logs_collection = db["logsCollectionProd"]
 
-def store_flattened_rounds(entries: List[RoundEntry]):
+def store_flattened_rounds(entries: List[PlayerAtRoundResult]):
     for entry in entries:
         rounds_collection.replace_one(
             filter=entry.unique_id(),
@@ -30,13 +30,9 @@ def store_flattened_rounds(entries: List[RoundEntry]):
             upsert=True
         )
 
-def get_all_round_entries() -> List[RoundEntry]:
+def get_all_round_entries() -> List[PlayerAtRoundResult]:
     docs = list(rounds_collection.find({}))
-    return [RoundEntry.from_dict(doc) for doc in docs]
-
-def get_round_entries_by_id(round_id: str) -> List[RoundEntry]:
-    docs = list(rounds_collection.find({"RoundId": round_id}))
-    return [RoundEntry.from_dict(doc) for doc in docs]
+    return [PlayerAtRoundResult.from_dict(doc) for doc in docs]
 
 def delete_all_round_data():
     return rounds_collection.delete_many({})

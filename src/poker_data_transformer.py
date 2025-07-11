@@ -2,9 +2,9 @@ import re
 from typing import List, Dict, Any
 from datetime import datetime
 from keep_the_score_api_service import fetch_board_json
-from round_data_object import RoundEntry
+from player_at_round_result import PlayerAtRoundResult
 
-def _flatten_json_rounds_to_round_objects(rounds) -> List[RoundEntry]:
+def _flatten_json_rounds_to_round_objects(rounds) -> List[PlayerAtRoundResult]:
     """
     Convert a list of round documents into a flattened list of round entry objects:
     """
@@ -21,8 +21,8 @@ def _flatten_json_rounds_to_round_objects(rounds) -> List[RoundEntry]:
             raw_name = score_entry.get("name", "")
             normalized_name = _normalize_player_name(raw_name)
 
-            entry = RoundEntry(
-                player=normalized_name,
+            entry = PlayerAtRoundResult(
+                player_name=normalized_name,
                 round_id=round_id,
                 bar_name=bar_name,
                 points=points_scored
@@ -194,7 +194,7 @@ def _extract_month_from_update_date(update_date_str: str) -> str:
     except Exception:
         return "unknown_month"
 
-def get_flat_list_of_rounds_from_api(api_tokens_and_bar_names) -> List[RoundEntry]:
+def get_flat_list_of_rounds_from_api(api_tokens_and_bar_names) -> List[PlayerAtRoundResult]:
     list_of_simplified_rounds = _get_list_of_rounds(api_tokens_and_bar_names)
     flattened_records_from_round_format = _flatten_json_rounds_to_round_objects(list_of_simplified_rounds)
     return flattened_records_from_round_format

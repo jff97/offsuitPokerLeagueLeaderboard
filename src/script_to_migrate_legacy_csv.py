@@ -2,8 +2,6 @@ import csv
 import io
 from datetime import datetime
 from poker_data_transformer import _map_month_to_list_of_rounds, _flatten_json_rounds_to_round_objects
-from keep_the_score_api_service import fetch_board_json
-import json
 
 
 def parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_name: str) -> dict:
@@ -57,26 +55,7 @@ def parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_nam
         }
     }
 
-def get_all_json_from_api_for_informational_purposes(bars: list):
-    import os
-
-    output_dir = "api_json_output"
-    os.makedirs(output_dir, exist_ok=True)
-
-    filename = f"api_dump_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
-    filepath = os.path.join(output_dir, filename)
-
-    with open(filepath, 'w', encoding='utf-8') as file:
-        for bar_token, bar_name, csv_data in bars:
-            try:
-                json_data = fetch_board_json(bar_token)
-                file.write(json.dumps(json_data, ensure_ascii=False, indent=2))
-                file.write('\n\n')  # Separate entries with a blank line
-            except Exception as e:
-                print(f"Error fetching data for {bar_name}: {e}")
-
-
-def get_legacy_month_as_flattened_records(month_id: str, bars: list):
+def _get_legacy_month_as_flattened_records(month_id: str, bars: list):
     month_doc = {
         "_id": month_id,
         "month": f"{month_id[:4]}-{month_id[4:]}",
@@ -87,24 +66,10 @@ def get_legacy_month_as_flattened_records(month_id: str, bars: list):
         entry = parse_csv_to_bar_entry(csv_data, month_id, bar_token, bar_name)
         month_doc["bars"].update(entry)
 
-    #printthingy(month_doc)
     list_of_rounds_from_new_method = _map_month_to_list_of_rounds(month_doc)
     flattened_rounds_from_new_method = _flatten_json_rounds_to_round_objects(list_of_rounds_from_new_method)
 
     return flattened_rounds_from_new_method
-
-def printthingy(month_doc): 
-    output_path = "month_doc.json"
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(
-           month_doc,
-           f,
-           indent=2,
-           ensure_ascii=False
-        )
-    print(f"Month document written to {output_path}")
-
-
 
 def get_csv_literal_bar_alibi() -> str:
     return """
@@ -444,7 +409,7 @@ def get_june_data_as_rounds():
         ("jkhwxjkpxycle",        "legacyWITTS END",            get_csv_literal_bar_witts()),
     ]
 
-    return get_legacy_month_as_flattened_records(month_id, bars)
+    return _get_legacy_month_as_flattened_records(month_id, bars)
 
 if __name__ == "__main__":
     get_june_data_as_rounds()

@@ -2,9 +2,9 @@ from poker_data_transformer import get_flat_list_of_rounds_from_api
 
 from cosmos_handler import store_flattened_rounds, delete_all_round_data, save_log, get_all_logs, delete_all_logs, get_all_round_entries
 
-from poker_analyzer2 import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
+from poker_analyzer import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
 from script_to_migrate_legacy_csv import get_june_data_as_rounds
-from round_data_object import RoundEntry
+from player_at_round_result import PlayerAtRoundResult
 
 from typing import List
 from datetime import datetime
@@ -59,7 +59,7 @@ def get_placement_leaderboard_from_rounds():
     top3_leaderboard = build_top_3_finish_rate_leaderboard(round_entries)
     return top3_leaderboard.to_string(index=False)
 
-def _compare_flattened_records(new_rounds: List[RoundEntry], old_rounds: List[RoundEntry]):
+def _compare_flattened_records(new_rounds: List[PlayerAtRoundResult], old_rounds: List[PlayerAtRoundResult]):
     set_new = set(new_rounds)
     set_old = set(old_rounds)
     print(f"New records count: {len(set(new_rounds))}, Old records count: {len(set(old_rounds))}")
