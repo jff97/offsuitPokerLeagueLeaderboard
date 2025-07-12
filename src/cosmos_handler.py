@@ -1,7 +1,7 @@
 from typing import List
 from pymongo import MongoClient
 import socket
-from player_round_entry import PlayerRoundEntry
+from round import Round
 
 def _is_localhost():
     try:
@@ -22,17 +22,17 @@ else:
     rounds_collection = db["pokerRoundsCollectionProd"]
     logs_collection = db["logsCollectionProd"]
 
-def store_player_round_entries(player_round_entries: List[PlayerRoundEntry]):
-    for entry in player_round_entries:
+def store_rounds(rounds: List[Round]):
+    for round_obj in rounds:
         rounds_collection.replace_one(
-            filter=entry.unique_id(),
-            replacement=entry.to_dict(),
+            filter=round_obj.unique_id(),
+            replacement=round_obj.to_dict(),
             upsert=True
         )
 
-def get_all_player_round_entries() -> List[PlayerRoundEntry]:
+def get_all_rounds() -> List[Round]:
     docs = list(rounds_collection.find({}))
-    return [PlayerRoundEntry.from_dict(doc) for doc in docs]
+    return [Round.from_dict(doc) for doc in docs]
 
 def delete_all_round_data() -> None:
     return rounds_collection.delete_many({})
@@ -47,3 +47,34 @@ def get_all_logs() -> List[str]:
 
 def delete_all_logs() -> None:
     logs_collection.delete_many({})
+
+def main():
+    """Print 10 rounds from the database for testing purposes."""
+    try:
+        rounds = get_all_rounds()
+        print(f"Total rounds in database: {len(rounds)}")
+        print("\nFirst 10 rounds:")
+        print("-" * 80)
+        
+        for i, round_obj in enumerate(rounds[:10]):
+            print(f"\nRound {i+1}:")
+            print(f"  ID: {round_obj.round_id}")
+            print(f"  Bar: {round_obj.bar_name}")
+            print(f"  Date: {round_obj.date}")
+            print(f"  Players ({len(round_obj.players)}):")
+            
+            # Sort players by points descending for better readability
+            sorted_players = sorted(round_obj.players, key=lambda p: p.points, reverse=True)
+            for j, player in enumerate(sorted_players):
+                print(f"    {j+1}. {player.player_name}: {player.points} points")
+        
+        if len(rounds) == 0:
+            print("No rounds found in database.")
+        elif len(rounds) > 10:
+            print(f"\n... and {len(rounds) - 10} more rounds")
+            
+    except Exception as e:
+        print(f"Error retrieving rounds: {e}")
+
+if __name__ == "__main__":
+    main()

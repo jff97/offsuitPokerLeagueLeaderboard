@@ -1,8 +1,7 @@
 import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
-from itertools import groupby
-from player_round_entry import PlayerRoundEntry
+from round import Round
 
 
 def _calculate_percentile_rank(placement: int, total_players: int) -> float:
@@ -15,45 +14,40 @@ def _calculate_percentile_rank(placement: int, total_players: int) -> float:
     return round((1 - (placement - 1) / (total_players - 1)) * 100, 2)
 
 
-def _rank_players_in_each_round(player_round_entries: List[PlayerRoundEntry]) -> List[Dict[str, Any]]:
+def _rank_players_in_each_round(rounds: List[Round]) -> List[Dict[str, Any]]:
 
     ranked_results = []
 
-    # Sort by round_id
-    player_round_entries.sort(key=lambda e: e.round_id)
-
-    # Group by round_id
-    for round_id, entries_for_round in groupby(player_round_entries, key=lambda e: e.round_id):
-        players_in_round = list(entries_for_round)
-        # Sort descending by points
-        players_sorted_by_points = sorted(players_in_round, key=lambda e: e.points, reverse=True)
-
+    for round_obj in rounds:
+        # Sort players by points descending
+        players_sorted_by_points = sorted(round_obj.players, key=lambda p: p.points, reverse=True)
+        
         total_players_in_round = len(players_sorted_by_points)
         point_to_placement_map = {}
 
-        for index, entry in enumerate(players_sorted_by_points):
-            if entry.points not in point_to_placement_map:
-                point_to_placement_map[entry.points] = index + 1
+        for index, player in enumerate(players_sorted_by_points):
+            if player.points not in point_to_placement_map:
+                point_to_placement_map[player.points] = index + 1
 
-        for entry in players_sorted_by_points:
-            placement_rank = point_to_placement_map[entry.points]
+        for player in players_sorted_by_points:
+            placement_rank = point_to_placement_map[player.points]
             percentile_rank = _calculate_percentile_rank(placement_rank, total_players_in_round)
 
             ranked_results.append({
-                "Player": entry.player_name,
-                "RoundID": entry.round_id,
-                "BarName": entry.bar_name,
+                "Player": player.player_name,
+                "RoundID": round_obj.round_id,
+                "BarName": round_obj.bar_name,
                 "PercentileRank": percentile_rank,
                 "Placement": placement_rank
             })
 
     return ranked_results
 
-def build_percentile_leaderboard(player_round_entries: List[PlayerRoundEntry], min_rounds_required: int = 9) -> pd.DataFrame:
+def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int = 9) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
     """
-    ranked_results =  _rank_players_in_each_round(player_round_entries)
+    ranked_results = _rank_players_in_each_round(rounds)
 
     player_aggregate_stats = defaultdict(lambda: {"TotalPercentile": 0, "RoundsPlayed": 0})
 
@@ -82,12 +76,12 @@ def build_percentile_leaderboard(player_round_entries: List[PlayerRoundEntry], m
 
     return leaderboard_df
 
-def build_top_3_finish_rate_leaderboard(player_round_entries: List[PlayerRoundEntry], min_rounds: int = 2) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(rounds: List[Round], min_rounds: int = 2) -> pd.DataFrame:
     """
     Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     Only includes players with more than `min_rounds` played.
     """
-    ranked_results =  _rank_players_in_each_round(player_round_entries)
+    ranked_results = _rank_players_in_each_round(rounds)
 
     top3_counts = defaultdict(int)
     total_counts = defaultdict(int)

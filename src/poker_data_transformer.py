@@ -2,18 +2,21 @@ import re
 from typing import List, Dict, Any
 from datetime import datetime
 from keep_the_score_api_service import fetch_board_json
-from player_round_entry import PlayerRoundEntry
+from round import Round
+from player_score import PlayerScore
 
-def _flatten_json_rounds_to_player_round_entries(rounds) -> List[PlayerRoundEntry]:
+def _convert_json_rounds_to_round_objects(rounds) -> List[Round]:
     """
-    Convert a list of round documents into a flattened list of round entry objects:
+    Convert a list of round documents into Round objects.
     """
-    player_round_entries = []
+    round_objects = []
     for round_document in rounds:
         bar_name = round_document.get("bar_name", "")
         round_id = round_document.get("round_id", "")
+        date = round_document.get("date", "")
         scores_list = round_document.get("scores", [])
 
+        players = []
         for score_entry in scores_list:
             points_scored = score_entry.get("points", 0)
             if points_scored == 0:
@@ -21,14 +24,20 @@ def _flatten_json_rounds_to_player_round_entries(rounds) -> List[PlayerRoundEntr
             raw_name = score_entry.get("name", "")
             normalized_name = _normalize_player_name(raw_name)
 
-            player_round_entry = PlayerRoundEntry(
+            player_score = PlayerScore(
                 player_name=normalized_name,
-                round_id=round_id,
-                bar_name=bar_name,
                 points=points_scored
             )
-            player_round_entries.append(player_round_entry)
-    return player_round_entries
+            players.append(player_score)
+
+        round_obj = Round(
+            round_id=round_id,
+            bar_name=bar_name,
+            date=date,
+            players=tuple(players)
+        )
+        round_objects.append(round_obj)
+    return round_objects
 
 def _fix_special_name_cases(name: str) -> str:
     """Apply specific corrections for known name inconsistencies."""
@@ -194,7 +203,7 @@ def _extract_month_from_update_date(update_date_str: str) -> str:
     except Exception:
         return "unknown_month"
 
-def get_list_of_player_round_entries_from_api(api_tokens_and_bar_names) -> List[PlayerRoundEntry]:
+def get_list_of_rounds_from_api(api_tokens_and_bar_names) -> List[Round]:
     list_of_simplified_rounds = _get_list_of_rounds(api_tokens_and_bar_names)
-    flattened_records_from_round_format = _flatten_json_rounds_to_player_round_entries(list_of_simplified_rounds)
-    return flattened_records_from_round_format
+    round_objects = _convert_json_rounds_to_round_objects(list_of_simplified_rounds)
+    return round_objects
