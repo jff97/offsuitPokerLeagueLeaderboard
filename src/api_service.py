@@ -1,10 +1,10 @@
 from poker_data_transformer import get_list_of_rounds_from_api
 
-from cosmos_handler import store_rounds, delete_all_round_data, save_logs, get_all_logs, delete_all_logs, get_all_rounds, delete_all_warnings, save_warnings, get_all_warnings
+from cosmos_handler import store_rounds, delete_all_round_data, get_all_logs, delete_all_logs, get_all_rounds, delete_all_warnings, save_warnings, get_all_warnings
 
 from poker_analyzer import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
 from script_to_migrate_legacy_csv import get_june_data_as_rounds
-from round import Round
+from poker_datamodel import Round
 import name_tools
 
 from typing import List
@@ -26,9 +26,9 @@ tokens_and_names = [
 
 def check_and_log_flagged_player_names():
     """Check for name clashes in player data and save as warnings."""
-    delete_all_warnings()
     rounds = get_all_rounds()
     name_clashes = name_tools.detect_name_clashes(rounds)
+    delete_all_warnings()
     if name_clashes:
         save_warnings(name_clashes)
 

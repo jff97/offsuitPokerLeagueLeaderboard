@@ -7,7 +7,7 @@ from collections import defaultdict
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from round import Round
+from poker_datamodel import Round
 from cosmos_handler import get_all_rounds
 
 def _is_name_formatted_correct(name: str) -> bool:

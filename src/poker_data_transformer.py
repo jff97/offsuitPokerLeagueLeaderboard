@@ -2,8 +2,7 @@ import re
 from typing import List, Dict, Any
 from datetime import datetime
 from keep_the_score_api_service import fetch_board_json
-from round import Round
-from player_score import PlayerScore
+from poker_datamodel import Round, PlayerScore
 
 def _convert_json_rounds_to_round_objects(rounds) -> List[Round]:
     """

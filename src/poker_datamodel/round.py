@@ -1,6 +1,6 @@
 from dataclasses import dataclass, fields
 from typing import Dict, Any, Tuple
-from player_score import PlayerScore
+from .player_score import PlayerScore
 
 @dataclass(frozen=True)
 class Round:
