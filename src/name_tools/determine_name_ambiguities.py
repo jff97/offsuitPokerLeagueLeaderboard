@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from cosmos_handler import get_all_rounds
 import re
 from collections import defaultdict
@@ -69,12 +72,40 @@ def determine_name_actions(entries):
 
     return name_actions
 
-def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
+
+def get_sorted_line_items(name_actions, show_keeps):
+    items = []
+
+    # Separate entries by action for nicer output order
+    for norm_name, (action, related, player_bar_list) in sorted(name_actions.items()):
+        if action == "KEEP" and show_keeps:
+            items.append((norm_name, action, related, player_bar_list))
+    
+    for norm_name, (action, related, player_bar_list) in sorted(name_actions.items()):
+        if action == "ADD_LAST_NAME":
+            items.append((norm_name, action, related, player_bar_list))
+        
+    for norm_name, (action, related, player_bar_list) in sorted(name_actions.items()):
+        if action != "KEEP" and action != "ADD_LAST_NAME":
+            items.append((norm_name, action, related, player_bar_list))
+    return items
+
+def get_output_file_path():
+    import os
+    # Determine folder path relative to this file
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_dir = os.path.join(base_dir, "temp")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Full file path
+    return os.path.join(output_dir, "ambiguous_names_analysis.txt")
+
+def write_results_to_txt(entries, show_keeps = True):
     """
     Write the analysis results to a text file with columns:
     Name | Bars it appears at | Action | Related info (if any)
     """
-    import os
+    
     # Adjustable column widths
     name_col_width = 15
     bars_col_width = 125
@@ -88,26 +119,11 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
         norm = normalize(player)
         norm_to_orig_bar[norm].add((player, bar))
 
-    items = []
+    items = get_sorted_line_items(name_actions, show_keeps)
 
-    # Separate entries by action for nicer output order
-    for norm_name, (action, related, player_bar_list) in sorted(name_actions.items()):
-        if action == "KEEP":
-            items.append((norm_name, action, related, player_bar_list))
+    output_file_path = get_output_file_path()
 
-    for norm_name, (action, related, player_bar_list) in sorted(name_actions.items()):
-        if action != "KEEP":
-            items.append((norm_name, action, related, player_bar_list))
-
-    # Determine folder path relative to this file
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(base_dir, "temp")
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Full file path
-    full_path = os.path.join(output_dir, filename)
-
-    with open(full_path, "w") as f:
+    with open(output_file_path, "w") as f:
         # Write entries with related info
         for norm_name, action, related, player_bar_list in items:
             bars = sorted({bar for _, bar in player_bar_list})
@@ -136,7 +152,7 @@ def write_results_to_txt(entries, filename="ambiguous_names_analysis.txt"):
 
             f.write(line + "\n")
 
-    print(f"Analysis written to {full_path}")
+    print(f"Analysis written to {output_file_path}")
     
 if __name__ == "__main__":
     rounds = get_all_rounds() 
@@ -146,5 +162,5 @@ if __name__ == "__main__":
         for player in round_obj.players:
             entries.append((player.player_name, round_obj.bar_name))
 
-    write_results_to_txt(entries)
+    write_results_to_txt(entries, True)
     print("Analysis written to ambiguous_names_analysis.txt")

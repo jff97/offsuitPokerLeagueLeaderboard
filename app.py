@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.api_service import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, refresh_rounds_database, get_percentile_leaderboard_from_rounds_no_round_limit
-from src.api_service import get_all_logs_to_display_for_api, delete_logs
+from src.api_service import get_all_logs_to_display_for_api, delete_logs, get_all_warnings_to_display_for_api, delete_warnings
 from flask import Flask, Response
 
 app = Flask(__name__)
@@ -39,8 +39,21 @@ def get_logs():
 
 @app.route('/deletelogs')
 def delete_logs_endpoint():
+    """Delete all log entries."""
     delete_logs()
     return Response(f"<pre>Logs deleted</pre>", mimetype='text/html')
+
+@app.route('/getwarnings')
+def get_warnings():
+    """Get all warnings formatted for display."""
+    warnings_string = get_all_warnings_to_display_for_api()
+    return Response(f"<pre>{warnings_string}</pre>", mimetype='text/html')
+
+@app.route('/deletewarnings')
+def delete_warnings_endpoint():
+    """Delete all warning entries."""
+    delete_warnings()
+    return Response(f"<pre>Warnings deleted</pre>", mimetype='text/html')
 
 if __name__ == '__main__':
     app.run(debug=True)

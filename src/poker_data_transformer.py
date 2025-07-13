@@ -39,31 +39,14 @@ def _convert_json_rounds_to_round_objects(rounds) -> List[Round]:
         round_objects.append(round_obj)
     return round_objects
 
-def _fix_special_name_cases(name: str) -> str:
-    """Apply specific corrections for known name inconsistencies."""
-    if "pyerre" in name:
-        return "pyerre l"
-    if "bonnie" in name:
-        return "bonnie l"
-    if "jarrett fre" in name:
-        return "jarrett f"
-    if "bartman" in name:
-        return "brian p"
-    if "cindy" in name:
-        return "cindy r"
-    if "wyatt" in name:
-        return "wyatt s"
-    if "rieley" in name:
-        return "rieley p"
-    return name
-
 def _normalize_player_name(raw_name: str) -> str:
     """Clean and standardize player names."""
-    name = str(raw_name).strip().lower()
-    name = re.sub(r'\s+', ' ', name)
-    name = re.sub(r'[^a-z0-9 ]', '', name)
-    name = re.sub(r'\s+', ' ', name).strip()
-    return _fix_special_name_cases(name)
+    name = str(raw_name).lower() # Convert to string and lowercase for uniformity
+    name = re.sub(r'\s+', ' ', name) # Collapse all whitespace (tabs, newlines, multiple spaces) into a single space
+    name = re.sub(r'[^a-z0-9 ]', '', name) # Remove all characters except lowercase letters, numbers, and spaces
+    name = name.strip() # Remove any leading or trailing spaces (could be left from previous step)
+
+    return name
 
 def _map_month_to_list_of_rounds(monthly_data) -> List[Dict[str, Any]]:
     flattened_rounds = []
@@ -137,17 +120,6 @@ def _build_rounds_list(bar_json: dict) -> list:
             "scores": _extract_scores_from_round(round_obj, players)
         })
     return rounds_list
-
-def get_simplified_month_json(api_tokens_and_bar_names):
-    bar_data_list = []
-
-    for token, bar_name in api_tokens_and_bar_names:
-        bar_json_from_api = fetch_board_json(token)
-        if "error" in bar_json_from_api:
-            print(f"Error fetching {bar_name}: {bar_json_from_api['error']}")
-            continue
-        bar_data_list.append((token, bar_name, bar_json_from_api))
-    return build_simplified_month_doc(bar_data_list)
 
 def build_simplified_month_doc(bar_data_list: list) -> dict:
     if not bar_data_list:

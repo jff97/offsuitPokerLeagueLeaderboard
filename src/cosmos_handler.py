@@ -18,9 +18,11 @@ db = client["offsuitpokeranalyzerdb"]
 if _is_localhost():
     rounds_collection = db["pokerRoundsCollectionTest"]
     logs_collection = db["logsCollectionTest"]
+    warnings_collection = db["warningsCollectionTest"]
 else:
     rounds_collection = db["pokerRoundsCollectionProd"]
     logs_collection = db["logsCollectionProd"]
+    warnings_collection = db["warningsCollectionProd"]
 
 def store_rounds(rounds: List[Round]):
     for round_obj in rounds:
@@ -41,12 +43,44 @@ def save_log(log_str: str) -> None:
     log_doc = {"log": log_str}
     logs_collection.insert_one(log_doc)
 
+def save_logs(log_strings: List[str]) -> None:
+    """Save multiple log entries efficiently using bulk insert."""
+    if not log_strings:
+        return
+    
+    log_docs = [{"log": log_str} for log_str in log_strings]
+    logs_collection.insert_many(log_docs)
+
 def get_all_logs() -> List[str]:
+    """Retrieve all log entries from the database."""
     docs = list(logs_collection.find({}, {"_id": 0, "log": 1}))
     return [doc["log"] for doc in docs if "log" in doc]
 
 def delete_all_logs() -> None:
+    """Delete all log entries from the database."""
     logs_collection.delete_many({})
+
+def save_warning(warning_str: str) -> None:
+    """Save a single warning entry to the database."""
+    warning_doc = {"warning": warning_str}
+    warnings_collection.insert_one(warning_doc)
+
+def save_warnings(warning_strings: List[str]) -> None:
+    """Save multiple warning entries efficiently using bulk insert."""
+    if not warning_strings:
+        return
+    
+    warning_docs = [{"warning": warning_str} for warning_str in warning_strings]
+    warnings_collection.insert_many(warning_docs)
+
+def get_all_warnings() -> List[str]:
+    """Retrieve all warning entries from the database."""
+    docs = list(warnings_collection.find({}, {"_id": 0, "warning": 1}))
+    return [doc["warning"] for doc in docs if "warning" in doc]
+
+def delete_all_warnings() -> None:
+    """Delete all warning entries from the database."""
+    warnings_collection.delete_many({})
 
 def main():
     """Print 10 rounds from the database for testing purposes."""
