@@ -1,28 +1,28 @@
-from poker_data_transformer import get_list_of_rounds_from_api
+from poker_data_service import get_rounds_for_bars, BarConfig
 
-from cosmos_handler import store_rounds, delete_all_round_data, get_all_logs, delete_all_logs, get_all_rounds, delete_all_warnings, save_warnings, get_all_warnings
+from data_persistence import store_rounds, delete_all_round_data, get_all_logs, delete_all_logs, get_all_rounds, delete_all_warnings, save_warnings, get_all_warnings
 
 from poker_analyzer import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
-from script_to_migrate_legacy_csv import get_june_data_as_rounds
 from poker_datamodel import Round
 import name_tools
 
 from typing import List
 
-tokens_and_names = [
-        ("jykjlbzxzkqye", "Cork N Barrel"),
-        ("xpwtrdfsvdtce", "Chatters"),
-        ("czyvrxfdrjbye", "Mavricks"),
-        ("qdtgqhtjkrtpe", "Alibi"),
-        ("vvkcftdnvdvge", "Layton Heights"),
-        ("tbyyvqmpjsvke", "Tinys"),
-        ("pcynjwvnvgqme", "Hosed on Brady"),
-        ("jkhwxjkpxycle", "Witts End"),
-        ("khptcxdgnpnbe", "Lakeside"),
-        ("zyqphgqxppcde", "Brickyard Pub"),
-        ("ybmwcqckckdhe", "South Bound Again"),
-        ("pwtmrylcjnjye", "Anticipation Sunday"),
-    ]
+# Bar configurations with clean, readable format
+bar_configs = [
+    BarConfig("jykjlbzxzkqye", 2),  # Wednesday
+    BarConfig("xpwtrdfsvdtce", 3),  # Thursday
+    BarConfig("czyvrxfdrjbye", 3),  # Thursday
+    BarConfig("qdtgqhtjkrtpe", 1),  # Tuesday
+    BarConfig("vvkcftdnvdvge", 2),  # Wednesday
+    BarConfig("tbyyvqmpjsvke", 5),  # Saturday
+    BarConfig("pcynjwvnvgqme", 0),  # Monday
+    BarConfig("jkhwxjkpxycle", 3),  # Thursday
+    BarConfig("khptcxdgnpnbe", 0),  # Monday
+    BarConfig("zyqphgqxppcde", 6),  # Sunday
+    BarConfig("ybmwcqckckdhe", 2),  # Wednesday
+    BarConfig("pwtmrylcjnjye", 6),  # Sunday
+]
 
 def check_and_log_flagged_player_names():
     """Check for name clashes in player data and save as warnings."""
@@ -58,9 +58,8 @@ def get_all_warnings_to_display_for_api() -> str:
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from API and legacy CSV."""
     delete_all_round_data()
-    new_api_rounds = get_list_of_rounds_from_api(tokens_and_names)
-    store_rounds(new_api_rounds)
-    refresh_june_legacy_csv_rounds()
+    all_rounds = get_rounds_for_bars(bar_configs, include_legacy=True)  # Gets both API and legacy data
+    store_rounds(all_rounds)
     check_and_log_flagged_player_names()  # Check for name clashes after data refresh
 
 def get_percentile_leaderboard_from_rounds():
@@ -80,30 +79,3 @@ def get_placement_leaderboard_from_rounds():
     stored_rounds = get_all_rounds()
     top3_leaderboard = build_top_3_finish_rate_leaderboard(stored_rounds)
     return top3_leaderboard.to_string(index=False)
-
-def _compare_rounds(new_rounds: List[Round], old_rounds: List[Round]):
-    set_new = set(new_rounds)
-    set_old = set(old_rounds)
-    print(f"New rounds count: {len(set(new_rounds))}, Old rounds count: {len(set(old_rounds))}")
-
-    only_in_new = set_new - set_old
-    only_in_old = set_old - set_new
-
-    if not only_in_new and not only_in_old:
-        print("✅ SUCCESS: Both round lists match exactly!")
-    else:
-        print("❌ MISMATCH FOUND:")
-        if only_in_new:
-            print(f"\nRounds only in NEW method ({len(only_in_new)}):")
-            for round_obj in sorted(only_in_new):
-                print(f"  {round_obj}")
-        if only_in_old:
-            print(f"\nRounds only in OLD method ({len(only_in_old)}):")
-            for round_obj in sorted(only_in_old):
-                print(f"  {round_obj}")
-
-
-def refresh_june_legacy_csv_rounds():
-    """Import and store legacy June CSV data as rounds."""
-    legacy_rounds = get_june_data_as_rounds()
-    store_rounds(legacy_rounds)

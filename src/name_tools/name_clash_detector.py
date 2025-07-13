@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from poker_datamodel import Round
-from cosmos_handler import get_all_rounds
+from data_persistence import get_all_rounds
 
 def _is_name_formatted_correct(name: str) -> bool:
     normalized = name.strip()
@@ -51,7 +51,7 @@ def _names_are_similar(name1: str, name2: str) -> bool:
 
         # Fuzzy match on first names
         similarity = fuzz.ratio(first1, first2)
-        return similarity >= 80
+        return similarity >= 78
     except ValueError:
         return False
 
@@ -67,31 +67,32 @@ def detect_name_clashes(rounds: List[Round]) -> List[str]:
     Returns:
         List of strings describing each format issue for logging
     """
-    # Build mapping of player names to the bars they appear at
-    name_to_bars = defaultdict(set)
+    # Build mapping of player names to the bar/date combinations they appear at
+    name_to_bar_dates = defaultdict(set)
     
     for round_obj in rounds:
         for player in round_obj.players:
-            name_to_bars[player.player_name].add(round_obj.bar_name)
+            bar_date = f"{round_obj.bar_name} ({round_obj.round_date})"
+            name_to_bar_dates[player.player_name].add(bar_date)
     
     # Check each name for format issues
     clashes = []
-    for name in sorted(name_to_bars.keys()):
+    for name in sorted(name_to_bar_dates.keys()):
         if not _is_name_formatted_correct(name):
-            bars = name_to_bars[name]
-            bars_string = ', '.join(sorted(bars))
-            clashes.append(f"Invalid name at {bars_string} name = {name}")
+            bar_dates = name_to_bar_dates[name]
+            bar_dates_string = ', '.join(sorted(bar_dates))
+            clashes.append(f"Invalid name at {bar_dates_string} name = {name}")
     
     # Check for similar names that might be the same person
-    names_list = sorted(name_to_bars.keys())
+    names_list = sorted(name_to_bar_dates.keys())
     for i, name1 in enumerate(names_list):
         for name2 in names_list[i+1:]:
             if _names_are_similar(name1, name2):
-                bars1 = name_to_bars[name1]
-                bars2 = name_to_bars[name2]
-                bars1_string = ', '.join(sorted(bars1))
-                bars2_string = ', '.join(sorted(bars2))
-                clashes.append(f"Similar names: '{name1}' at {bars1_string} vs '{name2}' at {bars2_string}")
+                bar_dates1 = name_to_bar_dates[name1]
+                bar_dates2 = name_to_bar_dates[name2]
+                bar_dates1_string = ', '.join(sorted(bar_dates1))
+                bar_dates2_string = ', '.join(sorted(bar_dates2))
+                clashes.append(f"Similar names: '{name1}' at {bar_dates1_string} vs '{name2}' at {bar_dates2_string}")
     
     return clashes
 

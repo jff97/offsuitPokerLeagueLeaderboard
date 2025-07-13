@@ -6,7 +6,7 @@ from .player_score import PlayerScore
 class Round:
     round_id: str
     bar_name: str
-    date: str
+    round_date: str  # The actual date when the round took place (YYYY-MM-DD)
     players: Tuple[PlayerScore, ...]
 
     def to_dict(self) -> Dict[str, Any]:

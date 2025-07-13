@@ -94,7 +94,7 @@ def main():
             print(f"\nRound {i+1}:")
             print(f"  ID: {round_obj.round_id}")
             print(f"  Bar: {round_obj.bar_name}")
-            print(f"  Date: {round_obj.date}")
+            print(f"  Date: {round_obj.round_date}")
             print(f"  Players ({len(round_obj.players)}):")
             
             # Sort players by points descending for better readability

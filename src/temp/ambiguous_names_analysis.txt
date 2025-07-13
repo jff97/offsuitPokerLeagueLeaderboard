@@ -1,159 +1,159 @@
 aaron c         | from legacyAnticipation Tues; legacyLakeside Pub & Grill; legacyTiny's A Neighborhood Sports Tavern                                | KEEP        
-adam m          | from Alibi; Layton Heights; legacyAnticipation Tues; legacyLAYTON HEIGHTS                                                          | KEEP        
-adam u          | from Anticipation Sunday; legacyAnticipation                                                                                       | KEEP        
-ahmad b         | from Hosed on Brady; legacyHOSED ON BRADY                                                                                          | KEEP        
-aj l            | from Hosed on Brady; legacyAnticipation; legacyAnticipation Tues; legacyHOSED ON BRADY                                             | KEEP        
-amar n          | from Hosed on Brady; Layton Heights; legacyAnticipation; legacyHOSED ON BRADY; legacyMavericks                                     | KEEP        
+adam m          | from LAYTON HEIGHTS; The Alibi; legacyAnticipation Tues; legacyLAYTON HEIGHTS                                                      | KEEP        
+adam u          | from Anticipation; legacyAnticipation                                                                                              | KEEP        
+ahmad b         | from HOSED ON BRADY; legacyHOSED ON BRADY                                                                                          | KEEP        
+aj l            | from HOSED ON BRADY; legacyAnticipation; legacyAnticipation Tues; legacyHOSED ON BRADY                                             | KEEP        
+amar n          | from HOSED ON BRADY; LAYTON HEIGHTS; legacyAnticipation; legacyHOSED ON BRADY; legacyMavericks                                     | KEEP        
 angelica g      | from legacyThe Alibi                                                                                                               | KEEP        
-bartman p       | from Brickyard Pub; Lakeside; Mavricks; South Bound Again; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern | KEEP        
-ben d           | from Alibi; Brickyard Pub; Layton Heights; Mavricks; Tinys; legacyBrickyard Pub; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+bartman p       | from Brickyard Pub; Lakeside Pub & Grill; Mavericks ; South Bound Again; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+ben d           | from Brickyard Pub; LAYTON HEIGHTS; Mavericks ; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
 ben l           | from Cork N Barrel; legacyCork N Barrel                                                                                            | KEEP        
-bill e          | from Lakeside; Layton Heights; Mavricks; legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill; legacyMavericks                         | KEEP        
-bob g           | from Tinys; legacyTiny's A Neighborhood Sports Tavern                                                                              | KEEP        
-bob r           | from Alibi; Brickyard Pub; Layton Heights; Mavricks; legacyBrickyard Pub; legacyLAYTON HEIGHTS; legacyMavericks ; legacyThe Alibi  | KEEP        
-bobby c         | from Lakeside; South Bound Again; legacyLakeside Pub & Grill; legacySouth Bound Again                                              | KEEP        
-bonnie l        | from Alibi; Lakeside; South Bound Again; Tinys; Witts End; legacyAnticipation Tues; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern | KEEP        
-brandon c       | from Alibi; Mavricks; legacyAnticipation Tues                                                                                      | KEEP        
+bill e          | from LAYTON HEIGHTS; Lakeside Pub & Grill; Mavericks ; legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill; legacyMavericks           | KEEP        
+bob g           | from Tiny's A Neighborhood Sports Tavern; legacyTiny's A Neighborhood Sports Tavern                                                | KEEP        
+bob r           | from Brickyard Pub; LAYTON HEIGHTS; Mavericks ; The Alibi; legacyBrickyard Pub; legacyLAYTON HEIGHTS; legacyMavericks ; legacyThe Alibi | KEEP        
+bobby c         | from Lakeside Pub & Grill; South Bound Again; legacyLakeside Pub & Grill; legacySouth Bound Again                                  | KEEP        
+bonnie l        | from Lakeside Pub & Grill; South Bound Again; The Alibi; Tiny's A Neighborhood Sports Tavern; WITTS END; legacyAnticipation Tues; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+brandon c       | from Mavericks ; The Alibi; legacyAnticipation Tues                                                                                | KEEP        
 brandon h       | from Brickyard Pub                                                                                                                 | KEEP        
 brandon i       | from legacySouth Bound Again                                                                                                       | KEEP        
 brandon p       | from legacyHOSED ON BRADY                                                                                                          | KEEP        
 brian h         | from South Bound Again                                                                                                             | KEEP        
 bryan o         | from legacyBrickyard Pub                                                                                                           | KEEP        
-caleb g         | from Alibi; Anticipation Sunday; Lakeside; Layton Heights; Mavricks; Tinys; legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
-carlee j        | from Brickyard Pub; Tinys; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyTiny's A Neighborhood Sports Tavern              | KEEP        
-carol f         | from Chatters; Cork N Barrel; legacyChatter's; legacyCork N Barrel                                                                 | KEEP        
-charlie t       | from Anticipation Sunday; Lakeside; South Bound Again; Witts End; legacyAnticipation; legacyLakeside Pub & Grill; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern; legacyWITTS END | KEEP        
-chris g         | from Tinys; legacyAnticipation Tues                                                                                                | KEEP        
+caleb g         | from Anticipation; LAYTON HEIGHTS; Lakeside Pub & Grill; Mavericks ; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+carlee j        | from Brickyard Pub; Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+carol f         | from Chatter's; Cork N Barrel; legacyChatter's; legacyCork N Barrel                                                                | KEEP        
+charlie t       | from Anticipation; Lakeside Pub & Grill; South Bound Again; WITTS END; legacyAnticipation; legacyLakeside Pub & Grill; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern; legacyWITTS END | KEEP        
+chris g         | from Tiny's A Neighborhood Sports Tavern; legacyAnticipation Tues                                                                  | KEEP        
 chris m         | from legacyMavericks                                                                                                               | KEEP        
-cindy r         | from Alibi; Brickyard Pub; Chatters; Layton Heights; Mavricks; Tinys; legacyChatter's; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
-clayton a       | from Layton Heights; legacyLAYTON HEIGHTS                                                                                          | KEEP        
-cole g          | from Lakeside                                                                                                                      | KEEP        
-cristiana l     | from Alibi; Brickyard Pub; Layton Heights; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS                                              | KEEP        
+cindy r         | from Brickyard Pub; Chatter's; LAYTON HEIGHTS; Mavericks ; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyChatter's; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+clayton a       | from LAYTON HEIGHTS; legacyLAYTON HEIGHTS                                                                                          | KEEP        
+cole g          | from Lakeside Pub & Grill                                                                                                          | KEEP        
+cristiana l     | from Brickyard Pub; LAYTON HEIGHTS; The Alibi; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS                                          | KEEP        
 dale p          | from legacySouth Bound Again                                                                                                       | KEEP        
-damian a        | from Anticipation Sunday; Tinys; legacyAnticipation; legacyAnticipation Tues; legacyTiny's A Neighborhood Sports Tavern            | KEEP        
-dave b          | from Brickyard Pub; Lakeside; legacyBrickyard Pub; legacyLakeside Pub & Grill                                                      | KEEP        
+damian a        | from Anticipation; Tiny's A Neighborhood Sports Tavern; legacyAnticipation; legacyAnticipation Tues; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+dave b          | from Brickyard Pub; Lakeside Pub & Grill; legacyBrickyard Pub; legacyLakeside Pub & Grill                                          | KEEP        
 dave j          | from legacyLakeside Pub & Grill                                                                                                    | KEEP        
-deathnote l     | from Alibi; Lakeside; legacyLakeside Pub & Grill; legacyThe Alibi                                                                  | KEEP        
-devon t         | from Alibi; legacyThe Alibi                                                                                                        | KEEP        
-domanic a       | from Alibi; legacyThe Alibi                                                                                                        | KEEP        
-donovan b       | from Alibi; Brickyard Pub; Layton Heights; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS                                              | KEEP        
+deathnote l     | from Lakeside Pub & Grill; The Alibi; legacyLakeside Pub & Grill; legacyThe Alibi                                                  | KEEP        
+devon t         | from The Alibi; legacyThe Alibi                                                                                                    | KEEP        
+domanic a       | from The Alibi; legacyThe Alibi                                                                                                    | KEEP        
+donovan b       | from Brickyard Pub; LAYTON HEIGHTS; The Alibi; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS                                          | KEEP        
 dr z            | from legacyCork N Barrel                                                                                                           | KEEP        
 eric h          | from Brickyard Pub; legacyTiny's A Neighborhood Sports Tavern                                                                      | KEEP        
 eric s          | from legacyBrickyard Pub                                                                                                           | KEEP        
 evan d          | from Brickyard Pub; legacyBrickyard Pub                                                                                            | KEEP        
-evan j          | from Brickyard Pub; Lakeside; South Bound Again; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacySouth Bound Again          | KEEP        
-floyd t         | from Layton Heights                                                                                                                | KEEP        
+evan j          | from Brickyard Pub; Lakeside Pub & Grill; South Bound Again; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacySouth Bound Again | KEEP        
+floyd t         | from LAYTON HEIGHTS                                                                                                                | KEEP        
 gene d          | from Cork N Barrel; legacyCork N Barrel                                                                                            | KEEP        
 gene g          | from legacyCork N Barrel                                                                                                           | KEEP        
-geralyn g       | from Cork N Barrel; Hosed on Brady; legacyCork N Barrel; legacyHOSED ON BRADY                                                      | KEEP        
-greg h          | from Alibi; Brickyard Pub; Chatters; Lakeside; Layton Heights; legacyBrickyard Pub; legacyCork N Barrel; legacyThe Alibi           | KEEP        
-greg s          | from Alibi; Hosed on Brady; Mavricks; Tinys; legacyHOSED ON BRADY; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
-gus h           | from Witts End; legacyWITTS END                                                                                                    | KEEP        
-jared c         | from Lakeside; South Bound Again; legacyLakeside Pub & Grill                                                                       | KEEP        
-jarrett f       | from Anticipation Sunday; Tinys; Witts End; legacyAnticipation; legacyAnticipation Tues; legacyTiny's A Neighborhood Sports Tavern; legacyWITTS END | KEEP        
-jason h         | from Brickyard Pub; Tinys; legacyBrickyard Pub; legacyCork N Barrel; legacyTiny's A Neighborhood Sports Tavern                     | KEEP        
-jaye s          | from Lakeside; legacyLakeside Pub & Grill                                                                                          | KEEP        
-jeremiah td     | from Alibi; legacyThe Alibi                                                                                                        | KEEP        
+geralyn g       | from Cork N Barrel; HOSED ON BRADY; legacyCork N Barrel; legacyHOSED ON BRADY                                                      | KEEP        
+greg h          | from Brickyard Pub; Chatter's; LAYTON HEIGHTS; Lakeside Pub & Grill; The Alibi; legacyBrickyard Pub; legacyCork N Barrel; legacyThe Alibi | KEEP        
+greg s          | from HOSED ON BRADY; Mavericks ; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyHOSED ON BRADY; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+gus h           | from WITTS END; legacyWITTS END                                                                                                    | KEEP        
+jared c         | from Lakeside Pub & Grill; South Bound Again; legacyLakeside Pub & Grill                                                           | KEEP        
+jarrett f       | from Anticipation; Tiny's A Neighborhood Sports Tavern; WITTS END; legacyAnticipation; legacyAnticipation Tues; legacyTiny's A Neighborhood Sports Tavern; legacyWITTS END | KEEP        
+jason h         | from Brickyard Pub; Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub; legacyCork N Barrel; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+jaye s          | from Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                                              | KEEP        
+jeremiah td     | from The Alibi; legacyThe Alibi                                                                                                    | KEEP        
 jeremy k        | from South Bound Again; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again                                      | KEEP        
 joe c           | from legacySouth Bound Again                                                                                                       | KEEP        
-joe g           | from Alibi; Brickyard Pub; Lakeside; Layton Heights; Mavricks; Tinys; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+joe g           | from Brickyard Pub; LAYTON HEIGHTS; Lakeside Pub & Grill; Mavericks ; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyMavericks ; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
 joe r           | from South Bound Again                                                                                                             | KEEP        
-john b          | from Brickyard Pub; Lakeside; legacyLakeside Pub & Grill                                                                           | KEEP        
-john e          | from Chatters; Cork N Barrel; legacyChatter's; legacyCork N Barrel                                                                 | KEEP        
-john f          | from Alibi; Hosed on Brady; Layton Heights; Tinys; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS; legacyMavericks ; legacyThe Alibi   | KEEP        
-john s          | from Anticipation Sunday; Mavricks; legacyAnticipation; legacyMavericks ; legacyThe Alibi                                          | KEEP        
-johnathan h     | from Alibi; Lakeside; Layton Heights; Mavricks; legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill; legacyMavericks ; legacyThe Alibi | KEEP        
-johnny j        | from Tinys                                                                                                                         | KEEP        
-jordan h        | from Hosed on Brady; Layton Heights; legacyAnticipation; legacyLAYTON HEIGHTS; legacyThe Alibi                                     | KEEP        
-josh j          | from Layton Heights; legacyAnticipation; legacyLAYTON HEIGHTS                                                                      | KEEP        
+john b          | from Brickyard Pub; Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                               | KEEP        
+john e          | from Chatter's; Cork N Barrel; legacyChatter's; legacyCork N Barrel                                                                | KEEP        
+john f          | from HOSED ON BRADY; LAYTON HEIGHTS; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS; legacyMavericks ; legacyThe Alibi | KEEP        
+john s          | from Anticipation; Mavericks ; legacyAnticipation; legacyMavericks ; legacyThe Alibi                                               | KEEP        
+johnathan h     | from LAYTON HEIGHTS; Lakeside Pub & Grill; Mavericks ; The Alibi; legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill; legacyMavericks ; legacyThe Alibi | KEEP        
+johnny j        | from Tiny's A Neighborhood Sports Tavern                                                                                           | KEEP        
+jordan h        | from HOSED ON BRADY; LAYTON HEIGHTS; legacyAnticipation; legacyLAYTON HEIGHTS; legacyThe Alibi                                     | KEEP        
+josh j          | from LAYTON HEIGHTS; legacyAnticipation; legacyLAYTON HEIGHTS                                                                      | KEEP        
 katy v          | from South Bound Again; legacySouth Bound Again                                                                                    | KEEP        
-kevin b         | from Lakeside; legacyLakeside Pub & Grill                                                                                          | KEEP        
-kevin m         | from Anticipation Sunday; legacyAnticipation                                                                                       | KEEP        
-lori h          | from Alibi; Brickyard Pub; Chatters; Cork N Barrel; legacyBrickyard Pub; legacyChatter's; legacyCork N Barrel; legacyThe Alibi     | KEEP        
-mason g         | from Hosed on Brady; Layton Heights; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS                                                    | KEEP        
-matt p          | from Brickyard Pub; Lakeside; Layton Heights; legacyLAYTON HEIGHTS; legacyMavericks                                                | KEEP        
-matthew o       | from Hosed on Brady; legacyHOSED ON BRADY                                                                                          | KEEP        
-mellisa h       | from Alibi; legacyThe Alibi                                                                                                        | KEEP        
-miguel q        | from Alibi; Hosed on Brady; Layton Heights; legacyThe Alibi                                                                        | KEEP        
+kevin b         | from Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                                              | KEEP        
+kevin m         | from Anticipation; legacyAnticipation                                                                                              | KEEP        
+lori h          | from Brickyard Pub; Chatter's; Cork N Barrel; The Alibi; legacyBrickyard Pub; legacyChatter's; legacyCork N Barrel; legacyThe Alibi | KEEP        
+mason g         | from HOSED ON BRADY; LAYTON HEIGHTS; legacyHOSED ON BRADY; legacyLAYTON HEIGHTS                                                    | KEEP        
+matt p          | from Brickyard Pub; LAYTON HEIGHTS; Lakeside Pub & Grill; legacyLAYTON HEIGHTS; legacyMavericks                                    | KEEP        
+matthew o       | from HOSED ON BRADY; legacyHOSED ON BRADY                                                                                          | KEEP        
+mellisa h       | from The Alibi; legacyThe Alibi                                                                                                    | KEEP        
+miguel q        | from HOSED ON BRADY; LAYTON HEIGHTS; The Alibi; legacyThe Alibi                                                                    | KEEP        
 mike e          | from Cork N Barrel                                                                                                                 | KEEP        
-mike l          | from Alibi; Mavricks; South Bound Again; Tinys; legacyAnticipation; legacyAnticipation Tues; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern | KEEP        
-mike m          | from Hosed on Brady; legacyHOSED ON BRADY                                                                                          | KEEP        
-mike pierce     | from Hosed on Brady                                                                                                                | KEEP        
+mike l          | from Mavericks ; South Bound Again; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyAnticipation; legacyAnticipation Tues; legacyLakeside Pub & Grill; legacyMavericks ; legacySouth Bound Again; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+mike m          | from HOSED ON BRADY; legacyHOSED ON BRADY                                                                                          | KEEP        
+mike pierce     | from HOSED ON BRADY                                                                                                                | KEEP        
 mike s          | from legacyLakeside Pub & Grill                                                                                                    | KEEP        
 mike t          | from legacySouth Bound Again; legacyWITTS END                                                                                      | KEEP        
-nate i          | from Lakeside; South Bound Again                                                                                                   | KEEP        
-nathan l        | from Tinys; Witts End                                                                                                              | KEEP        
-netty u         | from Alibi                                                                                                                         | KEEP        
-nico a          | from Alibi; Hosed on Brady; legacyHOSED ON BRADY; legacyThe Alibi                                                                  | KEEP        
+nate i          | from Lakeside Pub & Grill; South Bound Again                                                                                       | KEEP        
+nathan l        | from Tiny's A Neighborhood Sports Tavern; WITTS END                                                                                | KEEP        
+netty u         | from The Alibi                                                                                                                     | KEEP        
+nico a          | from HOSED ON BRADY; The Alibi; legacyHOSED ON BRADY; legacyThe Alibi                                                              | KEEP        
 patty t         | from legacySouth Bound Again; legacyWITTS END                                                                                      | KEEP        
-paul cb         | from Brickyard Pub; Lakeside; Tinys; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyTiny's A Neighborhood Sports Tavern    | KEEP        
+paul cb         | from Brickyard Pub; Lakeside Pub & Grill; Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyTiny's A Neighborhood Sports Tavern | KEEP        
 paul p          | from South Bound Again; legacySouth Bound Again                                                                                    | KEEP        
 paul s          | from South Bound Again; legacySouth Bound Again                                                                                    | KEEP        
-paul u          | from Anticipation Sunday; legacyAnticipation; legacyAnticipation Tues                                                              | KEEP        
-pyerre l        | from Alibi; Brickyard Pub; Hosed on Brady; Mavricks; legacyBrickyard Pub; legacyCork N Barrel; legacyHOSED ON BRADY; legacyMavericks ; legacyThe Alibi | KEEP        
+paul u          | from Anticipation; legacyAnticipation; legacyAnticipation Tues                                                                     | KEEP        
+pyerre l        | from Brickyard Pub; HOSED ON BRADY; Mavericks ; The Alibi; legacyBrickyard Pub; legacyCork N Barrel; legacyHOSED ON BRADY; legacyMavericks ; legacyThe Alibi | KEEP        
 quinn mcclure   | from legacyHOSED ON BRADY; legacyMavericks                                                                                         | KEEP        
 richard m       | from Brickyard Pub; legacyBrickyard Pub                                                                                            | KEEP        
-rick r          | from Lakeside; legacyLakeside Pub & Grill                                                                                          | KEEP        
-rickey j        | from Tinys; legacyTiny's A Neighborhood Sports Tavern                                                                              | KEEP        
-rieley p        | from Brickyard Pub; Lakeside; South Bound Again; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyWITTS END                  | KEEP        
-rob h           | from Alibi; Brickyard Pub; Chatters; Cork N Barrel; Hosed on Brady; Tinys; legacyBrickyard Pub; legacyChatter's; legacyCork N Barrel; legacyHOSED ON BRADY; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+rick r          | from Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                                              | KEEP        
+rickey j        | from Tiny's A Neighborhood Sports Tavern; legacyTiny's A Neighborhood Sports Tavern                                                | KEEP        
+rieley p        | from Brickyard Pub; Lakeside Pub & Grill; South Bound Again; legacyBrickyard Pub; legacyLakeside Pub & Grill; legacyWITTS END      | KEEP        
+rob h           | from Brickyard Pub; Chatter's; Cork N Barrel; HOSED ON BRADY; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub; legacyChatter's; legacyCork N Barrel; legacyHOSED ON BRADY; legacyThe Alibi; legacyTiny's A Neighborhood Sports Tavern | KEEP        
 robert b        | from legacyTiny's A Neighborhood Sports Tavern                                                                                     | KEEP        
-roger w         | from Anticipation Sunday; Layton Heights; legacyAnticipation; legacyAnticipation Tues; legacyLAYTON HEIGHTS; legacyMavericks       | KEEP        
-sandy v         | from Alibi; Hosed on Brady; Layton Heights; legacyMavericks ; legacySouth Bound Again                                              | KEEP        
-sean g          | from Hosed on Brady; legacyHOSED ON BRADY                                                                                          | KEEP        
-steel neil      | from Alibi; Mavricks; legacyChatter's; legacyHOSED ON BRADY; legacyThe Alibi                                                       | KEEP        
-steph e         | from Brickyard Pub; South Bound Again; Tinys; legacySouth Bound Again                                                              | KEEP        
-steve j         | from Lakeside                                                                                                                      | KEEP        
-tekoya c        | from Hosed on Brady; legacyHOSED ON BRADY                                                                                          | KEEP        
-tim c           | from Anticipation Sunday; legacyAnticipation; legacyAnticipation Tues                                                              | KEEP        
+roger w         | from Anticipation; LAYTON HEIGHTS; legacyAnticipation; legacyAnticipation Tues; legacyLAYTON HEIGHTS; legacyMavericks              | KEEP        
+sandy v         | from HOSED ON BRADY; LAYTON HEIGHTS; The Alibi; legacyMavericks ; legacySouth Bound Again                                          | KEEP        
+sean g          | from HOSED ON BRADY; legacyHOSED ON BRADY                                                                                          | KEEP        
+steel neil      | from Mavericks ; The Alibi; legacyChatter's; legacyHOSED ON BRADY; legacyThe Alibi                                                 | KEEP        
+steph e         | from Brickyard Pub; South Bound Again; Tiny's A Neighborhood Sports Tavern; legacySouth Bound Again                                | KEEP        
+steve j         | from Lakeside Pub & Grill                                                                                                          | KEEP        
+tekoya c        | from HOSED ON BRADY; legacyHOSED ON BRADY                                                                                          | KEEP        
+tim c           | from Anticipation; legacyAnticipation; legacyAnticipation Tues                                                                     | KEEP        
 tom z           | from legacyAnticipation Tues                                                                                                       | KEEP        
 tony s          | from legacyBrickyard Pub                                                                                                           | KEEP        
-tony spenser    | from Lakeside; legacyLakeside Pub & Grill                                                                                          | KEEP        
-tony sr         | from Alibi; legacyBrickyard Pub; legacyCork N Barrel; legacyThe Alibi                                                              | KEEP        
+tony spenser    | from Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                                              | KEEP        
+tony sr         | from The Alibi; legacyBrickyard Pub; legacyCork N Barrel; legacyThe Alibi                                                          | KEEP        
 tracy s         | from legacyThe Alibi                                                                                                               | KEEP        
-troy r          | from Alibi; Brickyard Pub; Chatters; Hosed on Brady; South Bound Again; Tinys; legacyAnticipation Tues; legacyBrickyard Pub; legacyCork N Barrel; legacyHOSED ON BRADY; legacyMavericks ; legacyTiny's A Neighborhood Sports Tavern | KEEP        
+troy r          | from Brickyard Pub; Chatter's; HOSED ON BRADY; South Bound Again; The Alibi; Tiny's A Neighborhood Sports Tavern; legacyAnticipation Tues; legacyBrickyard Pub; legacyCork N Barrel; legacyHOSED ON BRADY; legacyMavericks ; legacyTiny's A Neighborhood Sports Tavern | KEEP        
 wendell e       | from legacyAnticipation; legacyTiny's A Neighborhood Sports Tavern                                                                 | KEEP        
-will g          | from Hosed on Brady; legacyHOSED ON BRADY; legacyMavericks                                                                         | KEEP        
-wyatt s         | from Brickyard Pub; Tinys; legacyBrickyard Pub; legacyTiny's A Neighborhood Sports Tavern                                          | KEEP        
-zach c          | from Alibi                                                                                                                         | KEEP        
-zach f          | from Anticipation Sunday; Tinys; Witts End; legacyAnticipation; legacyAnticipation Tues; legacyWITTS END                           | KEEP        
+will g          | from HOSED ON BRADY; legacyHOSED ON BRADY; legacyMavericks                                                                         | KEEP        
+wyatt s         | from Brickyard Pub; Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub; legacyTiny's A Neighborhood Sports Tavern            | KEEP        
+zach c          | from The Alibi                                                                                                                     | KEEP        
+zach f          | from Anticipation; Tiny's A Neighborhood Sports Tavern; WITTS END; legacyAnticipation; legacyAnticipation Tues; legacyWITTS END    | KEEP        
 adrian          | from legacyBrickyard Pub                                                                                                           | ADD_LAST_NAME | Needs full name
 arsen           | from legacyCork N Barrel                                                                                                           | ADD_LAST_NAME | Needs full name
-bree            | from Chatters                                                                                                                      | ADD_LAST_NAME | Needs full name
+bree            | from Chatter's                                                                                                                     | ADD_LAST_NAME | Needs full name
 carl            | from legacyLakeside Pub & Grill                                                                                                    | ADD_LAST_NAME | Needs full name
 carter          | from legacyThe Alibi                                                                                                               | ADD_LAST_NAME | Needs full name
-colton          | from Alibi; legacyThe Alibi                                                                                                        | ADD_LAST_NAME | Needs full name
+colton          | from The Alibi; legacyThe Alibi                                                                                                    | ADD_LAST_NAME | Needs full name
 darnell         | from legacyThe Alibi                                                                                                               | ADD_LAST_NAME | Needs full name
 david           | from legacyChatter's                                                                                                               | ADD_LAST_NAME | Needs full name
-dawson          | from Anticipation Sunday; legacyAnticipation; legacyAnticipation Tues                                                              | ADD_LAST_NAME | Needs full name
+dawson          | from Anticipation; legacyAnticipation; legacyAnticipation Tues                                                                     | ADD_LAST_NAME | Needs full name
 dino            | from legacyLAYTON HEIGHTS; legacyLakeside Pub & Grill                                                                              | ADD_LAST_NAME | Needs full name
 dmitry          | from Cork N Barrel; legacyCork N Barrel                                                                                            | ADD_LAST_NAME | Needs full name
 drew            | from Cork N Barrel                                                                                                                 | ADD_LAST_NAME | Needs full name
 emily           | from legacyLakeside Pub & Grill                                                                                                    | ADD_LAST_NAME | Needs full name
 enea            | from legacyLakeside Pub & Grill                                                                                                    | ADD_LAST_NAME | Needs full name
-gavin           | from Lakeside; legacyLakeside Pub & Grill                                                                                          | ADD_LAST_NAME | Needs full name
+gavin           | from Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                                              | ADD_LAST_NAME | Needs full name
 hilda           | from legacyChatter's                                                                                                               | ADD_LAST_NAME | Needs full name
 hunter          | from legacyBrickyard Pub                                                                                                           | ADD_LAST_NAME | Needs full name
-igor            | from Anticipation Sunday                                                                                                           | ADD_LAST_NAME | Needs full name
+igor            | from Anticipation                                                                                                                  | ADD_LAST_NAME | Needs full name
 jack            | from legacyThe Alibi                                                                                                               | ADD_LAST_NAME | Needs full name
-jalani          | from Tinys; legacyBrickyard Pub                                                                                                    | ADD_LAST_NAME | Needs full name
+jalani          | from Tiny's A Neighborhood Sports Tavern; legacyBrickyard Pub                                                                      | ADD_LAST_NAME | Needs full name
 jawad           | from legacyBrickyard Pub                                                                                                           | ADD_LAST_NAME | Needs full name
-jd              | from Tinys; legacyTiny's A Neighborhood Sports Tavern                                                                              | ADD_LAST_NAME | Needs full name
+jd              | from Tiny's A Neighborhood Sports Tavern; legacyTiny's A Neighborhood Sports Tavern                                                | ADD_LAST_NAME | Needs full name
 joaquin         | from legacyThe Alibi                                                                                                               | ADD_LAST_NAME | Needs full name
 joey            | from legacyThe Alibi                                                                                                               | ADD_LAST_NAME | Needs full name
 katie           | from legacyLakeside Pub & Grill                                                                                                    | ADD_LAST_NAME | Needs full name
 lisa            | from legacyAnticipation Tues                                                                                                       | ADD_LAST_NAME | Needs full name
-lyle            | from Lakeside; legacyLakeside Pub & Grill                                                                                          | ADD_LAST_NAME | Needs full name
+lyle            | from Lakeside Pub & Grill; legacyLakeside Pub & Grill                                                                              | ADD_LAST_NAME | Needs full name
 marty           | from Cork N Barrel                                                                                                                 | ADD_LAST_NAME | Needs full name
 milan           | from Cork N Barrel; legacyCork N Barrel                                                                                            | ADD_LAST_NAME | Needs full name
-mo              | from Mavricks                                                                                                                      | ADD_LAST_NAME | Needs full name
+mo              | from Mavericks                                                                                                                     | ADD_LAST_NAME | Needs full name
 orlando         | from legacyAnticipation                                                                                                            | ADD_LAST_NAME | Needs full name
-rachel          | from Hosed on Brady                                                                                                                | ADD_LAST_NAME | Needs full name
-scott           | from Chatters; Cork N Barrel                                                                                                       | ADD_LAST_NAME | Needs full name
+rachel          | from HOSED ON BRADY                                                                                                                | ADD_LAST_NAME | Needs full name
+scott           | from Chatter's; Cork N Barrel                                                                                                      | ADD_LAST_NAME | Needs full name
 veronica        | from legacyHOSED ON BRADY; legacyMavericks                                                                                         | ADD_LAST_NAME | Needs full name
-viktor          | from Hosed on Brady                                                                                                                | ADD_LAST_NAME | Needs full name
+viktor          | from HOSED ON BRADY                                                                                                                | ADD_LAST_NAME | Needs full name
 wayne           | from legacyLakeside Pub & Grill                                                                                                    | ADD_LAST_NAME | Needs full name
 alex            | from Cork N Barrel; legacyCork N Barrel                                                                                            | MERGE_INTO   | Possible Matches: alex w (Bars: legacyThe Alibi)
 alex w          | from legacyThe Alibi                                                                                                               | REVIEW       | Related: alex (Bars: Cork N Barrel, legacyCork N Barrel)
-ken             | from Witts End                                                                                                                     | MERGE_INTO   | Possible Matches: ken l (Bars: South Bound Again)
-ken l           | from South Bound Again                                                                                                             | REVIEW       | Related: ken (Bars: Witts End)
+ken             | from WITTS END                                                                                                                     | MERGE_INTO   | Possible Matches: ken l (Bars: South Bound Again)
+ken l           | from South Bound Again                                                                                                             | REVIEW       | Related: ken (Bars: WITTS END)

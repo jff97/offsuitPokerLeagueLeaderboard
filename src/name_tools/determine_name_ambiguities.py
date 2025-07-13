@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cosmos_handler import get_all_rounds
+from data_persistence import get_all_rounds
 import re
 from collections import defaultdict
 
