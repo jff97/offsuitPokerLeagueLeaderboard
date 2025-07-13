@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
 from poker_datamodel import Round, PlayerScore
-from poker_analyzer import _calculate_percentile_rank, _rank_players_in_each_round, build_percentile_leaderboard
+from poker_analytics import _calculate_percentile_rank, _rank_players_in_each_round, build_percentile_leaderboard
 
 
 class TestPercentileCalculation(unittest.TestCase):

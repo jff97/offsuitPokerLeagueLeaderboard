@@ -17,7 +17,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
 from poker_datamodel import Round, PlayerScore
-from poker_analyzer import _calculate_percentile_rank, build_percentile_leaderboard
+from poker_analytics import _calculate_percentile_rank, build_percentile_leaderboard
 from name_tools.name_clash_detector import detect_name_clashes
 
 
