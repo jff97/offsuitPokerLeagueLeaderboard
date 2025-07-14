@@ -78,7 +78,7 @@ def detect_name_clashes(rounds: List[Round]) -> List[str]:
         if not _is_name_formatted_correct(name):
             bar_dates = name_to_bar_dates[name]
             bar_dates_string = ', '.join(sorted(bar_dates))
-            clashes.append(f"Invalid name at {bar_dates_string} name = {name}")
+            clashes.append(f"Invalid name = {name} at {bar_dates_string}")
     
     # Check for similar names that might be the same person
     names_list = sorted(name_to_bar_dates.keys())

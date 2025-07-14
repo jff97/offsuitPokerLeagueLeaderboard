@@ -1,16 +1,7 @@
 from typing import List
 from pymongo import MongoClient
 import socket
-import sys
-import os
-
-# Handle both direct execution and module import
-if __name__ == "__main__":
-    # Add the src directory to Python path when running directly
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-    from src.poker_scraper.datamodel import Round
-else:
-    from ..datamodel import Round
+from ..datamodel import Round
 
 def _is_localhost():
     try:

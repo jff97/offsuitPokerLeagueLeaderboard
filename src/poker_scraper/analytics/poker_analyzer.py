@@ -43,7 +43,7 @@ def _rank_players_in_each_round(rounds: List[Round]) -> List[Dict[str, Any]]:
 
     return ranked_results
 
-def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int = 9) -> pd.DataFrame:
+def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int = 14) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
     """
@@ -76,7 +76,7 @@ def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int =
 
     return leaderboard_df
 
-def build_top_3_finish_rate_leaderboard(rounds: List[Round], min_rounds: int = 2) -> pd.DataFrame:
+def build_top_3_finish_rate_leaderboard(rounds: List[Round], min_rounds: int = 14) -> pd.DataFrame:
     """
     Rank and build a leaderboard showing percentage of times each player finishes in top 3.
     Only includes players with more than `min_rounds` played.
