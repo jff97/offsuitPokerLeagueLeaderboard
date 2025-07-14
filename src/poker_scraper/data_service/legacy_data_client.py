@@ -3,7 +3,7 @@ import io
 import os
 from typing import List, Dict, Any, Tuple
 from ..datamodel import Round, PlayerScore
-from .data_converter import _normalize_player_name
+from . import data_converter
 
 def _convert_json_rounds_to_round_objects(rounds: List[Dict[str, Any]]) -> List[Round]:
     """Convert a list of round documents into Round objects. Used by legacy CSV migration."""
@@ -14,7 +14,7 @@ def _convert_json_rounds_to_round_objects(rounds: List[Dict[str, Any]]) -> List[
         for score_entry in round_doc.get("scores", []):
             if score_entry.get("points", 0) > 0:
                 players.append(PlayerScore(
-                    player_name=_normalize_player_name(score_entry["name"]),
+                    player_name=data_converter._normalize_player_name(score_entry["name"]),
                     points=score_entry["points"]
                 ))
         
@@ -23,6 +23,7 @@ def _convert_json_rounds_to_round_objects(rounds: List[Dict[str, Any]]) -> List[
             round_id=round_doc["round_id"],
             bar_name=round_doc["bar_name"],
             round_date=round_doc["date"],  # Already in YYYY-MM-DD format
+            bar_id=round_doc.get("bar_id", "legacy"),  # Store bar identifier, not token
             players=tuple(players)
         )
         round_objects.append(round_obj)
@@ -57,8 +58,8 @@ def _read_csv_file(filename: str) -> str:
         return f.read().strip()
 
 
-def _parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_name: str) -> Dict[str, Dict[str, Any]]:
-    """Parse a single bar's CSV into { bar_token: {bar_name, rounds} }."""
+def _parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_id: str, bar_name: str) -> Dict[str, Dict[str, Any]]:
+    """Parse a single bar's CSV into { bar_id: {bar_name, rounds} }."""
     reader = csv.DictReader(io.StringIO(csv_data.strip()))
     
     # Get round columns (skip empty, 'Totals', 'Player')
@@ -67,9 +68,10 @@ def _parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_na
     
     # Initialize rounds with basic structure
     rounds_list: List[Dict[str, Any]] = [{
-        "round_id": f"{month_id}_{bar_token}_{idx}",
+        "round_id": f"{month_id}_{bar_id}_{idx}",
         "date": f"2025-06-{15 + idx:02d}",  # Simple date format for legacy
-        "scores": []
+        "scores": [],
+        "bar_id": bar_id  # Store as identifier, not secret token
     } for idx, _ in enumerate(round_cols, start=1)]
     
     # Process each player row
@@ -93,14 +95,14 @@ def _parse_csv_to_bar_entry(csv_data: str, month_id: str, bar_token: str, bar_na
             except (ValueError, IndexError):
                 continue  # Skip invalid scores
     
-    return {bar_token: {"bar_name": bar_name, "rounds": rounds_list}}
+    return {bar_id: {"bar_name": bar_name, "rounds": rounds_list}}
 
 def _get_legacy_month_as_round_objects(month_id: str, bars: List[Tuple[str, str, str]]) -> List[Round]:
     """Convert legacy CSV data to Round objects."""
     month_doc: Dict[str, Any] = {"bars": {}}
     
-    for bar_token, bar_name, csv_data in bars:
-        entry = _parse_csv_to_bar_entry(csv_data, month_id, bar_token, bar_name)
+    for bar_id, bar_name, csv_data in bars:
+        entry = _parse_csv_to_bar_entry(csv_data, month_id, bar_id, bar_name)
         month_doc["bars"].update(entry)
     
     list_of_rounds: List[Dict[str, Any]] = _map_month_to_list_of_rounds(month_doc)
@@ -110,26 +112,26 @@ def get_june_data_as_rounds() -> List[Round]:
     """Get June 2025 legacy data as Round objects."""
     month_id: str = "202506"
     
-    # Bar configurations: (token, name, csv_filename)
+    # Bar configurations: (bar_id, name, csv_filename) - using bar_id instead of token
     bar_configs: List[Tuple[str, str, str]] = [
-        ("qdtgqhtjkrtpe", "legacyThe Alibi", "alibi.csv"),
-        ("pwtmrylcjnjye", "legacyAnticipation", "anticipationSun.csv"),
-        ("fakeanticipationtuesdayapitoken", "legacyAnticipation Tues", "anticipationTues.csv"),
-        ("zyqphgqxppcde", "legacyBrickyard Pub", "brickyard.csv"),
-        ("xpwtrdfsvdtce", "legacyChatter's", "chatters.csv"),
-        ("jykjlbzxzkqye", "legacyCork N Barrel", "corkNBarrel.csv"),
-        ("pcynjwvnvgqme", "legacyHOSED ON BRADY", "hosed.csv"),
-        ("khptcxdgnpnbe", "legacyLakeside Pub & Grill", "lakeside.csv"),
-        ("vvkcftdnvdvge", "legacyLAYTON HEIGHTS", "laytonHeights.csv"),
-        ("czyvrxfdrjbye", "legacyMavericks ", "mavricks.csv"),
-        ("ybmwcqckckdhe", "legacySouth Bound Again", "southBound.csv"),
-        ("tbyyvqmpjsvke", "legacyTiny's A Neighborhood Sports Tavern", "tinys.csv"),
-        ("jkhwxjkpxycle", "legacyWITTS END", "wittsEnd.csv"),
+        ("june_alibi", "legacyThe Alibi", "alibi.csv"),
+        ("june_anticipation_sun", "legacyAnticipation", "anticipationSun.csv"),
+        ("june_anticipation_tues", "legacyAnticipation Tues", "anticipationTues.csv"),
+        ("june_brickyard", "legacyBrickyard Pub", "brickyard.csv"),
+        ("june_chatters", "legacyChatter's", "chatters.csv"),
+        ("june_cork_n_barrel", "legacyCork N Barrel", "corkNBarrel.csv"),
+        ("june_hosed", "legacyHOSED ON BRADY", "hosed.csv"),
+        ("june_lakeside", "legacyLakeside Pub & Grill", "lakeside.csv"),
+        ("june_layton_heights", "legacyLAYTON HEIGHTS", "laytonHeights.csv"),
+        ("june_mavericks", "legacyMavericks ", "mavricks.csv"),
+        ("june_south_bound", "legacySouth Bound Again", "southBound.csv"),
+        ("june_tinys", "legacyTiny's A Neighborhood Sports Tavern", "tinys.csv"),
+        ("june_witts_end", "legacyWITTS END", "wittsEnd.csv"),
     ]
     
     # Load CSV data for each bar
-    bars: List[Tuple[str, str, str]] = [(token, name, _read_csv_file(filename)) 
-                                       for token, name, filename in bar_configs]
+    bars: List[Tuple[str, str, str]] = [(bar_id, name, _read_csv_file(filename)) 
+                                       for bar_id, name, filename in bar_configs]
     
     return _get_legacy_month_as_round_objects(month_id, bars)
 

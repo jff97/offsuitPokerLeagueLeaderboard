@@ -1,7 +1,16 @@
 from typing import List
 from pymongo import MongoClient
 import socket
-from ..datamodel import Round
+import sys
+import os
+
+# Handle both direct execution and module import
+if __name__ == "__main__":
+    # Add the src directory to Python path when running directly
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    from src.poker_scraper.datamodel import Round
+else:
+    from ..datamodel import Round
 
 def _is_localhost():
     try:
@@ -15,6 +24,7 @@ connection_string = (
 )
 client = MongoClient(connection_string)
 db = client["offsuitpokeranalyzerdb"]
+
 if _is_localhost():
     rounds_collection = db["pokerRoundsCollectionTest"]
     logs_collection = db["logsCollectionTest"]
@@ -92,15 +102,7 @@ def main():
         
         for i, round_obj in enumerate(rounds[:10]):
             print(f"\nRound {i+1}:")
-            print(f"  ID: {round_obj.round_id}")
-            print(f"  Bar: {round_obj.bar_name}")
-            print(f"  Date: {round_obj.round_date}")
-            print(f"  Players ({len(round_obj.players)}):")
-            
-            # Sort players by points descending for better readability
-            sorted_players = sorted(round_obj.players, key=lambda p: p.points, reverse=True)
-            for j, player in enumerate(sorted_players):
-                print(f"    {j+1}. {player.player_name}: {player.points} points")
+            print(round_obj.to_dict())
         
         if len(rounds) == 0:
             print("No rounds found in database.")

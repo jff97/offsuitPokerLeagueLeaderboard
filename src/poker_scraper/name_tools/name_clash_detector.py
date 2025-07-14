@@ -5,7 +5,7 @@ Service for detecting name clashes in poker tournament data.
 from typing import List
 from collections import defaultdict
 from ..datamodel import Round
-from ..persistence import get_all_rounds
+from .. import persistence
 
 def _is_name_formatted_correct(name: str) -> bool:
     normalized = name.strip()
@@ -98,7 +98,7 @@ def _example_usage():
     print("=== Name Clash Detection Service ===\n")
     
     # Get data
-    rounds = get_all_rounds()
+    rounds = persistence.get_all_rounds()
     print(f"Analyzing {len(rounds)} rounds...")
     
     # Detect clashes

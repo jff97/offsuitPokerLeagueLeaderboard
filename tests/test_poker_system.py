@@ -31,6 +31,7 @@ class TestBrittleHardcodedData(unittest.TestCase):
                 round_id="round_001",
                 bar_name="Test Bar A",
                 round_date="2025-07-01",
+                bar_id="test_bar_a",
                 players=(
                     PlayerScore("alice", 100),
                     PlayerScore("bob", 80),
@@ -42,6 +43,7 @@ class TestBrittleHardcodedData(unittest.TestCase):
                 round_id="round_002",
                 bar_name="Test Bar B", 
                 round_date="2025-07-02",
+                bar_id="test_bar_b",
                 players=(
                     PlayerScore("bob", 120),
                     PlayerScore("eve", 90),
@@ -53,7 +55,8 @@ class TestBrittleHardcodedData(unittest.TestCase):
             Round(
                 round_id="round_003",
                 bar_name="Test Bar A",
-                round_date="2025-07-03", 
+                round_date="2025-07-03",
+                bar_id="test_bar_a", 
                 players=(
                     PlayerScore("charlie", 110),
                     PlayerScore("alice", 85),
@@ -137,6 +140,7 @@ class TestCriticalFunctionality(unittest.TestCase):
                 round_id="test_round",
                 bar_name="Test Bar",
                 round_date="2025-07-01",
+                bar_id="test_bar_1",
                 players=(
                     PlayerScore("john", 100),        # Invalid: single name
                     PlayerScore("jane doe", 80),     # Valid

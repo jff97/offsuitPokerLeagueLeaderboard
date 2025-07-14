@@ -1,8 +1,8 @@
 import re
 from typing import List, Dict, Any, Tuple
-from .api_client import fetch_board_json
+from . import api_client
 from ..datamodel import Round, PlayerScore
-from .date_utils import calculate_poker_night_date
+from . import date_utils
 
 def _create_round_object(round_data: Dict[str, Any]) -> Round:
     """Create a Round object from round data dictionary."""
@@ -23,6 +23,7 @@ def _create_round_object(round_data: Dict[str, Any]) -> Round:
         round_id=round_data["round_id"],
         bar_name=round_data["bar_name"],
         round_date=round_data["round_date"],  # Already converted date
+        bar_id=round_data.get("bar_id", ""),  # Store bar identifier, not token
         players=tuple(players)
     )
 
@@ -40,7 +41,7 @@ def get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> L
     all_rounds: List[Round] = []
 
     for token, target_weekday in api_tokens_with_day:
-        bar_json_from_api: Dict[str, Any] = fetch_board_json(token)
+        bar_json_from_api: Dict[str, Any] = api_client.fetch_board_json(token)
         if "error" in bar_json_from_api:
             print(f"Error fetching token {token}: {bar_json_from_api['error']}")
             continue
@@ -53,8 +54,10 @@ def get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> L
 
 def _convert_bar_json_to_round_objects(bar_token: str, target_weekday: int, bar_json: Dict[str, Any]) -> List[Round]:
     """Convert a single bar's API JSON directly to Round objects with correct round dates."""
-    # Extract bar name from the JSON
-    bar_name: str = bar_json.get("board", {}).get("appearance", {}).get("title", "Unknown Bar")
+    # Extract bar info from the JSON
+    board_info = bar_json.get("board", {})
+    bar_name: str = board_info.get("appearance", {}).get("title", "Unknown Bar")
+    board_id: str = str(board_info.get("id", "unknown"))  # Use board ID as bar_id
     
     players: List[Dict[str, Any]] = bar_json.get("players", [])
     
@@ -75,11 +78,11 @@ def _convert_bar_json_to_round_objects(bar_token: str, target_weekday: int, bar_
         if scores:
             entry_date = round_obj.get("date")
             # Convert API entry date to actual round date immediately
-            actual_round_date = calculate_poker_night_date(entry_date, target_weekday) if entry_date else None
+            actual_round_date = date_utils.calculate_poker_night_date(entry_date, target_weekday) if entry_date else None
             
             temp_rounds.append({
                 "round_id": str(round_obj.get("id")),
-                "bar_id": bar_token,
+                "bar_id": board_id,  # Use board ID from API, not token
                 "bar_name": bar_name,
                 "round_date": actual_round_date,  # Store calculated date
                 "scores": scores

@@ -1,78 +1,89 @@
-from .data_service import get_rounds_for_bars, BarConfig
-from .persistence import store_rounds, delete_all_round_data, get_all_logs, delete_all_logs, get_all_rounds, delete_all_warnings, save_warnings, get_all_warnings
-from .analytics import build_percentile_leaderboard, build_top_3_finish_rate_leaderboard
-from .datamodel import Round
+from . import data_service
+from . import persistence  
+from . import analytics
+from . import datamodel
 from . import name_tools
 from typing import List
 
 # Bar configurations with clean, readable format
 bar_configs = [
-    BarConfig("jykjlbzxzkqye", 2),  # Wednesday
-    BarConfig("xpwtrdfsvdtce", 3),  # Thursday
-    BarConfig("czyvrxfdrjbye", 3),  # Thursday
-    BarConfig("qdtgqhtjkrtpe", 1),  # Tuesday
-    BarConfig("vvkcftdnvdvge", 2),  # Wednesday
-    BarConfig("tbyyvqmpjsvke", 5),  # Saturday
-    BarConfig("pcynjwvnvgqme", 0),  # Monday
-    BarConfig("jkhwxjkpxycle", 3),  # Thursday
-    BarConfig("khptcxdgnpnbe", 0),  # Monday
-    BarConfig("zyqphgqxppcde", 6),  # Sunday
-    BarConfig("ybmwcqckckdhe", 2),  # Wednesday
-    BarConfig("pwtmrylcjnjye", 6),  # Sunday
+    data_service.BarConfig("jykjlbzxzkqye", 2),  # Wednesday
+    data_service.BarConfig("xpwtrdfsvdtce", 3),  # Thursday
+    data_service.BarConfig("czyvrxfdrjbye", 3),  # Thursday
+    data_service.BarConfig("qdtgqhtjkrtpe", 1),  # Tuesday
+    data_service.BarConfig("vvkcftdnvdvge", 2),  # Wednesday
+    data_service.BarConfig("tbyyvqmpjsvke", 5),  # Saturday
+    data_service.BarConfig("pcynjwvnvgqme", 0),  # Monday
+    data_service.BarConfig("jkhwxjkpxycle", 3),  # Thursday
+    data_service.BarConfig("khptcxdgnpnbe", 0),  # Monday
+    data_service.BarConfig("zyqphgqxppcde", 6),  # Sunday
+    data_service.BarConfig("ybmwcqckckdhe", 2),  # Wednesday
+    data_service.BarConfig("pwtmrylcjnjye", 6),  # Sunday
 ]
+
+def _debug_print_rounds(rounds):
+    """DEBUG: Print first 10 rounds stored in database. REMOVE THIS FUNCTION WHEN DONE DEBUGGING."""
+    import json  # TODO: Remove this import and function when debugging is complete
+    print(f"\nDEBUG: Total {len(rounds)} rounds stored")
+    print("DEBUG: First 10 rounds:")
+    for i, round_obj in enumerate(rounds[:100]):
+        print(f"\n  Round {i+1}:")
+        print(json.dumps(round_obj.to_dict(), indent=4))
+    print("DEBUG: End of rounds\n")
 
 def check_and_log_flagged_player_names():
     """Check for name clashes in player data and save as warnings."""
-    rounds = get_all_rounds()
+    rounds = persistence.get_all_rounds()
     name_clashes = name_tools.detect_name_clashes(rounds)
-    delete_all_warnings()
+    persistence.delete_all_warnings()
     if name_clashes:
-        save_warnings(name_clashes)
+        persistence.save_warnings(name_clashes)
 
 
 def delete_logs():
     """Delete all log entries from the database."""
-    delete_all_logs()
+    persistence.delete_all_logs()
 
 def get_all_logs_to_display_for_api() -> str:
     """Retrieve all logs formatted for HTML display."""
-    list_of_all_log_strings = get_all_logs()
+    list_of_all_log_strings = persistence.get_all_logs()
     combined_logs = "\n".join(list_of_all_log_strings)
     html_ready = combined_logs.replace("\n", "<br>")
     return html_ready
 
 def delete_warnings():
     """Delete all warning entries from the database."""
-    delete_all_warnings()
+    persistence.delete_all_warnings()
 
 def get_all_warnings_to_display_for_api() -> str:
     """Retrieve all warnings formatted for HTML display."""
-    list_of_all_warning_strings = get_all_warnings()
+    list_of_all_warning_strings = persistence.get_all_warnings()
     combined_warnings = "\n".join(list_of_all_warning_strings)
     html_ready = combined_warnings.replace("\n", "<br>")
     return html_ready
 
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from API and legacy CSV."""
-    delete_all_round_data()
-    all_rounds = get_rounds_for_bars(bar_configs, include_legacy=True)  # Gets both API and legacy data
-    store_rounds(all_rounds)
+    persistence.delete_all_round_data()
+    all_rounds = data_service.get_rounds_for_bars(bar_configs, include_legacy=True)  # Gets both API and legacy data
+    persistence.store_rounds(all_rounds)
     check_and_log_flagged_player_names()  # Check for name clashes after data refresh
+    _debug_print_rounds(all_rounds)  # DEBUG: Pretty print first 10 rounds
 
 def get_percentile_leaderboard_from_rounds():
     """Generate percentile-based leaderboard from stored rounds."""
-    stored_rounds = get_all_rounds()
-    percentile_leaderboard = build_percentile_leaderboard(stored_rounds)
+    stored_rounds = persistence.get_all_rounds()
+    percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds)
     return percentile_leaderboard.to_string(index=False)
 
 def get_percentile_leaderboard_from_rounds_no_round_limit():
     """Generate percentile-based leaderboard with no minimum round requirement."""
-    stored_rounds = get_all_rounds()
-    percentile_leaderboard = build_percentile_leaderboard(stored_rounds, 1)
+    stored_rounds = persistence.get_all_rounds()
+    percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, 1)
     return percentile_leaderboard.to_string(index=False)
 
 def get_placement_leaderboard_from_rounds():
     """Generate placement-based leaderboard from stored rounds."""
-    stored_rounds = get_all_rounds()
-    top3_leaderboard = build_top_3_finish_rate_leaderboard(stored_rounds)
+    stored_rounds = persistence.get_all_rounds()
+    top3_leaderboard = analytics.build_top_3_finish_rate_leaderboard(stored_rounds)
     return top3_leaderboard.to_string(index=False)

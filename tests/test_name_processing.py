@@ -123,6 +123,7 @@ class TestNameClashDetection(unittest.TestCase):
                 round_id="round1",
                 bar_name="Test Bar",
                 round_date="2025-07-01",
+                bar_id="test_bar_1",
                 players=(
                     PlayerScore("john", 100),        # Invalid: single name
                     PlayerScore("jane smith", 80),   # Valid
@@ -158,6 +159,7 @@ class TestNameClashDetection(unittest.TestCase):
                 round_id="round1",
                 bar_name="Test Bar", 
                 round_date="2025-07-01",
+                bar_id="test_bar_1",
                 players=(
                     PlayerScore("alice smith", 100),
                     PlayerScore("bob jones", 80),

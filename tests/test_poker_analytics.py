@@ -1,5 +1,10 @@
 """
-Tests for poker analytics and ranking functionality.
+Tests for poker analytics and ranking fun        round_obj = Round(
+            round_id="test_round",
+            bar_name="Test Bar",
+            round_date="2025-07-01",
+            bar_id="test_bar_1",
+            players=playersality.
 Focuses on essential mathematical calculations and real API validation.
 """
 
@@ -48,6 +53,7 @@ class TestPlayerRanking(unittest.TestCase):
             round_id="test_round",
             bar_name="Test Bar",
             round_date="2025-07-01",
+            bar_id="test_bar_1",
             players=tuple(players)
         )
         
@@ -82,6 +88,7 @@ class TestLeaderboardBuilding(unittest.TestCase):
             round_id="round1",
             bar_name="Bar A",
             round_date="2025-07-01",
+            bar_id="bar_a",
             players=(
                 PlayerScore("alice", 100),
                 PlayerScore("bob", 80),
@@ -93,6 +100,7 @@ class TestLeaderboardBuilding(unittest.TestCase):
             round_id="round2", 
             bar_name="Bar B",
             round_date="2025-07-02",
+            bar_id="bar_b",
             players=(
                 PlayerScore("bob", 100),
                 PlayerScore("alice", 80),

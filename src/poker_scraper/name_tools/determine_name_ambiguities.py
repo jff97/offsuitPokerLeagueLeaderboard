@@ -1,4 +1,4 @@
-from ..persistence import get_all_rounds
+from .. import persistence
 import re
 from collections import defaultdict
 
@@ -152,7 +152,7 @@ def write_results_to_txt(entries, show_keeps = True):
     print(f"Analysis written to {output_file_path}")
     
 if __name__ == "__main__":
-    rounds = get_all_rounds() 
+    rounds = persistence.get_all_rounds() 
     # Flatten rounds to get player-bar pairs
     entries = []
     for round_obj in rounds:
