@@ -1,9 +1,7 @@
 from . import data_service
 from . import persistence  
 from . import analytics
-from . import datamodel
 from . import name_tools
-from typing import List
 
 # Bar configurations with clean, readable format
 bar_configs = [
@@ -81,6 +79,11 @@ def get_percentile_leaderboard_from_rounds_no_round_limit():
     stored_rounds = persistence.get_all_rounds()
     percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, 1)
     return percentile_leaderboard.to_string(index=False)
+
+def get_roi_leaderboard_from_rounds():
+    stored_rounds = persistence.get_all_rounds()
+    roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds)
+    return roi_leaderboard.to_string(index=False)
 
 def get_placement_leaderboard_from_rounds():
     """Generate placement-based leaderboard from stored rounds."""

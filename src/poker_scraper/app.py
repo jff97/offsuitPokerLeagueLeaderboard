@@ -17,6 +17,11 @@ def percentile():
     csv_string = api_service.get_percentile_leaderboard_from_rounds()
     return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
 
+@app.route('/roileaderboard')
+def roi():
+    csv_string = api_service.get_roi_leaderboard_from_rounds()
+    return Response(f"<pre>{csv_string}</pre>", mimetype='text/html')
+
 @app.route('/percentileleaderboardnoroundlimit')
 def percentile_no_round_limit():
     csv_string = api_service.get_percentile_leaderboard_from_rounds_no_round_limit()
