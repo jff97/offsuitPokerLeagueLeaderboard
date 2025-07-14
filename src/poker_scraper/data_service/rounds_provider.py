@@ -3,7 +3,7 @@ from typing import List
 from .models import BarConfig
 from .data_converter import get_list_of_rounds_from_api
 from .legacy_data_client import get_june_data_as_rounds
-from poker_datamodel import Round
+from ..datamodel import Round
 
 def get_rounds_for_bars(bar_configs: List[BarConfig], include_legacy: bool = True) -> List[Round]:
     """

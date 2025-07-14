@@ -5,10 +5,6 @@ Run this file to execute all test modules in the test suite.
 
 import unittest
 import sys
-import os
-
-# Add src to path for imports (from tests/ folder perspective)
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
 # Import all test modules
 from test_name_processing import (

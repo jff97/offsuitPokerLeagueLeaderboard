@@ -1,6 +1,0 @@
-flask
-pymongo
-python-dotenv
-requests
-pandas
-rapidfuzz

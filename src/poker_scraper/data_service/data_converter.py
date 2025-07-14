@@ -1,7 +1,7 @@
 import re
 from typing import List, Dict, Any, Tuple
 from .api_client import fetch_board_json
-from poker_datamodel import Round, PlayerScore
+from ..datamodel import Round, PlayerScore
 from .date_utils import calculate_poker_night_date
 
 def _create_round_object(round_data: Dict[str, Any]) -> Round:

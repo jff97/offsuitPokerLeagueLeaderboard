@@ -4,11 +4,8 @@ Service for detecting name clashes in poker tournament data.
 
 from typing import List
 from collections import defaultdict
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from poker_datamodel import Round
-from data_persistence import get_all_rounds
+from ..datamodel import Round
+from ..persistence import get_all_rounds
 
 def _is_name_formatted_correct(name: str) -> bool:
     normalized = name.strip()

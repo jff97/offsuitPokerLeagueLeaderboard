@@ -1,7 +1,7 @@
 from typing import List
 from pymongo import MongoClient
 import socket
-from poker_datamodel import Round
+from ..datamodel import Round
 
 def _is_localhost():
     try:

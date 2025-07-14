@@ -1,10 +1,14 @@
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-
-from src.api_service import get_placement_leaderboard_from_rounds, get_percentile_leaderboard_from_rounds, refresh_rounds_database, get_percentile_leaderboard_from_rounds_no_round_limit
-from src.api_service import get_all_logs_to_display_for_api, delete_logs, get_all_warnings_to_display_for_api, delete_warnings
 from flask import Flask, Response
+from .api_service import (
+    get_placement_leaderboard_from_rounds, 
+    get_percentile_leaderboard_from_rounds, 
+    refresh_rounds_database, 
+    get_percentile_leaderboard_from_rounds_no_round_limit,
+    get_all_logs_to_display_for_api, 
+    delete_logs, 
+    get_all_warnings_to_display_for_api, 
+    delete_warnings
+)
 
 app = Flask(__name__)
 
@@ -57,3 +61,9 @@ def delete_warnings_endpoint():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+def main():
+    """Entry point for the poker-scraper command."""
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)

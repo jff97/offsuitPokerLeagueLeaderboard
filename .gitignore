@@ -2,3 +2,21 @@ __pycache__/
 *.pyc
 src/temp/
 launch.json
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# Virtual environments  
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

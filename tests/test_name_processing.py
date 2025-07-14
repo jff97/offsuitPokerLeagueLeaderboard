@@ -7,11 +7,9 @@ import sys
 import os
 
 # Add src to path for imports (from tests/ folder perspective)
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
-
-from poker_datamodel import Round, PlayerScore
-from name_tools.name_clash_detector import _is_name_formatted_correct, _names_are_similar, detect_name_clashes
-from poker_data_service.data_converter import _normalize_player_name
+from poker_scraper.datamodel import Round, PlayerScore
+from poker_scraper.name_tools.name_clash_detector import _is_name_formatted_correct, _names_are_similar, detect_name_clashes
+from poker_scraper.data_service.data_converter import _normalize_player_name
 
 
 class TestNameNormalization(unittest.TestCase):
