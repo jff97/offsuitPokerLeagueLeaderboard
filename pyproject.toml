@@ -19,13 +19,17 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-dynamic = ["dependencies"]
+dependencies = [
+    "flask",
+    "pymongo",
+    "python-dotenv",
+    "requests",
+    "pandas",
+    "rapidfuzz",
+]
 
 [project.scripts]
 poker-scraper = "poker_scraper.app:main"
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.packages.find]
 where = ["src"]
