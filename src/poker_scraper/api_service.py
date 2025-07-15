@@ -85,6 +85,13 @@ def get_roi_leaderboard_from_rounds():
     roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds)
     return roi_leaderboard.to_string(index=False)
 
+def get_trueskill_leaderboard_from_rounds():
+    stored_rounds = persistence.get_all_rounds()
+    roi_leaderboard = analytics.build_trueskill_leaderboard(stored_rounds)
+    return roi_leaderboard.to_string(index=False)
+
+
+
 def get_placement_leaderboard_from_rounds():
     """Generate placement-based leaderboard from stored rounds."""
     stored_rounds = persistence.get_all_rounds()
