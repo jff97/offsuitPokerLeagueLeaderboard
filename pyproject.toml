@@ -16,6 +16,7 @@ python-dotenv = "*"
 requests = "*"
 pandas = "*"
 rapidfuzz = "*"
+trueskill = "*"
 
 [tool.poetry.scripts]
 poker-scraper = "poker_scraper.app:main"
