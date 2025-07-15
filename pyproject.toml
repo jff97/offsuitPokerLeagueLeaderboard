@@ -32,7 +32,8 @@ authors = [
     { name = "John Fox", email = "jicfox7@gmail.com" }
 ]
 
-repository = "https://github.com/jff97/pokerScraper"
+[project.urls]
+"Repository" = "https://github.com/yourusername/poker-scraper"
 
 [project.scripts]
 poker-scraper = "poker_scraper.app:main"
