@@ -2,7 +2,7 @@ import math
 import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
-from ..datamodel import Round, PlayerScore
+from poker_scraper.datamodel import Round
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:

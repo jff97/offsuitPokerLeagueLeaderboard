@@ -66,7 +66,7 @@ def refresh_rounds_database():
     all_rounds = data_service.get_rounds_for_bars(bar_configs, include_legacy=True)  # Gets both API and legacy data
     persistence.store_rounds(all_rounds)
     check_and_log_flagged_player_names()  # Check for name clashes after data refresh
-    _debug_print_rounds(all_rounds)  # DEBUG: Pretty print first 10 rounds
+    #_debug_print_rounds(all_rounds)  # DEBUG: Pretty print first 10 rounds
 
 def get_percentile_leaderboard_from_rounds():
     """Generate percentile-based leaderboard from stored rounds."""

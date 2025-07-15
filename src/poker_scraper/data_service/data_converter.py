@@ -1,7 +1,7 @@
 import re
 from typing import List, Dict, Any, Tuple
-from . import api_client
-from ..datamodel import Round, PlayerScore
+from poker_scraper.data_service import api_client
+from poker_scraper.datamodel import Round, PlayerScore
 from . import date_utils
 
 def _create_round_object(round_data: Dict[str, Any]) -> Round:

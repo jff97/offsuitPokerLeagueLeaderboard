@@ -1,4 +1,4 @@
-from .. import persistence
+from poker_scraper import persistence
 import re
 from collections import defaultdict
 

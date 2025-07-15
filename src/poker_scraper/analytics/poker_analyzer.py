@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
-from ..datamodel import Round
+from poker_scraper.datamodel import Round
 
 
 def _calculate_percentile_rank(placement: int, total_players: int) -> float:
