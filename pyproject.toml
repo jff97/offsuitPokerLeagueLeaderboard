@@ -1,45 +1,25 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "poker-scraper"
 version = "0.1.0"
 description = "Poker tournament analytics and scraping system"
+authors = ["John Fox <jicfox7@gmail.com>"]
 readme = "readme.md"
-requires-python = ">=3.8"
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-]
-dependencies = [
-    "flask",
-    "pymongo",
-    "python-dotenv",
-    "requests",
-    "pandas",
-    "rapidfuzz",
-]
+packages = [{ include = "poker_scraper", from = "src" }]
+repository = "https://github.com/jff97/pokerScraper"
+license = "MIT"
 
-authors = [
-    { name = "John Fox", email = "jicfox7@gmail.com" }
-]
+[tool.poetry.dependencies]
+python = "^3.8"
+flask = "*"
+pymongo = "*"
+python-dotenv = "*"
+requests = "*"
+pandas = "*"
+rapidfuzz = "*"
 
-[project.urls]
-"Repository" = "https://github.com/yourusername/poker-scraper"
-
-[project.scripts]
+[tool.poetry.scripts]
 poker-scraper = "poker_scraper.app:main"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-dir]
-"" = "src"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
