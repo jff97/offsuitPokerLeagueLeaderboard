@@ -3,22 +3,9 @@ from . import data_service
 from . import persistence  
 from . import analytics
 from . import name_tools
+from poker_scraper.config import config
 
-# Bar configurations with clean, readable format
-bar_configs = [
-    data_service.BarConfig("jykjlbzxzkqye", 2),  # Wednesday
-    data_service.BarConfig("xpwtrdfsvdtce", 3),  # Thursday chatters
-    data_service.BarConfig("czyvrxfdrjbye", 3),  # Thursday mavricks
-    data_service.BarConfig("qdtgqhtjkrtpe", 1),  # Tuesday
-    data_service.BarConfig("vvkcftdnvdvge", 2),  # Wednesday
-    data_service.BarConfig("tbyyvqmpjsvke", 5),  # Saturday tinys
-    data_service.BarConfig("pcynjwvnvgqme", 0),  # Monday
-    data_service.BarConfig("jkhwxjkpxycle", 3),  # Thursday witts
-    data_service.BarConfig("khptcxdgnpnbe", 0),  # Monday
-    data_service.BarConfig("zyqphgqxppcde", 6),  # Sunday
-    data_service.BarConfig("ybmwcqckckdhe", 2),  # Wednesday southbound
-    data_service.BarConfig("pwtmrylcjnjye", 6),  # Sunday
-]
+
 
 def _debug_print_rounds(rounds):
     """DEBUG: Print first 10 rounds stored in database. REMOVE THIS FUNCTION WHEN DONE DEBUGGING."""
@@ -64,7 +51,7 @@ def get_all_warnings_to_display_for_api() -> str:
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from API and legacy CSV."""
     persistence.delete_all_round_data()
-    all_rounds = data_service.get_rounds_for_bars(bar_configs, include_legacy=True)  # Gets both API and legacy data
+    all_rounds = data_service.get_rounds_for_bars(config.BAR_CONFIGS, include_legacy=True)  # Gets both API and legacy data
     persistence.store_rounds(all_rounds)
     check_and_log_flagged_player_names()  # Check for name clashes after data refresh
     #_debug_print_rounds(all_rounds)  # DEBUG: Pretty print first 10 rounds

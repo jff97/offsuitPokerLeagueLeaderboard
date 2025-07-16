@@ -1,29 +1,15 @@
 from typing import List
 from pymongo import MongoClient
-import socket
 from poker_scraper.datamodel import Round
+from poker_scraper.config import config
 
-def _is_localhost():
-    try:
-        return socket.gethostname() == "JohnsPC"
-    except Exception:
-        return False
-
-connection_string = (
-    "mongodb+srv://jff97:REDACTED&*@cosmosoffsuitstorage.global.mongocluster.cosmos.azure.com/"
-    "?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
-)
+connection_string = (config.DATABASE_CONNECTION_STRING)
 client = MongoClient(connection_string)
-db = client["offsuitpokeranalyzerdb"]
+db = client[config.MONGO_DB_NAME]
 
-if _is_localhost():
-    rounds_collection = db["pokerRoundsCollectionTest"]
-    logs_collection = db["logsCollectionTest"]
-    warnings_collection = db["warningsCollectionTest"]
-else:
-    rounds_collection = db["pokerRoundsCollectionProd"]
-    logs_collection = db["logsCollectionProd"]
-    warnings_collection = db["warningsCollectionProd"]
+rounds_collection = db[config.ROUNDS_COLLECTION_NAME]
+logs_collection = db[config.LOGS_COLLECITON_NAME]
+warnings_collection = db[config.WARNINGS_COLLECTION_NAME]
 
 def store_rounds(rounds: List[Round]):
     for round_obj in rounds:

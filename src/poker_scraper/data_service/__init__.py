@@ -6,6 +6,5 @@ providing a simple interface for the rest of the application.
 """
 
 from .rounds_provider import get_rounds_for_bars
-from .models import BarConfig
 
-__all__ = ["get_rounds_for_bars", "BarConfig"]
+__all__ = ["get_rounds_for_bars"]

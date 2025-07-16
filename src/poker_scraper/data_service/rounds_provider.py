@@ -1,9 +1,10 @@
 """Rounds provider - unified access to poker round data from all sources."""
 from typing import List
-from . import models, data_converter, legacy_data_client
+from . import data_converter, legacy_data_client
 from poker_scraper.datamodel import Round
+from poker_scraper.config import BarConfig
 
-def get_rounds_for_bars(bar_configs: List[models.BarConfig], include_legacy: bool = True) -> List[Round]:
+def get_rounds_for_bars(bar_configs: List[BarConfig], include_legacy: bool = True) -> List[Round]:
     """
     Fetch poker rounds for configured bars from all data sources.
     
