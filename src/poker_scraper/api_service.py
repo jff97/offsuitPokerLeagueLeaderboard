@@ -7,16 +7,16 @@ from . import name_tools
 # Bar configurations with clean, readable format
 bar_configs = [
     data_service.BarConfig("jykjlbzxzkqye", 2),  # Wednesday
-    data_service.BarConfig("xpwtrdfsvdtce", 3),  # Thursday
-    data_service.BarConfig("czyvrxfdrjbye", 3),  # Thursday
+    data_service.BarConfig("xpwtrdfsvdtce", 3),  # Thursday chatters
+    data_service.BarConfig("czyvrxfdrjbye", 3),  # Thursday mavricks
     data_service.BarConfig("qdtgqhtjkrtpe", 1),  # Tuesday
     data_service.BarConfig("vvkcftdnvdvge", 2),  # Wednesday
-    data_service.BarConfig("tbyyvqmpjsvke", 5),  # Saturday
+    data_service.BarConfig("tbyyvqmpjsvke", 5),  # Saturday tinys
     data_service.BarConfig("pcynjwvnvgqme", 0),  # Monday
-    data_service.BarConfig("jkhwxjkpxycle", 3),  # Thursday
+    data_service.BarConfig("jkhwxjkpxycle", 3),  # Thursday witts
     data_service.BarConfig("khptcxdgnpnbe", 0),  # Monday
     data_service.BarConfig("zyqphgqxppcde", 6),  # Sunday
-    data_service.BarConfig("ybmwcqckckdhe", 2),  # Wednesday
+    data_service.BarConfig("ybmwcqckckdhe", 2),  # Wednesday southbound
     data_service.BarConfig("pwtmrylcjnjye", 6),  # Sunday
 ]
 
@@ -95,7 +95,7 @@ def get_trueskill_leaderboard_from_rounds():
         - 🏆 Ranks players by considering not just wins, but the skill level of the opponents you face.
         - 🔄 Adjusts your ranking after every game.
 
-        Note: Your TrueSkill score is a **relative skill estimate**, not a point total or winning percentage. Higher means stronger player, but it’s not a direct measure of money won or % of games won.
+        Note: Your TrueSkill score is a **relative skill estimate**, not a point total or winning percentage. Higher means stronger player, but it’s not a direct measure of any one stat.
     """)
 
 

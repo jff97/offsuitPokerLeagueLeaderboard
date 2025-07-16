@@ -1,6 +1,6 @@
 import re
 from typing import List, Dict, Any, Tuple
-from poker_scraper.data_service import api_client
+from . import api_client
 from poker_scraper.datamodel import Round, PlayerScore
 from . import date_utils
 
