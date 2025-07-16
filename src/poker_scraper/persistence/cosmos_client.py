@@ -5,8 +5,6 @@ from poker_scraper.config import config
 
 connection_string = (config.DATABASE_CONNECTION_STRING)
 client = MongoClient(connection_string)
-db_name = "offsuitpokeranalyzerdb"  # Be sure this is lowercase to match existing
-client.drop_database(db_name)
 db = client[config.MONGO_DB_NAME]
 
 rounds_collection = db[config.ROUNDS_COLLECTION_NAME]
