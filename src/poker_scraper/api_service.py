@@ -1,4 +1,3 @@
-import textwrap
 from . import data_service
 from . import persistence  
 from . import analytics
@@ -60,35 +59,23 @@ def get_percentile_leaderboard_from_rounds():
     """Generate percentile-based leaderboard from stored rounds."""
     stored_rounds = persistence.get_all_rounds()
     percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds)
-    return percentile_leaderboard.to_string(index=False)
+    return percentile_leaderboard
 
 def get_percentile_leaderboard_from_rounds_no_round_limit():
     """Generate percentile-based leaderboard with no minimum round requirement."""
     stored_rounds = persistence.get_all_rounds()
     percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, 1)
-    return percentile_leaderboard.to_string(index=False)
+    return percentile_leaderboard
 
 def get_roi_leaderboard_from_rounds():
     stored_rounds = persistence.get_all_rounds()
     roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds)
-    return roi_leaderboard.to_string(index=False)
+    return roi_leaderboard
 
 def get_trueskill_leaderboard_from_rounds():
-    trueskill_info = textwrap.dedent("""
-        Why We Use TrueSkill™ for Rankings
-
-        - 🎮 Used by Xbox Live for popular games like Halo, Call of Duty, Gears of War, Forza, Overwatch, Team Fortress 2, and CS:GO.
-        - ♟️ Adapted by chess, Go, and board game leagues to track true skill.
-        - 🏆 Ranks players by considering not just wins, but the skill level of the opponents you face.
-        - 🔄 Adjusts your ranking after every game.
-
-        Note: Your TrueSkill score is a **relative skill estimate**, not a point total or winning percentage. Higher means stronger player, but it’s not a direct measure of any one stat.
-    """)
-
-
     stored_rounds = persistence.get_all_rounds()
     roi_leaderboard = analytics.build_trueskill_leaderboard(stored_rounds)
-    return trueskill_info + "\n\n" + roi_leaderboard.to_string(index=False)
+    return  roi_leaderboard
 
 
 
@@ -96,4 +83,4 @@ def get_placement_leaderboard_from_rounds():
     """Generate placement-based leaderboard from stored rounds."""
     stored_rounds = persistence.get_all_rounds()
     top3_leaderboard = analytics.build_top_3_finish_rate_leaderboard(stored_rounds)
-    return top3_leaderboard.to_string(index=False)
+    return top3_leaderboard

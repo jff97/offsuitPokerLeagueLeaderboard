@@ -17,6 +17,7 @@ requests = "*"
 pandas = "*"
 rapidfuzz = "*"
 trueskill = "*"
+flask_cors = "*"
 
 [tool.poetry.scripts]
 poker-scraper = "poker_scraper.app:main"
