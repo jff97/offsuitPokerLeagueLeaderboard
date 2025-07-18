@@ -14,6 +14,7 @@ class Config:
     def __init__(self):
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
+        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 16
         self._set_cosmos_config_items()
     
     def _set_cosmos_config_items(self):

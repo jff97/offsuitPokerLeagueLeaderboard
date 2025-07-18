@@ -39,5 +39,5 @@ class Round:
         """Return unique identifier for this round."""
         return {
             "round_id": self.round_id,
-            "bar_name": self.bar_name
+            "bar_id": self.bar_id
         }

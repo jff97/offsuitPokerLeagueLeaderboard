@@ -18,6 +18,11 @@ def refresh_rounds():
     api_service.refresh_rounds_database()
     return Response("<h1>Rounds Database Was refreshed for current month</h1>", mimetype='text/html')
 
+@app.route('/api/refreshlegacyrounds')
+def refresh_legacy_rounds():
+    api_service.refresh_legacy_rounds()
+    return Response("<h1>Rounds Database Was refreshed for current legacy june months</h1>", mimetype='text/html')
+
 @app.route('/api/getlogs')
 def get_logs():
     log_string = api_service.get_all_logs_to_display_for_api()

@@ -1,5 +1,5 @@
 from typing import List
-from pymongo import MongoClient
+from pymongo import MongoClient, ReplaceOne
 from poker_scraper.datamodel import Round
 from poker_scraper.config import config
 
@@ -11,13 +11,20 @@ rounds_collection = db[config.ROUNDS_COLLECTION_NAME]
 logs_collection = db[config.LOGS_COLLECITON_NAME]
 warnings_collection = db[config.WARNINGS_COLLECTION_NAME]
 
-def store_rounds(rounds: List[Round]):
-    for round_obj in rounds:
-        rounds_collection.replace_one(
+def store_rounds(rounds: List[Round]) -> None:
+    if not rounds:
+        return
+    
+    operations = [
+        ReplaceOne(
             filter=round_obj.unique_id(),
             replacement=round_obj.to_dict(),
             upsert=True
         )
+        for round_obj in rounds
+    ]
+
+    rounds_collection.bulk_write(operations, ordered=False)
 
 def get_all_rounds() -> List[Round]:
     docs = list(rounds_collection.find({}))

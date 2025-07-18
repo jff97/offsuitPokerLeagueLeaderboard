@@ -4,6 +4,7 @@ Service for detecting name clashes in poker tournament data.
 
 from typing import List
 from collections import defaultdict
+from rapidfuzz import fuzz
 from poker_scraper.datamodel import Round
 from poker_scraper import persistence
 
@@ -19,8 +20,6 @@ def _is_name_formatted_correct(name: str) -> bool:
     
     return True
 
-
-from rapidfuzz import fuzz
 
 def _names_are_similar(name1: str, name2: str) -> bool:
     """
@@ -51,7 +50,6 @@ def _names_are_similar(name1: str, name2: str) -> bool:
         return similarity >= 78
     except ValueError:
         return False
-
 
 
 def detect_name_clashes(rounds: List[Round]) -> List[str]:
