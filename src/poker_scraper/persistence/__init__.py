@@ -7,8 +7,7 @@ providing a clean interface for storage and retrieval operations.
 
 from .cosmos_client import (
     store_rounds,
-    get_all_rounds, 
-    delete_all_round_data,
+    get_all_rounds,
     save_log,
     save_logs,
     get_all_logs,
@@ -22,7 +21,6 @@ from .cosmos_client import (
 __all__ = [
     "store_rounds",
     "get_all_rounds", 
-    "delete_all_round_data",
     "save_log",
     "save_logs",
     "get_all_logs",

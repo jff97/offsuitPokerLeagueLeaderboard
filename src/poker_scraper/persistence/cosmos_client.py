@@ -30,8 +30,6 @@ def get_all_rounds() -> List[Round]:
     docs = list(rounds_collection.find({}))
     return [Round.from_dict(doc) for doc in docs]
 
-def delete_all_round_data() -> None:
-    return rounds_collection.delete_many({})
 
 def save_log(log_str: str) -> None:
     log_doc = {"log": log_str}

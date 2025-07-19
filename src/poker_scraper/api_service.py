@@ -49,7 +49,6 @@ def get_all_warnings_to_display_for_api() -> str:
 
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from API and legacy CSV."""
-    persistence.delete_all_round_data()
     all_rounds = data_service.get_this_months_rounds_for_bars(config.BAR_CONFIGS)  
     persistence.store_rounds(all_rounds)
     check_and_log_flagged_player_names()  # Check for name clashes after data refresh
