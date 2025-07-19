@@ -64,16 +64,19 @@ def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int =
             average_percentile = round(stats["TotalPercentile"] / stats["RoundsPlayed"], 2)
             leaderboard_records.append({
                 "Player": player_name,
-                "RoundsPlayed": stats["RoundsPlayed"],
-                "AveragePercentileRank": average_percentile
+                "Avg Players Outlasted": f"{average_percentile:.2f}%",
+                "Rounds Played": stats["RoundsPlayed"]
             })
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
     if leaderboard_df.empty:
         leaderboard_df = pd.DataFrame([["No players met the minimum round requirement"]], columns=["Message"])
     else:
-        leaderboard_df.sort_values(by="AveragePercentileRank", ascending=False, inplace=True)
+        # Sort by the numeric value of Avg Players Outlasted (strip % and convert to float)
+        leaderboard_df["_sort"] = leaderboard_df["Avg Players Outlasted"].str.rstrip('%').astype(float)
+        leaderboard_df.sort_values(by="_sort", ascending=False, inplace=True)
         leaderboard_df.reset_index(drop=True, inplace=True)
+        leaderboard_df.drop(columns=["_sort"], inplace=True)
 
     return leaderboard_df
 
