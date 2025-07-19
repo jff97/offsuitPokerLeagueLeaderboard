@@ -1,15 +1,8 @@
-from poker_scraper import persistence
 import re
+
 from collections import defaultdict
 
-# my steps i think are 
-# 1. do all non legacy add last names manually in website for current month
-# 2. re run list make sure we got them all and do 1 again if needed
-# 3. for legacy do the add last names that are obvious and leave ones that arent obvious
-# 4. run the script and make look at repeating 3 if any were missed
-# 5. apply safe merge_into steps for legacy
-# 6. check manually the script for complex ambiguities like anthony sr and tony sr and tony s
-# 7. should not need to do database script merge into operations for current month because it can be taken care of in the website
+from poker_scraper import persistence
 
 def normalize(name: str) -> str:
     """Normalize player names to lowercase and single-space separated."""

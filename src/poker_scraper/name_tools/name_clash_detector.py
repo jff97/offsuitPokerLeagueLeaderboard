@@ -1,12 +1,11 @@
-"""
-Service for detecting name clashes in poker tournament data.
-"""
 
 from typing import List
+
 from collections import defaultdict
+
 from rapidfuzz import fuzz
+
 from poker_scraper.datamodel import Round
-from poker_scraper import persistence
 
 def _is_name_formatted_correct(name: str) -> bool:
     normalized = name.strip()
@@ -90,20 +89,3 @@ def detect_name_clashes(rounds: List[Round]) -> List[str]:
                 clashes.append(f"Similar names: '{name1}' at {bar_dates1_string} vs '{name2}' at {bar_dates2_string}")
     
     return clashes
-
-# Example usage and testing
-def _example_usage():
-    print("=== Name Clash Detection Service ===\n")
-    
-    # Get data
-    rounds = persistence.get_all_rounds()
-    print(f"Analyzing {len(rounds)} rounds...")
-    
-    # Detect clashes
-    clashes = detect_name_clashes(rounds)
-    print(f"\nFound {len(clashes)} potential name clashes:")
-    for clash_string in clashes:  # Show all clashes
-        print(f"  {clash_string}")
-
-if __name__ == "__main__":
-    _example_usage()

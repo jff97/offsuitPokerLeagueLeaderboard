@@ -1,5 +1,8 @@
+
 from typing import List
+
 from pymongo import MongoClient, ReplaceOne
+
 from poker_scraper.datamodel import Round
 from poker_scraper.config import config
 
@@ -73,26 +76,3 @@ def get_all_warnings() -> List[str]:
 def delete_all_warnings() -> None:
     """Delete all warning entries from the database."""
     warnings_collection.delete_many({})
-
-def main():
-    """Print 10 rounds from the database for testing purposes."""
-    try:
-        rounds = get_all_rounds()
-        print(f"Total rounds in database: {len(rounds)}")
-        print("\nFirst 10 rounds:")
-        print("-" * 80)
-        
-        for i, round_obj in enumerate(rounds[:10]):
-            print(f"\nRound {i+1}:")
-            print(round_obj.to_dict())
-        
-        if len(rounds) == 0:
-            print("No rounds found in database.")
-        elif len(rounds) > 10:
-            print(f"\n... and {len(rounds) - 10} more rounds")
-            
-    except Exception as e:
-        print(f"Error retrieving rounds: {e}")
-
-if __name__ == "__main__":
-    main()

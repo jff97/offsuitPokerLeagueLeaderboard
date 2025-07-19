@@ -1,20 +1,9 @@
 from . import data_service
-from . import persistence  
+from . import persistence
 from . import analytics
 from . import name_tools
+
 from poker_scraper.config import config
-
-
-
-def _debug_print_rounds(rounds):
-    """DEBUG: Print first 10 rounds stored in database. REMOVE THIS FUNCTION WHEN DONE DEBUGGING."""
-    import json  # TODO: Remove this import and function when debugging is complete
-    print(f"\nDEBUG: Total {len(rounds)} rounds stored")
-    print("DEBUG: First 10 rounds:")
-    for i, round_obj in enumerate(rounds[:100]):
-        print(f"\n  Round {i+1}:")
-        print(json.dumps(round_obj.to_dict(), indent=4))
-    print("DEBUG: End of rounds\n")
 
 def check_and_log_flagged_player_names():
     """Check for name clashes in player data and save as warnings."""
@@ -51,8 +40,7 @@ def refresh_rounds_database():
     """Refresh the rounds database with latest data from API and legacy CSV."""
     all_rounds = data_service.get_this_months_rounds_for_bars(config.BAR_CONFIGS)  
     persistence.store_rounds(all_rounds)
-    check_and_log_flagged_player_names()  # Check for name clashes after data refresh
-    #_debug_print_rounds(all_rounds)  # DEBUG: Pretty print first 10 rounds
+    check_and_log_flagged_player_names()  # Check for name clashes after data 
 
 def refresh_legacy_rounds():
     all_rounds = data_service.get_june_data_as_rounds()

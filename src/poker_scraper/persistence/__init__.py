@@ -1,10 +1,3 @@
-"""
-Data Persistence Module - Handles all database operations.
-
-This module encapsulates database interactions for rounds, logs, and warnings,
-providing a clean interface for storage and retrieval operations.
-"""
-
 from .cosmos_client import (
     store_rounds,
     get_all_rounds,
