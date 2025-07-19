@@ -3,6 +3,7 @@ import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
 from poker_scraper.datamodel import Round
+from poker_scraper.config import config
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:
@@ -73,7 +74,7 @@ def build_roi_leaderboard(
     rounds: List[Round],
     payout_percent: float = 0.18,
     steepness: float = 1.1,
-    min_rounds_required: int = 14
+    min_rounds_required: int = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 ) -> pd.DataFrame:
     """
     Build a leaderboard showing each player's average net ROI across rounds.
