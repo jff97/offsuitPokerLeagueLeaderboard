@@ -125,9 +125,9 @@ def leaderboard_to_dataframe(
         data.append({
             "Rank": rank,
             "Name": player.name,
-            "Unbiased Skill Level (Conservative)": round(player.conservative_score, 2),
-            "Biased Skill Level (Mu)": round(r.mu, 2),
-            "Uncertainty (Sigma)": round(r.sigma, 2),
+            "Unbiased Ranking": round(player.conservative_score, 2),
+            "Biased Ranking": round(r.mu, 2),
+            "Uncertainty": round(r.sigma, 2),
         })
 
     return pd.DataFrame(data)
