@@ -1,18 +1,16 @@
 from . import data_service
 from . import persistence
 from . import analytics
-from . import name_tools
-
-from poker_scraper.config import config
+from . import name_tools 
 
 def check_and_log_flagged_player_names():
-    """Check for name clashes in player data and save as warnings."""
+    name_tools.adaptive_name_problem_finder_process()
+    
     rounds = persistence.get_all_rounds()
     name_clashes = name_tools.detect_name_clashes(rounds)
     persistence.delete_all_warnings()
     if name_clashes:
         persistence.save_warnings(name_clashes)
-
 
 def delete_logs():
     """Delete all log entries from the database."""
@@ -38,7 +36,7 @@ def get_all_warnings_to_display_for_api() -> str:
 
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from API and legacy CSV."""
-    all_rounds = data_service.get_this_months_rounds_for_bars(config.BAR_CONFIGS)  
+    all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
     check_and_log_flagged_player_names()  # Check for name clashes after data 
 
@@ -74,3 +72,10 @@ def get_placement_leaderboard_from_rounds():
     stored_rounds = persistence.get_all_rounds()
     top3_leaderboard = analytics.build_top_3_finish_rate_leaderboard(stored_rounds)
     return top3_leaderboard
+
+def get_ambiguous_names():
+    rounds = persistence.get_all_rounds()
+    return name_tools.get_ambiguous_names_with_actions(rounds)
+
+def get_all_name_clashes():
+    return name_tools.get_all_name_problems_as_string()

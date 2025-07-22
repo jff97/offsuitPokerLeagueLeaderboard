@@ -1,11 +1,10 @@
-"""
-Name tools package for poker tournament data.
-Contains utilities for name clash detection and name resolution.
-"""
-
 from .name_clash_detector import detect_name_clashes
-from .determine_name_ambiguities import write_results_to_txt
+from .determine_name_ambiguities import get_ambiguous_names_with_actions
+from .adaptive_name_problem_detector import adaptive_name_problem_finder_process, get_all_name_problems_as_string
 
 __all__ = [
     'detect_name_clashes',
+    'get_ambiguous_names_with_actions',
+    'adaptive_name_problem_finder_process',
+    'get_all_name_problems_as_string'
 ]

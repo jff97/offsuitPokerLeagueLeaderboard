@@ -1,9 +1,9 @@
-
 from typing import List
 
 from pymongo import MongoClient, ReplaceOne
 
 from poker_scraper.datamodel import Round
+from poker_scraper.datamodel import NameClash
 from poker_scraper.config import config
 
 connection_string = (config.DATABASE_CONNECTION_STRING)
@@ -11,8 +11,9 @@ client = MongoClient(connection_string)
 db = client[config.MONGO_DB_NAME]
 
 rounds_collection = db[config.ROUNDS_COLLECTION_NAME]
-logs_collection = db[config.LOGS_COLLECITON_NAME]
+logs_collection = db[config.LOGS_COLLECTION_NAME]
 warnings_collection = db[config.WARNINGS_COLLECTION_NAME]
+name_clashes_collection = db[config.NAME_INFOS_COLLECTION_NAME]
 
 def store_rounds(rounds: List[Round]) -> None:
     if not rounds:
@@ -76,3 +77,29 @@ def get_all_warnings() -> List[str]:
 def delete_all_warnings() -> None:
     """Delete all warning entries from the database."""
     warnings_collection.delete_many({})
+
+def save_these_name_clashes(name_infos: List[NameClash]) -> None:
+    if not name_infos:
+        return
+    operations = [
+        ReplaceOne(
+            filter={"name": name_info.unique_id()},
+            replacement=name_info.to_dict(),
+            upsert=True
+        )
+        for name_info in name_infos
+    ]
+    name_clashes_collection.bulk_write(operations, ordered=False)
+
+def get_all_name_clashes() -> List[NameClash]:
+    docs = list(name_clashes_collection.find({}))
+    return [NameClash.from_dict(doc) for doc in docs]
+
+def delete_these_name_clashes(name_infos: List[NameClash]) -> None:
+    if not name_infos:
+        return
+    names_to_delete = [name_info.name for name_info in name_infos]
+    name_clashes_collection.delete_many({"name": {"$in": names_to_delete}})
+
+def delete_all_name_clashes() -> None:
+    name_clashes_collection.delete_many({})
