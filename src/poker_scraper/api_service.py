@@ -79,3 +79,6 @@ def get_ambiguous_names():
 
 def get_all_name_clashes():
     return name_tools.get_all_name_problems_as_string()
+
+def delete_all_name_clashes_temp():
+    return name_tools.delete_all_name_clashes_temp_testing_method()

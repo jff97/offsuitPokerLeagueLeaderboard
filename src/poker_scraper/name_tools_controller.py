@@ -17,3 +17,8 @@ def ambiguous_names():
 def get_name_clashes():
     name_clashes = api_service.get_all_name_clashes()
     return Response(f"<pre>{name_clashes}</pre>", mimetype='text/html')
+
+@name_tools_bp.route("deletenameclashes")
+def delete_name_clashes():
+    api_service.delete_all_name_clashes_temp()
+    return Response(f"<pre>All Name clashes were deleted</pre>", mimetype='text/html')

@@ -63,6 +63,8 @@ def delete_recently_fixed_name_clashes(all_names_from_rounds_unique: List[str]):
 def get_all_name_problems_as_string():
     name_clashes = persistence.get_all_name_clashes()
     return _pretty_print_name_clashes(name_clashes)
+def delete_all_name_clashes_temp_testing_method():
+    persistence.delete_all_name_clashes()
 
 def _characterize_all_new_names(all_names, new_names_only) -> List[NameClash]:
     list_new_name_clashes = []
@@ -108,8 +110,8 @@ def _email_new_name_clashes(name_clashes: List[NameClash]):
     
     list_of_recipient_email_addresses = config.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH
     subject = "New Name Clashes Detected - Action Required - AUTOMATED"
-    body = "The latest name check process found some new name clashes that require your attention. Attached is the names that are clashing now. Fixing them before the end of the league month will make things simple.\n"
-    body += "go to \n" + config.NAME_TOOL_1_LINK + "\nand\n" + config.NAME_TOOL_2_LINK + "\nfor more detailed info on the clashes and info on how to fix them."
+    body = "The latest name check process found some new name clashes that require your attention. ATTACHED is the names that started clashing today. Fixing them before the end of the league month will make things simpler.\n"
+    body += "go to these 2 links for more detailed info on the clashes and info on how to fix them. \n" + config.NAME_TOOL_1_LINK + "\nand\n" + config.NAME_TOOL_2_LINK
    
     file_name = datetime.datetime.now().strftime("%Y%m%d") + "newNameClashes.txt"
     for recipient_email_address in list_of_recipient_email_addresses:
