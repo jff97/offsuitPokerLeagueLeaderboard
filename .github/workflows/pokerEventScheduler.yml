@@ -15,9 +15,9 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Conditionally wait 2 minutes if triggered by workflow_run
+      - name: Conditionally wait 40 seconds if triggered by workflow_run #waiting for server to be ready for endpoint call
         if: github.event_name == 'workflow_run'
-        run: sleep 120  # 2 minutes
+        run: sleep 40  # 40 seconds
 
       - name: Hit refresh rounds DB endpoint
         run: |
