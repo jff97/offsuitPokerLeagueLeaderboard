@@ -15,7 +15,7 @@ class Config:
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 16
-        self.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH = ["jicfox7@gmail.com"]
+        self.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH = ["jicfox7@gmail.com", "ospl2025@gmail.com"]
         self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL")
         self.NAME_TOOL_1_LINK = self.POKER_APP_BASE_URL + "api/nametools/getwarnings"
         self.NAME_TOOL_2_LINK = self.POKER_APP_BASE_URL + "api/nametools/ambiguousnamestool"
