@@ -3,6 +3,7 @@ from . import data_service
 from . import persistence
 from . import analytics
 from . import name_tools 
+from .config import config
 
 def trigger_for_new_rounds_were_entered():
     # Check for name clashes after data update
@@ -56,25 +57,22 @@ def refresh_legacy_rounds():
     persistence.store_rounds(all_rounds)
     trigger_for_new_rounds_were_entered()
 
-@lru_cache(maxsize=1)
-def get_percentile_leaderboard_from_rounds():
-    """Generate percentile-based leaderboard from stored rounds."""
+@lru_cache(maxsize=4)
+def get_percentile_leaderboard_from_rounds(min_rounds_required: int = None):
+    if min_rounds_required in (None, 0):
+        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+
     stored_rounds = persistence.get_all_rounds()
-    print("stored rounds length = " + str(len(stored_rounds)))
-    percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds)
+    percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, min_rounds_required)
     return percentile_leaderboard
 
-@lru_cache(maxsize=1)
-def get_percentile_leaderboard_from_rounds_no_round_limit():
-    """Generate percentile-based leaderboard with no minimum round requirement."""
-    stored_rounds = persistence.get_all_rounds()
-    percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, 1)
-    return percentile_leaderboard
+@lru_cache(maxsize=4)
+def get_roi_leaderboard_from_rounds(min_rounds_required: int = None):
+    if min_rounds_required in (None, 0):
+        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
-@lru_cache(maxsize=1)
-def get_roi_leaderboard_from_rounds():
     stored_rounds = persistence.get_all_rounds()
-    roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds)
+    roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds, min_rounds_required)
     return roi_leaderboard
 
 @lru_cache(maxsize=1)
@@ -84,10 +82,12 @@ def get_trueskill_leaderboard_from_rounds():
     return  roi_leaderboard
 
 @lru_cache(maxsize=1)
-def get_placement_leaderboard_from_rounds():
-    """Generate placement-based leaderboard from stored rounds."""
+def get_placement_leaderboard_from_rounds(min_rounds_required: int = None):
+    if min_rounds_required in (None, 0):
+        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+
     stored_rounds = persistence.get_all_rounds()
-    top3_leaderboard = analytics.build_top_3_finish_rate_leaderboard(stored_rounds)
+    top3_leaderboard = analytics.build_top_3_finish_rate_leaderboard(stored_rounds, min_rounds_required)
     return top3_leaderboard
 
 def get_ambiguous_names():
@@ -102,14 +102,12 @@ def delete_all_name_clashes_temp():
 
 def hydrate_cached_functions():
     get_percentile_leaderboard_from_rounds()
-    get_percentile_leaderboard_from_rounds_no_round_limit()
     get_roi_leaderboard_from_rounds()
     get_trueskill_leaderboard_from_rounds()
     get_placement_leaderboard_from_rounds()
 
 def clear_all_lru_caches():
     get_percentile_leaderboard_from_rounds.cache_clear()
-    get_percentile_leaderboard_from_rounds_no_round_limit.cache_clear()
     get_roi_leaderboard_from_rounds.cache_clear()
     get_trueskill_leaderboard_from_rounds.cache_clear()
     get_placement_leaderboard_from_rounds.cache_clear()

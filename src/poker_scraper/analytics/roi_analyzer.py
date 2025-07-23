@@ -70,12 +70,7 @@ def _calculate_net_roi(placement: int, total_players: int, payout_percent: float
     return -1.0  # No payout = full loss
 
 
-def build_roi_leaderboard(
-    rounds: List[Round],
-    payout_percent: float = 0.18,
-    steepness: float = 1.1,
-    min_rounds_required: int = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
-) -> pd.DataFrame:
+def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_percent: float = 0.18, steepness: float = 1.1) -> pd.DataFrame:
     """
     Build a leaderboard showing each player's average net ROI across rounds.
     ROI is based on share of prize pool versus 1 unit buy-in.

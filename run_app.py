@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Entry point for running the poker scraper application.
+Is called from azure startup command
 """
 
 import os
