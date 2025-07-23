@@ -1,5 +1,6 @@
-from flask import Flask, Response
+from flask import Flask, Response, g
 from flask_cors import CORS
+import time
 from . import api_service
 from .leaderboard_controller import leaderboard_bp
 from .name_tools_controller import name_tools_bp
@@ -9,6 +10,17 @@ CORS(app)
 
 app.register_blueprint(leaderboard_bp)  
 app.register_blueprint(name_tools_bp)
+
+@app.before_request
+def before_api_request():
+    g.start_time = time.perf_counter()
+
+@app.after_request
+def after_api_request(response):
+    if hasattr(g, 'start_time'):
+        duration = time.perf_counter() - g.start_time
+        response.headers["X-Response-Time"] = f"{duration:.4f}s"
+    return response
 
 @app.route('/')
 def home():

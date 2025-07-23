@@ -3,14 +3,22 @@ name: Refresh Rounds DB
 on:
   schedule:
     - cron: '29 7 * * *'   # 2:29 AM CT (7:29 AM UTC)
-    - cron: '16 14 * * *'   # 9:16 AM CT (2:16 PM UTC)
-    - cron: '11 22 * * *'   # 5:11 PM CT (10:11 PM UTC)
+    - cron: '16 14 * * *'  # 9:16 AM CT (2:16 PM UTC)
+    - cron: '11 22 * * *'  # 5:11 PM CT (10:11 PM UTC)
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Build and deploy Python app to Azure Web App - OffsuitPokerAnalyzer"]
+    types:
+      - completed
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      - name: Conditionally wait 2 minutes if triggered by workflow_run
+        if: github.event_name == 'workflow_run'
+        run: sleep 120  # 2 minutes
+
       - name: Hit refresh rounds DB endpoint
         run: |
           STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/api/refreshrounds)

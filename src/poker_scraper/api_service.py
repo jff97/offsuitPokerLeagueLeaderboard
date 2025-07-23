@@ -1,9 +1,20 @@
+from functools import lru_cache
 from . import data_service
 from . import persistence
 from . import analytics
 from . import name_tools 
 
-def check_and_log_flagged_player_names():
+def trigger_for_new_rounds_were_entered():
+    # Check for name clashes after data update
+    check_and_log_clashing_player_names()
+
+    # we clear leaderboard caching because leaderboards only change when rounds get updated
+    clear_all_lru_caches()
+    
+    #we call all the cached functions so they are lightning fast for all users 
+    hydrate_cached_functions()
+
+def check_and_log_clashing_player_names():
     name_tools.adaptive_name_problem_finder_process()
     
     rounds = persistence.get_all_rounds()
@@ -35,15 +46,17 @@ def get_all_warnings_to_display_for_api() -> str:
     return html_ready
 
 def refresh_rounds_database():
-    """Refresh the rounds database with latest data from API and legacy CSV."""
+    """Refresh the rounds database with latest data from this months Keep the score API"""
     all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
-    check_and_log_flagged_player_names()  # Check for name clashes after data 
+    trigger_for_new_rounds_were_entered()
 
 def refresh_legacy_rounds():
     all_rounds = data_service.get_june_data_as_rounds()
     persistence.store_rounds(all_rounds)
+    trigger_for_new_rounds_were_entered()
 
+@lru_cache(maxsize=1)
 def get_percentile_leaderboard_from_rounds():
     """Generate percentile-based leaderboard from stored rounds."""
     stored_rounds = persistence.get_all_rounds()
@@ -51,22 +64,26 @@ def get_percentile_leaderboard_from_rounds():
     percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds)
     return percentile_leaderboard
 
+@lru_cache(maxsize=1)
 def get_percentile_leaderboard_from_rounds_no_round_limit():
     """Generate percentile-based leaderboard with no minimum round requirement."""
     stored_rounds = persistence.get_all_rounds()
     percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, 1)
     return percentile_leaderboard
 
+@lru_cache(maxsize=1)
 def get_roi_leaderboard_from_rounds():
     stored_rounds = persistence.get_all_rounds()
     roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds)
     return roi_leaderboard
 
+@lru_cache(maxsize=1)
 def get_trueskill_leaderboard_from_rounds():
     stored_rounds = persistence.get_all_rounds()
     roi_leaderboard = analytics.build_trueskill_leaderboard(stored_rounds)
     return  roi_leaderboard
 
+@lru_cache(maxsize=1)
 def get_placement_leaderboard_from_rounds():
     """Generate placement-based leaderboard from stored rounds."""
     stored_rounds = persistence.get_all_rounds()
@@ -82,3 +99,17 @@ def get_all_name_clashes():
 
 def delete_all_name_clashes_temp():
     return name_tools.delete_all_name_clashes_temp_testing_method()
+
+def hydrate_cached_functions():
+    get_percentile_leaderboard_from_rounds()
+    get_percentile_leaderboard_from_rounds_no_round_limit()
+    get_roi_leaderboard_from_rounds()
+    get_trueskill_leaderboard_from_rounds()
+    get_placement_leaderboard_from_rounds()
+
+def clear_all_lru_caches():
+    get_percentile_leaderboard_from_rounds.cache_clear()
+    get_percentile_leaderboard_from_rounds_no_round_limit.cache_clear()
+    get_roi_leaderboard_from_rounds.cache_clear()
+    get_trueskill_leaderboard_from_rounds.cache_clear()
+    get_placement_leaderboard_from_rounds.cache_clear()
