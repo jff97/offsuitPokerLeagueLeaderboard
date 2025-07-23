@@ -113,20 +113,15 @@ def print_leaderboard(leaderboard: List[PlayerRating], max_sigma: float = None) 
         )
 
 def leaderboard_to_dataframe(
-    leaderboard: List[PlayerRating], max_sigma: Optional[float] = None
-) -> pd.DataFrame:
-    filtered = leaderboard
-    if max_sigma is not None:
-        filtered = [p for p in leaderboard if p.rating.sigma <= max_sigma]
-
+    leaderboard: List[PlayerRating]) -> pd.DataFrame:
     data = []
-    for rank, player in enumerate(filtered, start=1):
+    for rank, player in enumerate(leaderboard, start=1):
         r = player.rating
         data.append({
             "Rank": rank,
             "Name": player.name,
-            "Unbiased Ranking": round(player.conservative_score, 2),
-            "Biased Ranking": round(r.mu, 2),
+            "Conservative Ranking (Raw - 3*uncertainty)": round(player.conservative_score, 2),
+            "Raw Ranking": round(r.mu, 2),
             "Uncertainty": round(r.sigma, 2),
         })
 
@@ -145,8 +140,7 @@ def build_trueskill_leaderboard(rounds: List[Round]):
     engine.process_multiple_rounds(processed_rounds)
 
     leaderboard = engine.get_leaderboard()
-    #print_leaderboard(leaderboard, 3.2)
-    df_trueskill = leaderboard_to_dataframe(leaderboard, 3.2)
+    df_trueskill = leaderboard_to_dataframe(leaderboard)
     return df_trueskill
    
 

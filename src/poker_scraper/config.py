@@ -20,6 +20,7 @@ class Config:
         self.NAME_TOOL_1_LINK = self.POKER_APP_BASE_URL + "api/nametools/getwarnings"
         self.NAME_TOOL_2_LINK = self.POKER_APP_BASE_URL + "api/nametools/ambiguousnamestool"
         self.NAME_SIMILARITY_THRESHOLD = 79.9
+        self.MAX_SIGMA_DISPLAYED_TRUESKILL = 7
         self._set_cosmos_config_items()
         self._set_email_stuff()
 
