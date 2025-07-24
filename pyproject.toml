@@ -18,6 +18,7 @@ pandas = "*"
 rapidfuzz = "*"
 trueskill = "*"
 flask_cors = "*"
+flask-limiter = "*"
 
 [tool.poetry.scripts]
 poker-scraper = "poker_scraper.app:main"

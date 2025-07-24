@@ -4,9 +4,12 @@ import time
 from . import api_service
 from .leaderboard_controller import leaderboard_bp
 from .name_tools_controller import name_tools_bp
+from .rate_limiter import limiter
 
 app = Flask(__name__)
 CORS(app)
+limiter.init_app(app)
+
 
 app.register_blueprint(leaderboard_bp)  
 app.register_blueprint(name_tools_bp)
