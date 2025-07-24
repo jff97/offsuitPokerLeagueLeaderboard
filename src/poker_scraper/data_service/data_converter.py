@@ -31,7 +31,7 @@ def _normalize_player_name(raw_name: str) -> str:
     """Clean and standardize player names."""
     name = str(raw_name).lower() # Convert to string and lowercase for uniformity
     name = re.sub(r'\s+', ' ', name) # Collapse all whitespace (tabs, newlines, multiple spaces) into a single space
-    name = re.sub(r'[^a-z0-9 ]', '', name) # Remove all characters except lowercase letters, numbers, and spaces
+    name = re.sub(r'[^a-z0-9 ?]', '', name) # Remove all characters except lowercase letters, numbers, and spaces
     name = name.strip() # Remove any leading or trailing spaces (could be left from previous step)
 
     return name
