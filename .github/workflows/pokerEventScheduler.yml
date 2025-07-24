@@ -21,7 +21,7 @@ jobs:
 
       - name: Hit refresh rounds DB endpoint
         run: |
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/api/refreshrounds)
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.johnfoxweb.com/api/refreshrounds)
           echo "Status code: $STATUS_CODE"
           if [ "$STATUS_CODE" -ne 200 ]; then
             echo "Request failed"
