@@ -36,11 +36,12 @@ jobs:
           CF_IPV4=$(curl -s https://www.cloudflare.com/ips-v4)
           CF_IPV6=$(curl -s https://www.cloudflare.com/ips-v6)
 
-          # Clear existing access restrictions (all rules)
-          az webapp config access-restriction remove \
-            --resource-group "$AZURE_RESOURCE_GROUP" \
-            --name "$AZURE_WEBAPP_NAME" \
-            --rule-name "*" || true
+          # Remove existing rules one by one
+          rules=$(az webapp config access-restriction show --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_WEBAPP_NAME" --query "ipSecurityRestrictions[].name" -o tsv || true)
+          for rule in $rules; do
+            echo "Removing rule: $rule"
+            az webapp config access-restriction remove --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_WEBAPP_NAME" --rule-name "$rule"
+          done
 
           # Add new IPv4 rules
           INDEX=0
