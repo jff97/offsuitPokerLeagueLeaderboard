@@ -13,19 +13,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Install Azure CLI
+      - name: Install Azure CLI and jq
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          sudo apt-get update && sudo apt-get install -y jq
 
       - name: Fetch and apply Cloudflare IPs
         env:
@@ -36,11 +32,25 @@ jobs:
           CF_IPV4=$(curl -s https://www.cloudflare.com/ips-v4)
           CF_IPV6=$(curl -s https://www.cloudflare.com/ips-v6)
 
-          # Remove existing rules one by one
-          rules=$(az webapp config access-restriction show --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_WEBAPP_NAME" --query "ipSecurityRestrictions[].name" -o tsv || true)
-          for rule in $rules; do
-            echo "Removing rule: $rule"
-            az webapp config access-restriction remove --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_WEBAPP_NAME" --rule-name "$rule"
+          # Remove existing Allow rules only, skip Deny rules
+          rules=$(az webapp config access-restriction show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            --query "ipSecurityRestrictions[].{name:name,action:action}" -o json || true)
+
+          echo "$rules" | jq -c '.[]' | while read -r rule; do
+            name=$(echo "$rule" | jq -r '.name')
+            action=$(echo "$rule" | jq -r '.action')
+
+            if [ "$action" != "Deny" ]; then
+              echo "Removing rule: $name with action: $action"
+              az webapp config access-restriction remove \
+                --resource-group "$AZURE_RESOURCE_GROUP" \
+                --name "$AZURE_WEBAPP_NAME" \
+                --rule-name "$name"
+            else
+              echo "Skipping Deny rule: $name"
+            fi
           done
 
           # Add new IPv4 rules
