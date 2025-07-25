@@ -61,7 +61,7 @@ jobs:
               --name "$AZURE_WEBAPP_NAME" \
               --rule-name "cf-ipv4-$INDEX" \
               --ip-address "$ip" \
-              --priority $((100 + INDEX)) \
+              --priority $((101 + INDEX)) \
               --action Allow
             INDEX=$((INDEX + 1))
           done
