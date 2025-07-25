@@ -1,0 +1,69 @@
+name: Update Cloudflare IPs
+
+on:
+  schedule:
+    - cron: '30 4 1 * *'   # 4:30 AM UTC monthly on day 1 of month
+  workflow_dispatch:       # Allows manual trigger
+
+jobs:
+  update-cloudflare-ips:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Fetch and apply Cloudflare IPs
+        env:
+          AZURE_RESOURCE_GROUP: PokerAnalyzer_group  
+          AZURE_WEBAPP_NAME: OffsuitPokerAnalyzer           
+        run: |
+          # Fetch Cloudflare IPs
+          CF_IPV4=$(curl -s https://www.cloudflare.com/ips-v4)
+          CF_IPV6=$(curl -s https://www.cloudflare.com/ips-v6)
+
+          # Clear existing access restrictions (all rules)
+          az webapp config access-restriction remove \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            --rule-name "*" || true
+
+          # Add new IPv4 rules
+          INDEX=0
+          for ip in $CF_IPV4; do
+            az webapp config access-restriction add \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_WEBAPP_NAME" \
+              --rule-name "cf-ipv4-$INDEX" \
+              --ip-address "$ip" \
+              --priority $((100 + INDEX)) \
+              --action Allow
+            INDEX=$((INDEX + 1))
+          done
+
+          # Add new IPv6 rules
+          INDEX=0
+          for ip in $CF_IPV6; do
+            az webapp config access-restriction add \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_WEBAPP_NAME" \
+              --rule-name "cf-ipv6-$INDEX" \
+              --ip-address "$ip" \
+              --priority $((200 + INDEX)) \
+              --action Allow
+            INDEX=$((INDEX + 1))
+          done
