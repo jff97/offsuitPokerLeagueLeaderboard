@@ -4,6 +4,7 @@ import trueskill
 import pandas as pd
 from poker_scraper.datamodel import Round
 from poker_scraper import persistence
+from poker_scraper.config import config
 
 
 class PlayerRating:
@@ -130,7 +131,7 @@ def leaderboard_to_dataframe(
 def build_trueskill_leaderboard(rounds: List[Round]):
     processed_rounds = prepare_round_data(rounds)
 
-    engine = TrueSkillEngine(beta=12.0, draw_probability=0.0)
+    engine = TrueSkillEngine(beta=config.BETA_TRUESKILL, draw_probability=0.0)
 
     engine.process_multiple_rounds(processed_rounds)
 
