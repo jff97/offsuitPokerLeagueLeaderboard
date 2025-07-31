@@ -131,7 +131,7 @@ def leaderboard_to_dataframe(
 def build_trueskill_leaderboard(rounds: List[Round]):
     processed_rounds = prepare_round_data(rounds)
 
-    engine = TrueSkillEngine(beta=config.BETA_TRUESKILL, draw_probability=0.0)
+    engine = TrueSkillEngine(beta=config.BETA_TRUESKILL, draw_probability=0.0, tau=config.TAU_TRUESKILL)
 
     engine.process_multiple_rounds(processed_rounds)
 

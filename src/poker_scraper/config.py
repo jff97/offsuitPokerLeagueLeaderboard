@@ -15,14 +15,13 @@ class Config:
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 16
-        self.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH = self._get_email_list()
 
         self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL")
         self.NAME_TOOL_1_LINK = self.POKER_APP_BASE_URL + "api/nametools/getwarnings"
         self.NAME_TOOL_2_LINK = self.POKER_APP_BASE_URL + "api/nametools/ambiguousnamestool"
         self.NAME_SIMILARITY_THRESHOLD = 79.9
-        self.MAX_SIGMA_DISPLAYED_TRUESKILL = 7
-        self.BETA_TRUESKILL = 15
+        self.BETA_TRUESKILL = 21
+        self.TAU_TRUESKILL = .4
         self._set_cosmos_config_items()
         self._set_email_stuff()
 
@@ -37,6 +36,7 @@ class Config:
         self.EMAIL_APP_PASSWORD = os.getenv("SMTP_APP_KEY_FOR_EMAIL_CLIENT")
         self.SMTP_SERVER = "smtp.gmail.com"
         self.SMTP_PORT = 587
+        self.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH = self._get_email_list()
     
     def _set_cosmos_config_items(self):
         self.MONGO_DB_NAME = "offsuitPokerAnalyzerDB"
