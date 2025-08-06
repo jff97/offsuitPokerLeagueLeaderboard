@@ -13,6 +13,7 @@ class BarConfig:
 class Config:
     def __init__(self):
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
+        self.ADMIN_AUTH_TOKEN = os.getenv("ADMIN_AUTH_TOKEN")
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 16
 

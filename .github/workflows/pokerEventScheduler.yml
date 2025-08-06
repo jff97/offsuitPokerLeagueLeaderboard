@@ -21,7 +21,10 @@ jobs:
 
       - name: Hit refresh rounds DB endpoint
         run: |
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://api.johnfoxweb.com/api/admin/refreshrounds)
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_AUTH_TOKEN }}" \
+            https://api.johnfoxweb.com/api/admin/refreshrounds)
           echo "Status code: $STATUS_CODE"
           if [ "$STATUS_CODE" -ne 200 ]; then
             echo "Request failed"
