@@ -1,8 +1,10 @@
 import re
 from typing import List, Dict, Any, Tuple
-from . import api_client
 from poker_scraper.datamodel import Round, PlayerScore
+from poker_scraper import email_smtp_service
+from poker_scraper.config import config
 from . import date_utils
+from . import api_client
 
 def _create_round_object(round_data: Dict[str, Any]) -> Round:
     """Create a Round object from round data dictionary."""
@@ -39,11 +41,10 @@ def _normalize_player_name(raw_name: str) -> str:
 def get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> List[Round]:
     """Fetch API data and convert directly to Round objects with correct round dates."""
     all_rounds: List[Round] = []
-
     for token, target_weekday in api_tokens_with_day:
         bar_json_from_api: Dict[str, Any] = api_client.fetch_board_json(token)
         if "error" in bar_json_from_api:
-            print(f"Error fetching token {token}: {bar_json_from_api['error']}")
+            _email_keep_the_score_error(f"Error fetching token {token}: {bar_json_from_api['error']}")
             continue
         
         # Convert this bar's data directly to Round objects
@@ -51,6 +52,9 @@ def get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> L
         all_rounds.extend(bar_rounds)
 
     return all_rounds
+
+def _email_keep_the_score_error(error_text: str):
+    email_smtp_service.send_email(config.ADMIN_EMAIL, "Keep The Score API Error", error_text)
 
 def _convert_bar_json_to_round_objects(bar_token: str, target_weekday: int, bar_json: Dict[str, Any]) -> List[Round]:
     """Convert a single bar's API JSON directly to Round objects with correct round dates."""

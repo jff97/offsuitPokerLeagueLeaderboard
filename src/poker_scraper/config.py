@@ -26,7 +26,7 @@ class Config:
         self._set_email_stuff()
 
     def _get_email_list(self):
-        list_of_emails = ["jicfox7@gmail.com"]
+        list_of_emails = [self.ADMIN_EMAIL]
         if not self.IS_DEVELOPMENT_ENV:
             list_of_emails.append("ospl2025@gmail.com")
         return list_of_emails
@@ -36,6 +36,7 @@ class Config:
         self.EMAIL_APP_PASSWORD = os.getenv("SMTP_APP_KEY_FOR_EMAIL_CLIENT")
         self.SMTP_SERVER = "smtp.gmail.com"
         self.SMTP_PORT = 587
+        self.ADMIN_EMAIL = "jicfox7@gmail.com"
         self.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH = self._get_email_list()
     
     def _set_cosmos_config_items(self):
