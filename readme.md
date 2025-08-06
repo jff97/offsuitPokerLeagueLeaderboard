@@ -1,9 +1,9 @@
-https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net
+https://api.johnfoxweb.com/
 <br>
-https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/api/refreshrounds
+https://api.johnfoxweb.com/api/refreshrounds
 <br>
-https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/api/refreshlegacyrounds
+https://api.johnfoxweb.com/api/refreshlegacyrounds
 <br>
-https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/api/leaderboards/percentile
+https://api.johnfoxweb.com/api/leaderboards/percentile
 <br>
-https://offsuitpokeranalyzer-exe2hvg3hwafc9fb.canadacentral-01.azurewebsites.net/api/leaderboards/trueskill
+https://api.johnfoxweb.com/api/leaderboards/trueskill
