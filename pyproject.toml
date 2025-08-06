@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Poker tournament analytics and scraping system"
 authors = ["John Fox <jicfox7@gmail.com>"]
 readme = "readme.md"
-packages = [{ include = "poker_scraper", from = "src" }]
+packages = [{ include = "offsuit_analyzer", from = "src" }]
 repository = "https://github.com/jff97/pokerScraper"
 license = "MIT"
 
@@ -21,7 +21,7 @@ flask_cors = "*"
 flask-limiter = "*"
 
 [tool.poetry.scripts]
-poker-scraper = "poker_scraper.app:main"
+poker-scraper = "offsuit_analyzer.app:main"
 
 [build-system]
 requires = ["poetry-core"]

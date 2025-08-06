@@ -2,16 +2,15 @@ from typing import List
 
 from pymongo import MongoClient, ReplaceOne
 
-from poker_scraper.datamodel import Round
-from poker_scraper.datamodel import NameClash
-from poker_scraper.config import config
+from offsuit_analyzer.datamodel import Round
+from offsuit_analyzer.datamodel import NameClash
+from offsuit_analyzer.config import config
 
 connection_string = (config.DATABASE_CONNECTION_STRING)
 client = MongoClient(connection_string)
 db = client[config.MONGO_DB_NAME]
 
 rounds_collection = db[config.ROUNDS_COLLECTION_NAME]
-logs_collection = db[config.LOGS_COLLECTION_NAME]
 warnings_collection = db[config.WARNINGS_COLLECTION_NAME]
 name_clashes_collection = db[config.NAME_INFOS_COLLECTION_NAME]
 
@@ -34,32 +33,6 @@ def get_all_rounds() -> List[Round]:
     docs = list(rounds_collection.find({}))
     return [Round.from_dict(doc) for doc in docs]
 
-
-def save_log(log_str: str) -> None:
-    log_doc = {"log": log_str}
-    logs_collection.insert_one(log_doc)
-
-def save_logs(log_strings: List[str]) -> None:
-    """Save multiple log entries efficiently using bulk insert."""
-    if not log_strings:
-        return
-    
-    log_docs = [{"log": log_str} for log_str in log_strings]
-    logs_collection.insert_many(log_docs)
-
-def get_all_logs() -> List[str]:
-    """Retrieve all log entries from the database."""
-    docs = list(logs_collection.find({}, {"_id": 0, "log": 1}))
-    return [doc["log"] for doc in docs if "log" in doc]
-
-def delete_all_logs() -> None:
-    """Delete all log entries from the database."""
-    logs_collection.delete_many({})
-
-def save_warning(warning_str: str) -> None:
-    """Save a single warning entry to the database."""
-    warning_doc = {"warning": warning_str}
-    warnings_collection.insert_one(warning_doc)
 
 def save_warnings(warning_strings: List[str]) -> None:
     """Save multiple warning entries efficiently using bulk insert."""

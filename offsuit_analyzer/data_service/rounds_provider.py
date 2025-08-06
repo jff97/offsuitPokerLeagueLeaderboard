@@ -1,9 +1,8 @@
 """Rounds provider - unified access to poker round data from all sources."""
 from typing import List
 from . import data_converter
-from poker_scraper.datamodel import Round
-from poker_scraper.config import BarConfig
-from poker_scraper.config import config
+from offsuit_analyzer.datamodel import Round
+from offsuit_analyzer.config import config
 
 def get_this_months_rounds_for_bars() -> List[Round]:
     """

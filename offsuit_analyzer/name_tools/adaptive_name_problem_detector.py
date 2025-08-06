@@ -2,10 +2,10 @@ import io
 from typing import List
 from rapidfuzz import fuzz
 import datetime
-from poker_scraper import persistence
-from poker_scraper.datamodel import NameClash
-from poker_scraper import email_smtp_service
-from poker_scraper.config import config
+from offsuit_analyzer import persistence
+from offsuit_analyzer.datamodel import NameClash
+from offsuit_analyzer import email_smtp_service
+from offsuit_analyzer.config import config
 
 CLASH_SIMILAR_TO_OTHER_NAME = "SIMILAR_TO_OTHER_NAME"
 CLASH_NO_LAST_NAME = "NO_LAST_NAME"
@@ -63,6 +63,7 @@ def delete_recently_fixed_name_clashes(all_names_from_rounds_unique: List[str]):
 def get_all_name_problems_as_string():
     name_clashes = persistence.get_all_name_clashes()
     return _pretty_print_name_clashes(name_clashes)
+
 def delete_all_name_clashes_temp_testing_method():
     persistence.delete_all_name_clashes()
 

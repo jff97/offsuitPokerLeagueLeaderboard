@@ -2,9 +2,9 @@ from typing import List, Tuple, Dict, Any, Optional
 from collections import defaultdict
 import trueskill
 import pandas as pd
-from poker_scraper.datamodel import Round
-from poker_scraper import persistence
-from poker_scraper.config import config
+from offsuit_analyzer.datamodel import Round
+from offsuit_analyzer import persistence
+from offsuit_analyzer.config import config
 
 
 class PlayerRating:
@@ -138,7 +138,3 @@ def build_trueskill_leaderboard(rounds: List[Round]):
     leaderboard = engine.get_leaderboard()
     df_trueskill = leaderboard_to_dataframe(leaderboard)
     return df_trueskill
-   
-
-if __name__ == "__main__":
-    df = build_trueskill_leaderboard(persistence.get_all_rounds())

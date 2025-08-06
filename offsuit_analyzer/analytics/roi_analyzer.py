@@ -2,8 +2,8 @@ import math
 import pandas as pd
 from collections import defaultdict
 from typing import List, Dict, Any
-from poker_scraper.datamodel import Round
-from poker_scraper.config import config
+from offsuit_analyzer.datamodel import Round
+from offsuit_analyzer.config import config
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:

@@ -24,16 +24,6 @@ def check_and_log_clashing_player_names():
     if name_clashes:
         persistence.save_warnings(name_clashes)
 
-def delete_logs():
-    """Delete all log entries from the database."""
-    persistence.delete_all_logs()
-
-def get_all_logs_to_display_for_api() -> str:
-    """Retrieve all logs formatted for HTML display."""
-    list_of_all_log_strings = persistence.get_all_logs()
-    combined_logs = "\n".join(list_of_all_log_strings)
-    html_ready = combined_logs.replace("\n", "<br>")
-    return html_ready
 
 def delete_warnings():
     """Delete all warning entries from the database."""

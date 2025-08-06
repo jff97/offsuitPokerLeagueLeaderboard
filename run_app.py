@@ -5,7 +5,7 @@ Is called from azure startup command
 """
 
 import os
-from poker_scraper import app as poker_app
+from offsuit_analyzer import app as poker_app
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from rapidfuzz import fuzz
 
-from poker_scraper.datamodel import Round
+from offsuit_analyzer.datamodel import Round
 
 def _is_name_formatted_correct(name: str) -> bool:
     normalized = name.strip()

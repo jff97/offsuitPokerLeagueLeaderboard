@@ -2,7 +2,7 @@ import csv
 import io
 import os
 from typing import List, Dict, Any, Tuple
-from poker_scraper.datamodel import Round, PlayerScore
+from offsuit_analyzer.datamodel import Round, PlayerScore
 from . import data_converter
 
 def _convert_json_rounds_to_round_objects(rounds: List[Dict[str, Any]]) -> List[Round]:

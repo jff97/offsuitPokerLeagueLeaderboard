@@ -1,10 +1,10 @@
 import re
 from typing import List, Dict, Any, Tuple
-from poker_scraper.datamodel import Round, PlayerScore
-from poker_scraper import email_smtp_service
-from poker_scraper.config import config
+from offsuit_analyzer.datamodel import Round, PlayerScore
+from offsuit_analyzer import email_smtp_service
+from offsuit_analyzer.config import config
 from . import date_utils
-from . import api_client
+from . import keep_the_score_api_client
 
 def _create_round_object(round_data: Dict[str, Any]) -> Round:
     """Create a Round object from round data dictionary."""
@@ -42,7 +42,7 @@ def get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> L
     """Fetch API data and convert directly to Round objects with correct round dates."""
     all_rounds: List[Round] = []
     for token, target_weekday in api_tokens_with_day:
-        bar_json_from_api: Dict[str, Any] = api_client.fetch_board_json(token)
+        bar_json_from_api: Dict[str, Any] = keep_the_score_api_client.fetch_board_json(token)
         if "error" in bar_json_from_api:
             _email_keep_the_score_error(f"Error fetching token {token}: {bar_json_from_api['error']}")
             continue

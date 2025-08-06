@@ -45,7 +45,6 @@ class Config:
 
         collection_env_suffix = "Dev" if self.IS_DEVELOPMENT_ENV else "Prod"
         self.ROUNDS_COLLECTION_NAME = "pokerRoundsCollection" + collection_env_suffix
-        self.LOGS_COLLECTION_NAME = "logsCollection" + collection_env_suffix
         self.WARNINGS_COLLECTION_NAME = "warningsCollection" + collection_env_suffix
         self.NAME_INFOS_COLLECTION_NAME = "nameClashesCollection" + collection_env_suffix
 

@@ -2,7 +2,7 @@ import smtplib
 import os 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from poker_scraper.config import config
+from offsuit_analyzer.config import config
 
 def send_email(recipient_email_address, subject, body, file_attachment = None, file_name: str = None):
    try:
