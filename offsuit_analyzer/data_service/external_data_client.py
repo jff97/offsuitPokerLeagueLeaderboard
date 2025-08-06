@@ -6,6 +6,34 @@ from offsuit_analyzer.config import config
 from . import date_utils
 from . import keep_the_score_api_client
 
+
+def get_this_months_rounds_for_bars() -> List[Round]:
+    """
+    Fetch poker rounds for configured bars from all data sources.
+    
+    Returns:
+        List of Round objects with calculated poker night dates from API and legacy sources
+    """
+
+    # Get API rounds
+    api_tokens_with_day = [
+        (config.token, config.poker_night) 
+        for config in config.BAR_CONFIGS
+    ]
+    api_rounds = _get_list_of_rounds_from_api(api_tokens_with_day)
+    
+    return api_rounds
+
+
+def normalize_player_name(raw_name: str) -> str:
+    """Clean and standardize player names."""
+    name = str(raw_name).lower() # Convert to string and lowercase for uniformity
+    name = re.sub(r'\s+', ' ', name) # Collapse all whitespace (tabs, newlines, multiple spaces) into a single space
+    name = re.sub(r'[^a-z0-9 ?]', '', name) # Remove all characters except lowercase letters, numbers, and spaces, and ?
+    name = name.strip() # Remove any leading or trailing spaces (could be left from previous step)
+
+    return name
+
 def _create_round_object(round_data: Dict[str, Any]) -> Round:
     """Create a Round object from round data dictionary."""
     players: List[PlayerScore] = []
@@ -14,7 +42,7 @@ def _create_round_object(round_data: Dict[str, Any]) -> Round:
         if points_scored <= 0:
             continue
         
-        normalized_name: str = _normalize_player_name(score_entry["name"])
+        normalized_name: str = normalize_player_name(score_entry["name"])
         player_score: PlayerScore = PlayerScore(
             player_name=normalized_name,
             points=points_scored
@@ -29,16 +57,7 @@ def _create_round_object(round_data: Dict[str, Any]) -> Round:
         players=tuple(players)
     )
 
-def _normalize_player_name(raw_name: str) -> str:
-    """Clean and standardize player names."""
-    name = str(raw_name).lower() # Convert to string and lowercase for uniformity
-    name = re.sub(r'\s+', ' ', name) # Collapse all whitespace (tabs, newlines, multiple spaces) into a single space
-    name = re.sub(r'[^a-z0-9 ?]', '', name) # Remove all characters except lowercase letters, numbers, and spaces
-    name = name.strip() # Remove any leading or trailing spaces (could be left from previous step)
-
-    return name
-
-def get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> List[Round]:
+def _get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> List[Round]:
     """Fetch API data and convert directly to Round objects with correct round dates."""
     all_rounds: List[Round] = []
     for token, target_weekday in api_tokens_with_day:

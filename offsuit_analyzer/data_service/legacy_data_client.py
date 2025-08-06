@@ -3,7 +3,7 @@ import io
 import os
 from typing import List, Dict, Any, Tuple
 from offsuit_analyzer.datamodel import Round, PlayerScore
-from . import data_converter
+from . import external_data_client
 
 def _convert_json_rounds_to_round_objects(rounds: List[Dict[str, Any]]) -> List[Round]:
     """Convert a list of round documents into Round objects. Used by legacy CSV migration."""
@@ -14,7 +14,7 @@ def _convert_json_rounds_to_round_objects(rounds: List[Dict[str, Any]]) -> List[
         for score_entry in round_doc.get("scores", []):
             if score_entry.get("points", 0) > 0:
                 players.append(PlayerScore(
-                    player_name=data_converter._normalize_player_name(score_entry["name"]),
+                    player_name=external_data_client.normalize_player_name(score_entry["name"]),
                     points=score_entry["points"]
                 ))
         

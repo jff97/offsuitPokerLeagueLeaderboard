@@ -1,8 +1,8 @@
 https://api.johnfoxweb.com/
 <br>
-https://api.johnfoxweb.com/api/refreshrounds
+https://api.johnfoxweb.com/api/admin/refreshrounds
 <br>
-https://api.johnfoxweb.com/api/refreshlegacyrounds
+https://api.johnfoxweb.com/api/admin/refreshlegacyrounds
 <br>
 https://api.johnfoxweb.com/api/leaderboards/percentile
 <br>

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "poker-scraper"
+name = "offsuit-analyzer"
 version = "0.1.0"
 description = "Poker tournament analytics and scraping system"
 authors = ["John Fox <jicfox7@gmail.com>"]
@@ -21,7 +21,7 @@ flask_cors = "*"
 flask-limiter = "*"
 
 [tool.poetry.scripts]
-poker-scraper = "offsuit_analyzer.app:main"
+offsuit-analyzer = "offsuit_analyzer.web.app:main"
 
 [build-system]
 requires = ["poetry-core"]

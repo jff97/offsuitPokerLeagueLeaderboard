@@ -64,7 +64,7 @@ def get_all_name_problems_as_string():
     name_clashes = persistence.get_all_name_clashes()
     return _pretty_print_name_clashes(name_clashes)
 
-def delete_all_name_clashes_temp_testing_method():
+def delete_all_name_clashes():
     persistence.delete_all_name_clashes()
 
 def _characterize_all_new_names(all_names, new_names_only) -> List[NameClash]:
