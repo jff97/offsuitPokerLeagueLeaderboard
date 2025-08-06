@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Poker tournament analytics and scraping system"
 authors = ["John Fox <jicfox7@gmail.com>"]
 readme = "readme.md"
-packages = [{ include = "offsuit_analyzer", from = "src" }]
+packages = [{ include = "offsuit_analyzer"}]
 repository = "https://github.com/jff97/pokerScraper"
 license = "MIT"
 
