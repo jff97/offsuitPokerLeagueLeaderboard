@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import List, Dict, Any
 from offsuit_analyzer.datamodel import Round
 from offsuit_analyzer.config import config
+from .poker_analyzer import _sort_dataframe_by_percentage_column
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:
@@ -76,6 +77,8 @@ def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_
     ROI is based on share of prize pool versus 1 unit buy-in.
     Output ROI is displayed as a percentage.
     """
+    avg_roi_column = "AVG ROI"
+
     ranked_results = _rank_players_in_each_round(rounds)
     player_totals = defaultdict(lambda: {"TotalNetROI": 0.0, "RoundsPlayed": 0})
 
@@ -91,8 +94,8 @@ def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_
             avg_net_roi = stats["TotalNetROI"] / stats["RoundsPlayed"]
             records.append({
                 "Player": player,
-                "AVG ROI per Round (%)": round(avg_net_roi * 100, 2),
-                "RoundsPlayed": stats["RoundsPlayed"]
+                avg_roi_column: f"{round(avg_net_roi * 100, 2):.2f}%",
+                "Rounds Played": stats["RoundsPlayed"]
                 
             })
 
@@ -100,8 +103,7 @@ def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_
     if df.empty:
         df = pd.DataFrame([["No players met the minimum round requirement"]], columns=["Message"])
     else:
-        df.sort_values(by="AVG ROI per Round (%)", ascending=False, inplace=True)
-        df.reset_index(drop=True, inplace=True)
+        df = _sort_dataframe_by_percentage_column(df, avg_roi_column)
 
     return df
 

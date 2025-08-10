@@ -43,6 +43,20 @@ def _rank_players_in_each_round(rounds: List[Round]) -> List[Dict[str, Any]]:
 
     return ranked_results
 
+def _sort_dataframe_by_percentage_column(df: pd.DataFrame, percentage_column: str) -> pd.DataFrame:
+    """
+    Helper function to sort a DataFrame by a column containing percentage strings.
+    Creates a temporary numeric column for sorting, then removes it.
+    """
+    if df.empty:
+        return df
+    
+    df["_sort"] = df[percentage_column].str.rstrip('%').astype(float)
+    df.sort_values(by="_sort", ascending=False, inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    df.drop(columns=["_sort"], inplace=True)
+    return df
+
 def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int) -> pd.DataFrame:
     """
     Rank and aggregate ranked results into a leaderboard sorted by average percentile rank.
@@ -71,46 +85,96 @@ def build_percentile_leaderboard(rounds: List[Round], min_rounds_required: int) 
     if leaderboard_df.empty:
         leaderboard_df = pd.DataFrame([["No players met the minimum round requirement"]], columns=["Message"])
     else:
-        # Sort by the numeric value of Avg Players Outlasted (strip % and convert to float)
-        leaderboard_df["_sort"] = leaderboard_df["Avg Players Outlasted"].str.rstrip('%').astype(float)
-        leaderboard_df.sort_values(by="_sort", ascending=False, inplace=True)
-        leaderboard_df.reset_index(drop=True, inplace=True)
-        leaderboard_df.drop(columns=["_sort"], inplace=True)
+        leaderboard_df = _sort_dataframe_by_percentage_column(leaderboard_df, "Avg Players Outlasted")
 
     return leaderboard_df
 
-def build_top_3_finish_rate_leaderboard(rounds: List[Round], min_rounds: int) -> pd.DataFrame:
+def build_1st_place_win_leaderboard(rounds: List[Round], min_rounds_required: int) -> pd.DataFrame:
     """
-    Rank and build a leaderboard showing percentage of times each player finishes in top 3.
-    Only includes players with more than `min_rounds` played.
+    Rank and build a leaderboard showing percentage of times each player finishes in 1st place.
     """
+    # Calculate column headers once
+    win_rate_col = "Win Rate"
+    first_place_col = "Wins"
+    rounds_played_col = "Rounds Played"
+    
     ranked_results = _rank_players_in_each_round(rounds)
 
-    top3_counts = defaultdict(int)
+    first_place_counts = defaultdict(int)
     total_counts = defaultdict(int)
 
     for result in ranked_results:
         player = result["Player"]
         placement = result.get("Placement", None)
         total_counts[player] += 1
-        if placement is not None and placement <= 3:
-            top3_counts[player] += 1
+        if placement is not None and placement == 1:
+            first_place_counts[player] += 1
+
+    leaderboard_records = []
+    for player, total in total_counts.items():
+        if total < min_rounds_required:
+            continue  # Skip players with insufficient rounds
+            
+        first_place = first_place_counts[player]
+        rate = round((first_place / total) * 100, 2) if total > 0 else 0
+        leaderboard_records.append({
+            "Player": player,
+            win_rate_col: f"{rate:.2f}%",
+            first_place_col: first_place,
+            rounds_played_col: total
+        })
+
+    leaderboard_df = pd.DataFrame(leaderboard_records)
+    if leaderboard_df.empty:
+        leaderboard_df = pd.DataFrame([["No players found"]], columns=["Message"])
+    else:
+        leaderboard_df = _sort_dataframe_by_percentage_column(leaderboard_df, win_rate_col)
+
+    return leaderboard_df
+
+def build_itm_percent_leaderboard(rounds: List[Round], min_rounds: int, percent_for_itm: float) -> pd.DataFrame:
+    """
+    Rank and build a leaderboard showing percentage of times each player finishes in top X percentile.
+    Only includes players with more than `min_rounds` played.
+    
+    Args:
+        rounds: List of Round objects
+        min_rounds: Minimum rounds required to be included in leaderboard
+        percent_for_itm: The percentile threshold (e.g., 20.0 for top 20%)
+    """
+    # Calculate column headers once
+    top_finishes_col = f"ITM Finishes"
+    rounds_played_col = "Rounds Played"
+    rate_col = f"ITM %"
+    
+    ranked_results = _rank_players_in_each_round(rounds)
+
+    top_percentile_counts = defaultdict(int)
+    total_counts = defaultdict(int)
+
+    for result in ranked_results:
+        player = result["Player"]
+        percentile_rank = result.get("PercentileRank", None)
+        total_counts[player] += 1
+        if percentile_rank is not None and percentile_rank >= (100 - percent_for_itm):
+            top_percentile_counts[player] += 1
 
     leaderboard_records = []
     for player, total in total_counts.items():
         if total < min_rounds:
             continue  # Skip players with insufficient rounds
 
-        top3 = top3_counts[player]
-        rate = round((top3 / total) * 100, 2)
+        top_percentile_finishes = top_percentile_counts[player]
+        rate = round((top_percentile_finishes / total) * 100, 2)
         leaderboard_records.append({
             "Player": player,
-            "Top3Finishes": top3,
-            "RoundsPlayed": total,
-            "Top3RatePercent": rate
+            rate_col: f"{rate:.2f}%",
+            top_finishes_col: top_percentile_finishes,
+            rounds_played_col: total
+            
         })
 
     leaderboard_df = pd.DataFrame(leaderboard_records)
-    leaderboard_df.sort_values(by="Top3RatePercent", ascending=False, inplace=True)
-    leaderboard_df.reset_index(drop=True, inplace=True)
+    leaderboard_df = _sort_dataframe_by_percentage_column(leaderboard_df, rate_col)
+    return leaderboard_df
     return leaderboard_df

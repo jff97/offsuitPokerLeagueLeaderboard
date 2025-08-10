@@ -121,7 +121,7 @@ def leaderboard_to_dataframe(
         data.append({
             "Rank": rank,
             "Name": player.name,
-            "Conservative Ranking (Raw - 3*uncertainty)": round(player.conservative_score, 2),
+            "Adjusted Ranking": round(player.conservative_score, 2),
             "Raw Ranking": round(r.mu, 2),
             "Uncertainty": round(r.sigma, 2),
         })
