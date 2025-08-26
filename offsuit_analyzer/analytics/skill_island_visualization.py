@@ -143,7 +143,7 @@ def generate_graph_image_buffer(G: nx.Graph, rounds: List[Round], searched_playe
     
     # Create a BytesIO buffer to hold the image
     img_buffer = io.BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight')
+    plt.savefig(img_buffer, format='png', dpi=115, bbox_inches='tight')
     img_buffer.seek(0)  # Reset buffer pointer to beginning
     plt.close()  # Close the figure to free memory
     
