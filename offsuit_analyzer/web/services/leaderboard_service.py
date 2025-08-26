@@ -2,6 +2,8 @@ from functools import lru_cache
 from offsuit_analyzer import persistence
 from offsuit_analyzer import analytics
 from offsuit_analyzer.config import config
+from offsuit_analyzer.analytics.skill_island_visualization import generate_rounds_image_buffer
+import io
 
 def get_percentile_leaderboard(min_rounds_required: int = None):
     if min_rounds_required in (None, 0):
@@ -48,3 +50,11 @@ def clear_leaderboard_caches():
 def hydrate_leaderboard_caches():
     """Pre-load all leaderboard caches for fast response times."""
     get_trueskill_leaderboard()
+
+def get_network_graph_image(searched_player_name: str = None):
+    """
+    Generate a player network graph visualization.
+    Returns BytesIO buffer containing the image.
+    """
+    stored_rounds = persistence.get_all_rounds()
+    return generate_rounds_image_buffer(stored_rounds, searched_player_name, "Player Network - TrueSkill Colored")

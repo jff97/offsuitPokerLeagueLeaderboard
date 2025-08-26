@@ -4,7 +4,8 @@ from ..services.leaderboard_service import (
     get_roi_leaderboard,
     get_trueskill_leaderboard,
     get_first_place_leaderboard,
-    get_itm_percentage_leaderboard
+    get_itm_percentage_leaderboard,
+    get_network_graph_image
 )
 
 leaderboard_bp = Blueprint('leaderboard', __name__, url_prefix='/api/leaderboard')
@@ -64,3 +65,22 @@ def itmpercent():
 def itmpercent_html():
     top_percentile_leaderboard_dataframe = get_itm_percentage_leaderboard()
     return Response(f"<pre>{top_percentile_leaderboard_dataframe.to_string(index=False)}</pre>", mimetype='text/html')
+
+@leaderboard_bp.route('/network-graph')
+def network_graph():
+    """
+    Generate and return a player network graph visualization.
+    Shows player connections colored by TrueSkill ratings.
+    Query parameter: player_name - highlights the specified player in blue
+    """
+    searched_player_name = request.args.get('player_name')
+    img_buffer = get_network_graph_image(searched_player_name)
+    
+    return Response(
+        img_buffer.getvalue(),
+        mimetype='image/png',
+        headers={
+            'Content-Disposition': 'inline; filename="player_network.png"',
+            'Cache-Control': 'public, max-age=3600'  # Cache for 1 hour
+        }
+    )
