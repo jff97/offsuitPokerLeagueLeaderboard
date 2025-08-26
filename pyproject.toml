@@ -20,6 +20,8 @@ rapidfuzz = "*"
 trueskill = "*"
 flask_cors = "*"
 flask-limiter = "*"
+networkx = "*"
+matplotlib = "*"
 
 [tool.poetry.scripts]
 offsuit-analyzer = "offsuit_analyzer.web.app:main"
