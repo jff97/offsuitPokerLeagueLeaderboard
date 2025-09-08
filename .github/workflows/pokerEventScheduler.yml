@@ -2,9 +2,9 @@ name: Refresh Rounds DB
 
 on:
   schedule:
-    - cron: '29 7 * * *'   # 2:29 AM CT (7:29 AM UTC)
-    - cron: '16 14 * * *'  # 9:16 AM CT (2:16 PM UTC)
-    - cron: '11 22 * * *'  # 5:11 PM CT (10:11 PM UTC)
+    #- cron: '29 7 * * *'   # 2:29 AM CT (7:29 AM UTC)
+    #- cron: '16 14 * * *'  # 9:16 AM CT (2:16 PM UTC)
+    #- cron: '11 22 * * *'  # 5:11 PM CT (10:11 PM UTC)
   workflow_dispatch:
   workflow_run:
     workflows: ["Build and deploy Python app to Azure Web App - OffsuitPokerAnalyzer"]
