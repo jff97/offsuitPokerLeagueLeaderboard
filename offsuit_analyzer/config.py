@@ -23,7 +23,7 @@ class Config:
         self.NAME_SIMILARITY_THRESHOLD = 79.9
         self.BETA_TRUESKILL = 21
         self.TAU_TRUESKILL = .4
-        self.PERCENT_FOR_ITM = 20
+        self.PERCENT_FOR_ITM = 24
         self._set_cosmos_config_items()
         self._set_email_stuff()
 
