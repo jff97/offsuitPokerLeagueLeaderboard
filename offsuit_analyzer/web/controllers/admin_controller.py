@@ -1,6 +1,12 @@
 from flask import Blueprint, Response
 from flask_httpauth import HTTPTokenAuth
-from ..services.admin_service import refresh_rounds_database, refresh_legacy_rounds, email_json_rounds_to_admin
+from ..services.admin_service import (
+    refresh_rounds_database,
+    refresh_legacy_rounds,
+    email_json_rounds_to_admin,
+    refresh_leaderboard_caches,
+    run_name_clash_detection
+)
 from offsuit_analyzer.config import config
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
@@ -29,3 +35,17 @@ def email_round_backup():
 def refresh_legacy_rounds_endpoint():
     refresh_legacy_rounds()
     return Response("<h1>Rounds Database Was refreshed for current legacy june months</h1>", mimetype='text/html')
+
+@admin_bp.route('/updatecaches', methods=['POST'])
+@auth.login_required
+def update_caches():
+    """Endpoint to clear and reload all leaderboard caches."""
+    refresh_leaderboard_caches()
+    return Response("<h1>Leaderboard caches have been cleared and rehydrated</h1>", mimetype='text/html')
+
+@admin_bp.route('/checknameclashes', methods=['POST'])
+@auth.login_required
+def check_name_clashes():
+    """Endpoint to run name clash detection."""
+    run_name_clash_detection()
+    return Response("<h1>Name clash detection has been run</h1>", mimetype='text/html')
