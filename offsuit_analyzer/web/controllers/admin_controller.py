@@ -1,6 +1,6 @@
 from flask import Blueprint, Response
 from flask_httpauth import HTTPTokenAuth
-from ..services.admin_service import refresh_rounds_database, refresh_legacy_rounds
+from ..services.admin_service import refresh_rounds_database, refresh_legacy_rounds, email_json_rounds_to_admin
 from offsuit_analyzer.config import config
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
@@ -17,6 +17,12 @@ def verify_token(token):
 def refresh_rounds():
     refresh_rounds_database()
     return Response("<h1>Rounds Database Was refreshed for current month</h1>", mimetype='text/html')
+
+@admin_bp.route('/emailroundbackup', methods=['POST'])
+@auth.login_required
+def email_round_backup():
+    email_json_rounds_to_admin()
+    return Response("<h1>Json file backup was email to admin.</h1>", mimetype='text/html')
 
 @admin_bp.route('/refreshlegacyrounds', methods=['POST'])
 @auth.login_required
