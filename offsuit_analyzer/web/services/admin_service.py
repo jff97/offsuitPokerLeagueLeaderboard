@@ -16,7 +16,7 @@ def refresh_legacy_rounds():
     _trigger_post_data_update_tasks()
 
 def email_json_rounds_to_admin():
-    persistence.email_json_backup
+    persistence.email_json_backup()
 
 def _trigger_post_data_update_tasks():
     """Tasks to run after new rounds are entered."""
