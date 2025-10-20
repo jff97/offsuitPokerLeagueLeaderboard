@@ -13,4 +13,4 @@ jobs:
       #hits the endpoint to keep the cache hydrated and server awake
       - name: Hit Trueskill leaderboard endpoint
         run: |
-          curl -X GET https://api.johnfoxweb.com/api/leaderboard/trueskill
+          curl -X https://jff97.github.io/PokerAnalyzerDisplayWebsite/?leaderboardendpoint=trueskill
