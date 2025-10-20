@@ -42,3 +42,15 @@ jobs:
             echo "Request failed"
             exit 1
           fi
+
+      - name: Update caches
+        run: |
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_AUTH_TOKEN }}" \
+            https://api.johnfoxweb.com/api/admin/updatecaches)
+          echo "Status code: $STATUS_CODE"
+          if [ "$STATUS_CODE" -ne 200 ]; then
+            echo "Request failed"
+            exit 1
+          fi

@@ -7,18 +7,10 @@ on:
   workflow_dispatch:         # Allow manual trigger
 
 jobs:
-  ping:
+  keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Keep server and caches warm
+      #hits the endpoint to keep the cache hydrated and server awake
+      - name: Hit Trueskill leaderboard endpoint
         run: |
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.ADMIN_AUTH_TOKEN }}" \
-            https://api.johnfoxweb.com/api/admin/updatecaches)
-          echo "Status code: $STATUS_CODE"
-          if [ "$STATUS_CODE" -ne 200 ]; then
-            echo "Request failed"
-            exit 1
-          fi
-          
+          curl -X GET https://api.johnfoxweb.com/api/leaderboard/trueskill
