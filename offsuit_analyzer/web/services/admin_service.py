@@ -14,7 +14,7 @@ def refresh_legacy_rounds():
     persistence.store_rounds(all_rounds)
 
 def email_json_rounds_to_admin():
-    persistence.email_json_backup()
+    persistence.email_json_rounds_backup()
 
 def refresh_leaderboard_caches():
     """Manually refresh leaderboard caches."""

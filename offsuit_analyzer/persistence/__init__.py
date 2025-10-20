@@ -9,7 +9,7 @@ from .cosmos_client import (
     delete_these_name_clashes,
     delete_all_name_clashes
 )
-from .export_rounds import email_json_backup
+from .export_rounds import email_json_rounds_backup
 
 __all__ = [
     "store_rounds",
@@ -21,5 +21,5 @@ __all__ = [
     "save_these_name_clashes",
     "delete_these_name_clashes",
     "delete_all_name_clashes",
-    "email_json_backup"
+    "email_json_rounds_backup"
 ]
