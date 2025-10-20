@@ -10,7 +10,7 @@ jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      #hits the endpoint to keep the cache hydrated and server awake
+      # hits the endpoint to keep the cache hydrated and server awake
       - name: Hit Trueskill leaderboard endpoint
         run: |
-          curl -X https://jff97.github.io/PokerAnalyzerDisplayWebsite/?leaderboardendpoint=trueskill
+          curl "https://jff97.github.io/PokerAnalyzerDisplayWebsite/?leaderboardendpoint=trueskill"
