@@ -42,4 +42,4 @@ def email_json_rounds_backup() -> None:
     
     for recipient_email_address in list_of_recipient_email_addresses:
         zip_file.seek(0)
-        email_smtp_service.send_email(recipient_email_address, subject, body, zip_file, filename)
+        email_smtp_service.send_email(recipient_email_address, subject, body, binary_file_attachment = zip_file, binary_file_name = filename)
