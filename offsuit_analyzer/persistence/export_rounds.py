@@ -18,13 +18,14 @@ def _create_zipped_json_rounds_data(rounds) -> BytesIO:
         BytesIO: A memory buffer containing the ZIP file with JSON data
     """
     rounds_data = [round_obj.to_dict() for round_obj in rounds]
-    json_string = json.dumps(rounds_data, indent=2, ensure_ascii=False)
+    json_string = json.dumps(rounds_data, separators=(',', ':'), ensure_ascii=False)
     
     # Create a BytesIO object to hold the zipped data
     zip_buffer = BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         # Add the JSON string to the ZIP
-        zip_file.writestr('rounds_export.json', json_string)
+        json_file_name = datetime.now().strftime("%Y%m%d") + 'rounds_export.json'
+        zip_file.writestr(json_file_name, json_string)
     
     zip_buffer.seek(0)
     return zip_buffer
