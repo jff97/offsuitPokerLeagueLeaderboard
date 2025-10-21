@@ -2,7 +2,8 @@ name: Email Database Backup
 
 on:
   schedule:
-    - cron: '45 19 * * 6'  # Every Saturday at 2:45 PM CT (7:45 PM UTC)
+    # Fridays between 19–30 at 10:00 PM CT → 3:00 AM UTC Saturday to try and catch last friday of offsuit league season
+    - cron: '0 3 19-28 * 5'
   workflow_dispatch:
 
 jobs:
