@@ -19,9 +19,9 @@ pandas = "*"
 rapidfuzz = "*"
 trueskill = "*"
 flask_cors = "*"
-flask-limiter = "*"
 networkx = "*"
 matplotlib = "*"
+python-louvain = "^0.16"
 
 [tool.poetry.scripts]
 offsuit-analyzer = "offsuit_analyzer.web.app:main"
