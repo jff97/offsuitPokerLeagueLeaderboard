@@ -13,4 +13,24 @@ jobs:
       # hits the endpoint to keep the cache hydrated and server awake
       - name: Hit Trueskill leaderboard endpoint
         run: |
-          curl "https://jff97.github.io/PokerAnalyzerDisplayWebsite/?leaderboardendpoint=trueskill"
+          API_URL="https://api.johnfoxweb.com/api/leaderboard/trueskill"
+          TIMEOUT=10
+
+          echo "Pinging $API_URL (timeout ${TIMEOUT}s)..."
+          response=$(curl -s -w "\n%{http_code}" --max-time $TIMEOUT "$API_URL")
+
+          body=$(echo "$response" | head -n -1)
+          code=$(echo "$response" | tail -n 1)
+
+          if [ "$code" -ne 200 ]; then
+            echo "❌ API returned HTTP $code"
+            exit 1
+          fi
+
+          if ! echo "$body" | jq empty >/dev/null 2>&1; then
+            echo "❌ Response body is not valid JSON:"
+            echo "$body"
+            exit 1
+          fi
+
+          echo "✅ API responded with HTTP 200 and valid JSON"
