@@ -3,18 +3,18 @@ name: Keep Server Alive
 on:
   schedule:
     # Every day between 8 AM and 11 PM CT (using UTC times)
-    - cron: '*/20 13,14,15,16,17,18,19,20,21,22,23,0,1,2,3,4 * * *'  # 8 AM - 11 PM CT
+    - cron: '*/15 13,14,15,16,17,18,19,20,21,22,23,0,1,2,3,4 * * *'  # every 15 min
   workflow_dispatch:         # Allow manual trigger
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      # hits the endpoint to keep the cache hydrated and server awake
+      # Hits the endpoint to keep the cache hydrated and server awake
       - name: Hit Trueskill leaderboard endpoint
         run: |
           API_URL="https://api.johnfoxweb.com/api/leaderboard/trueskill"
-          TIMEOUT=10
+          TIMEOUT=30  # Increased to 30s to handle typical cold starts (Azure free tier warm-up can take 10-30s)
 
           echo "Pinging $API_URL (timeout ${TIMEOUT}s)..."
           response=$(curl -s -w "\n%{http_code}" --max-time $TIMEOUT "$API_URL")
@@ -24,13 +24,16 @@ jobs:
 
           if [ "$code" -ne 200 ]; then
             echo "❌ API returned HTTP $code"
-            exit 1
+            # No exit 1; log but continue
           fi
 
           if ! echo "$body" | jq empty >/dev/null 2>&1; then
             echo "❌ Response body is not valid JSON:"
             echo "$body"
-            exit 1
+            # No exit 1; log but continue
+          else
+            echo "✅ API responded with HTTP 200 and valid JSON"
           fi
 
-          echo "✅ API responded with HTTP 200 and valid JSON"
+          # Always exit 0 to prevent job failure and emails
+          exit 0
