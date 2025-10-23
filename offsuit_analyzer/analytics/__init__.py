@@ -2,10 +2,7 @@
 Poker Analytics Module - Statistical analysis and ranking for poker tournaments.
 """
 
-from . import poker_analyzer
-from . import roi_analyzer
-from . import trueskill_analyzer
-from . import player_weighted_spring_graph
+from . import poker_analyzer, roi_analyzer, trueskill_analyzer, player_weighted_spring_graph, player_disconnectedness
 
 # Import functions directly into the module namespace
 build_percentile_leaderboard = poker_analyzer.build_percentile_leaderboard
@@ -17,6 +14,7 @@ build_itm_percent_leaderboard = poker_analyzer.build_itm_percent_leaderboard
 build_roi_leaderboard = roi_analyzer.build_roi_leaderboard
 generate_graph_image_buffer = player_weighted_spring_graph.generate_graph_image_buffer
 build_player_graph = player_weighted_spring_graph.build_player_graph
+get_community_avg_disconnectedness_df = player_disconnectedness.get_community_avg_disconnectedness_df
 
 build_trueskill_leaderboard= trueskill_analyzer.build_trueskill_leaderboard
 __all__ = [
@@ -28,5 +26,6 @@ __all__ = [
     'build_1st_place_win_leaderboard',
     'build_itm_percent_leaderboard',
     'generate_graph_image_buffer',
-    'build_player_graph'
+    'build_player_graph',
+    'get_community_avg_disconnectedness_df'
 ]

@@ -1,6 +1,5 @@
 from functools import lru_cache
-from offsuit_analyzer import persistence
-from offsuit_analyzer import analytics
+from offsuit_analyzer import persistence, analytics
 from offsuit_analyzer.config import config
 
 def get_percentile_leaderboard(min_rounds_required: int = None):
@@ -56,3 +55,7 @@ def get_network_graph_image(searched_player_name: str = None):
     """
     stored_rounds = persistence.get_all_rounds()
     return analytics.generate_graph_image_buffer(stored_rounds, searched_player_name, "Player Network - TrueSkill Colored")
+
+def get_community_disconnectedness_analysis():
+    stored_rounds = persistence.get_all_rounds()
+    return analytics.get_community_avg_disconnectedness_df(stored_rounds)
