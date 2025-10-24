@@ -1,10 +1,12 @@
 # Poker League Analytics Platform
 
+### 🏆 <u>[View Live Rankings at Offsuit Poker League](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings)</u>
+
+Production analytics platform powering Microsoft Trueskill player rankings for a Milwaukee-area No-Limit Texas Hold'em tournament league. Built with:
+
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Live Rankings](https://img.shields.io/badge/live-rankings-orange.svg)](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings)
-
-> **Production Deployment**: This analytics platform powers the official player rankings for [Offsuit Poker League](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings), a sweepstakes league running No-Limit Texas Hold'em tournaments across multiple venues in the greater Milwaukee metropolitan area. The league offers free entry and awards prizes to top 5 players at the monthly championship tournament.
+[![Live Rankings](https://img.shields.io/badge/production-deployed-brightgreen.svg)](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings)
 
 ## 🌐 Public Analytics Dashboard
 
