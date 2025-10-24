@@ -1,6 +1,6 @@
 # Poker League Analytics Platform
 
-### 🏆 [View Live Rankings at Offsuit Poker League 🔗](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings)
+### 🏆 [View Live Trueskill Rankings For Offsuit Poker League 🔗](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings)
 
 Production analytics platform powering Microsoft Trueskill player rankings for a Milwaukee-area No-Limit Texas Hold'em tournament league. Built with:
 
@@ -10,11 +10,19 @@ Production analytics platform powering Microsoft Trueskill player rankings for a
 
 ## 🌐 Public Analytics Dashboard
 
+- **All deployed leaderboards and analytics**
+  - Live Site: [Project Homepage](https://jff97.github.io/PokerAnalyzerDisplayWebsite/)
+  - Multiple Leaderboard Views:
+    - TrueSkill™ Rankings
+    - Players Outlasted Rankings
+    - ROI Performance Rankings
+  - Player interaction weighted graph Visualizations
+  - Player community connected/disconnected ness metrics
 - **Independent Frontend Implementation**
-  - Live Site: [Analytics Dashboard](https://jff97.github.io/PokerAnalyzerDisplayWebsite/)
   - Frontend Repository: [PokerAnalyzerDisplayWebsite](https://github.com/jff97/PokerAnalyzerDisplayWebsite)
   - Static site consuming public API endpoints
   - Completely decoupled from backend implementation
+  - Architecture enables easy integration with alternative frontend implementations
 
 ## 📊 Ranking Systems & Player Analytics
 
@@ -92,3 +100,34 @@ offsuit_analyzer/
 ├── web/              # Web API and controllers
 └── email_smtp_service/ # Automated notifications
 ```
+
+## 💡 Featured Code Highlights
+
+The following files showcase advanced software engineering principles and algorithmic implementations:
+
+### Advanced Analytics & Machine Learning
+- [`analytics/trueskill_analyzer.py`](offsuit_analyzer/analytics/trueskill_analyzer.py)
+  - Custom implementation of Microsoft's TrueSkill™ Bayesian ranking system
+  - Sophisticated player rating system with uncertainty quantification
+  - Efficient batch processing of historical tournament data
+
+### Network Analysis & Data Visualization
+- [`analytics/player_weighted_spring_graph.py`](offsuit_analyzer/analytics/player_weighted_spring_graph.py)
+  - Dynamic force-directed graph visualization using NetworkX
+  - Weighted player interaction modeling
+  - Color mapping based on TrueSkill ratings
+  - Multi-threaded graph layout optimization
+
+### Intelligent Name Management
+- [`name_tools/adaptive_name_problem_detector.py`](offsuit_analyzer/name_tools/adaptive_name_problem_detector.py)
+  - Fuzzy string matching with configurable thresholds
+  - Adaptive name disambiguation system
+  - Multi-stage name conflict resolution
+  - Automated email notification system for detected conflicts
+
+### Clean API Architecture
+- [`web/controllers/leaderboard_controller.py`](offsuit_analyzer/web/controllers/leaderboard_controller.py) & [`web/services/leaderboard_service.py`](offsuit_analyzer/web/services/leaderboard_service.py)
+  - Strict separation between API endpoints and business logic
+  - Service layer completely independent of HTTP/REST concerns
+  - Analytics systems decoupled from delivery mechanism
+  - Could deploy analytics engine separately from API service
