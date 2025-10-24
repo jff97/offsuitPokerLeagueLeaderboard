@@ -2,40 +2,78 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Live Rankings](https://img.shields.io/badge/live-rankings-orange.svg)](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings)
 
-A sophisticated analytics and leaderboard platform that manages poker league statistics across multiple venues. This full-stack Python application leverages advanced algorithms for player ranking, performance analysis, and automated reporting.
+> **Production Deployment**: This analytics platform powers the official player rankings for [Offsuit Poker League](https://www.offsuitpokerleague.com/brookes-top-mates-player-rankings), a sweepstakes league running No-Limit Texas Hold'em tournaments across multiple venues in the greater Milwaukee metropolitan area. The league offers free entry and awards prizes to top 5 players at the monthly championship tournament.
 
-## 🚀 Key Features
+## 🌐 Public Analytics Dashboard
 
-- **Advanced Player Analytics**
-  - TrueSkill™-based player ranking system
-  - ROI analysis and performance tracking
-  - Network analysis for player interaction patterns
-  - Weighted spring graph visualization for player relationships
+- **Independent Frontend Implementation**
+  - Live Site: [Analytics Dashboard](https://jff97.github.io/PokerAnalyzerDisplayWebsite/)
+  - Frontend Repository: [PokerAnalyzerDisplayWebsite](https://github.com/jff97/PokerAnalyzerDisplayWebsite)
+  - Static site consuming public API endpoints
+  - Completely decoupled from backend implementation
 
-- **Robust Data Management**
-  - Azure Cosmos DB integration
-  - Multi-source data ingestion (CSV, API, manual entry)
-  - Automated data validation and cleaning
-  - Historical data preservation and analysis
+## 📊 Ranking Systems & Player Analytics
 
-- **Smart Player Identity Management**
-  - Adaptive name disambiguation system
-  - Automated conflict detection
-  - Player identity resolution across venues
+- **TrueSkill™ Rankings**
+  - Main Offsuit Poker League official ranking system using Microsoft's unbiased Bayesian algorithm
+  - Same system used for Xbox Live competitive videogame matchmaking
+  - Accurately measures and adapts to player skill levels
+  - Specifically tuned for texas holdum tournaments
 
-- **Modern Web Interface**
-  - Flask-based REST API
-  - Real-time leaderboard updates
-  - Administrative dashboard
-  - Responsive design for mobile access
+- **Performance Metrics**
+  - Players Outlasted %: Average percentage of players outlasted per tournament
+  - In The Money (ITM) %: Tournament cash out rate (approx top 15-20%)
+  - ROI Analysis: How profitable of a tournament player you would be with typical tournament payouts 
+  - First Place %: Tournament victories
+
+## 🎯 Technical Innovations & Achievements
+
+- **Advanced Player Ranking**
+  - Implemented and tuned Microsoft's TrueSkill™ algorithm for poker tournaments
+  - Accurate skill measurement for Texas Holdum no limit which has a large amount of luck
+
+- **Security Infrastructure**
+  - Cloudflare reverse proxy implementation for API protection
+  - Domain-specific access control
+  - DDoS mitigation
+  - Bot protection through request filtering
+
+- **Intelligent Identity Management**
+  - Developed adaptive name disambiguation system
+  - Alerts administrators when new entries likely match existing players
+  - Uses fuzzy matching and historical name analysis
+
+- **High-Performance Architecture**
+  - Lightning-fast response times through smart caching strategy
+  - Leaderboards recalculate only when new tournament data arrives
+  - Zero redundant processing
+  - Minimized database interactions
+  - Resource-efficient enough to run on Azure free tier API instance
+
+- **Player Network Analysis System**
+  - Weighted spring graph visualization shows strength of TrueSkill confidence
+  - Connected communities indicate well-calibrated skill ratings through player overlap
+  - Isolated communities highlight areas where ratings may need more cross-venue validation
+  - Maps player migration patterns between venues for rating reliability analysis
+
+## 🔌 API Endpoints
+  - Base URL: [https://api.johnfoxweb.com/](https://api.johnfoxweb.com/)
+  - Public Leaderboards:
+    - TrueSkill Rankings: [/api/leaderboards/trueskill](https://api.johnfoxweb.com/api/leaderboards/trueskill)
+    - Players Outlasted: [/api/leaderboards/percentile](https://api.johnfoxweb.com/api/leaderboards/percentile)
+  - Admin Functions:
+    - Refresh Rounds: [/api/admin/refreshrounds](https://api.johnfoxweb.com/api/admin/refreshrounds)
+    - Refresh Legacy Data: [/api/admin/refreshlegacyrounds](https://api.johnfoxweb.com/api/admin/refreshlegacyrounds)
 
 ## 🛠 Technical Stack
 
 - **Backend**: Python 3.8+, Flask
-- **Database**: Azure Cosmos DB
+- **Database & Caching**: Azure Cosmos DB, In-memory caching
 - **Analytics**: NetworkX, Pandas, NumPy
 - **API Integration**: REST APIs, External Data Sources
+- **Performance**: Multi-level caching, Query optimization
 - **DevOps**: GitHub Actions, Azure Cloud
 
 ## 🏗 Architecture
@@ -44,59 +82,12 @@ The application follows a modular, service-oriented architecture:
 
 ```
 offsuit_analyzer/
-├── analytics/        # Statistical analysis and ranking algorithms
+├── config.py         # Environment configuration and API keys
+├── analytics/        # Player ranking algorithms and statistical analysis
 ├── data_service/     # Data ingestion and processing
-├── datamodel/        # Core domain models
+├── datamodel/        # Core domain models for tournament and player data
 ├── persistence/      # Database interactions
-├── name_tools/       # Identity management system
-├── web/             # Web API and controllers
+├── name_tools/       # Player Identity disambiguation system
+├── web/              # Web API and controllers
 └── email_smtp_service/ # Automated notifications
 ```
-
-## 🎯 Key Technical Achievements
-
-- Implemented Microsoft's TrueSkill™ algorithm for accurate player ranking across diverse game formats
-- Developed an adaptive name disambiguation system using fuzzy matching and historical data analysis
-- Built a scalable data ingestion pipeline handling multiple venues and data formats
-- Created a network analysis system for understanding player relationships and game dynamics
-
-## 💡 Innovation Highlights
-
-- **Smart Player Matching**: Advanced algorithms to track players across different venues and naming conventions
-- **Network Analysis**: Visual and statistical analysis of player interactions and game dynamics
-- **Automated Data Processing**: Intelligent systems for data validation, cleaning, and integration
-
-## 📊 Data Analysis Capabilities
-
-- Player performance tracking across multiple venues
-- ROI calculation and trend analysis
-- Player interaction network visualization
-- Historical performance analysis
-
-## 🔒 Security & Data Privacy
-
-- Secure data handling with Azure Cosmos DB
-- Role-based access control
-- Data validation and sanitization
-- Automated backup systems
-
-## 🌐 Live API Endpoints
-
-- Main Application: [https://api.johnfoxweb.com/](https://api.johnfoxweb.com/)
-- Leaderboards:
-  - TrueSkill Rankings: [/api/leaderboards/trueskill](https://api.johnfoxweb.com/api/leaderboards/trueskill)
-  - Percentile Rankings: [/api/leaderboards/percentile](https://api.johnfoxweb.com/api/leaderboards/percentile)
-- Admin Functions:
-  - Refresh Rounds: [/api/admin/refreshrounds](https://api.johnfoxweb.com/api/admin/refreshrounds)
-  - Refresh Legacy Data: [/api/admin/refreshlegacyrounds](https://api.johnfoxweb.com/api/admin/refreshlegacyrounds)
-
-## 🚧 Future Enhancements
-
-- Machine learning-based player skill prediction
-- Advanced statistical analysis tools
-- Enhanced visualization capabilities
-- Mobile application development
-
----
-
-*This project demonstrates expertise in full-stack development, data engineering, analytics, and cloud infrastructure, while solving complex real-world challenges in data management and analysis.*
