@@ -17,7 +17,7 @@
 ## 📊 Ranking Systems & Player Analytics
 
 - **TrueSkill™ Rankings**
-  - Main Offsuit Poker League official ranking system using Microsoft's unbiased Bayesian algorithm
+  - Official Offsuit Poker League ranking system using Microsoft's unbiased Bayesian algorithm
   - Same system used for Xbox Live competitive videogame matchmaking
   - Accurately measures and adapts to player skill levels
   - Specifically tuned for texas holdum tournaments
@@ -61,11 +61,10 @@
 ## 🔌 API Endpoints
   - Base URL: [https://api.johnfoxweb.com/](https://api.johnfoxweb.com/)
   - Public Leaderboards:
-    - TrueSkill Rankings: [/api/leaderboards/trueskill](https://api.johnfoxweb.com/api/leaderboards/trueskill)
-    - Players Outlasted: [/api/leaderboards/percentile](https://api.johnfoxweb.com/api/leaderboards/percentile)
-  - Admin Functions:
+    - TrueSkill Rankings: [/api/leaderboard/trueskill](https://api.johnfoxweb.com/api/leaderboard/trueskill)
+    - Players Outlasted: [/api/leaderboard/percentile](https://api.johnfoxweb.com/api/leaderboard/percentile)
+  - Admin Functions (Require Authorization):
     - Refresh Rounds: [/api/admin/refreshrounds](https://api.johnfoxweb.com/api/admin/refreshrounds)
-    - Refresh Legacy Data: [/api/admin/refreshlegacyrounds](https://api.johnfoxweb.com/api/admin/refreshlegacyrounds)
 
 ## 🛠 Technical Stack
 
