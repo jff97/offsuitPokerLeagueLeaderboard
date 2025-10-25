@@ -36,3 +36,4 @@ def send_email(recipient_email_address,
             server.sendmail(config.FROM_EMAIL_ADDRESS, recipient_email_address, msg.as_string())
     except Exception as e:
         print(f"Error sending email: {e}")
+        raise  # Re-raise the exception to propagate to API
