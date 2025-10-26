@@ -13,27 +13,37 @@ jobs:
       # Hits the endpoint to keep the cache hydrated and server awake
       - name: Hit Trueskill leaderboard endpoint
         run: |
+          # Script logic:
+          # 1. Make request to API endpoint
+          # 2. Success = HTTP 200 + valid JSON response
+          # 3. On failure: wait 45s, retry up to 3 times
+          # 4. Failures happen during cold starts when:
+          #    - Server returns non-200 (not ready)
+          #    - Response isn't valid JSON (partial startup)
+          
           API_URL="https://api.johnfoxweb.com/api/leaderboard/trueskill"
-          TIMEOUT=30  # Increased to 30s to handle typical cold starts (Azure free tier warm-up can take 10-30s)
-
-          echo "Pinging $API_URL (timeout ${TIMEOUT}s)..."
-          response=$(curl -s -w "\n%{http_code}" --max-time $TIMEOUT "$API_URL")
-
-          body=$(echo "$response" | head -n -1)
-          code=$(echo "$response" | tail -n 1)
-
-          if [ "$code" -ne 200 ]; then
-            echo "❌ API returned HTTP $code"
-            # No exit 1; log but continue
-          fi
-
-          if ! echo "$body" | jq empty >/dev/null 2>&1; then
-            echo "❌ Response body is not valid JSON:"
-            echo "$body"
-            # No exit 1; log but continue
-          else
-            echo "✅ API responded with HTTP 200 and valid JSON"
-          fi
-
-          # Always exit 0 to prevent job failure and emails
-          exit 0
+          MAX_RETRIES=3
+          RETRY_DELAY=45
+          TIMEOUT=20
+          
+          for i in {1..3}; do
+            echo "Attempt $i/3: Pinging $API_URL..."
+            # Capture both response and status code
+            response=$(curl --max-time $TIMEOUT -w "\n%{http_code}" "$API_URL")
+            code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | sed '$d')
+            
+            if [ "$code" -eq 200 ]; then
+              echo "✅ Success"
+              exit 0
+            else
+              echo "❌ Failed with status code: $code"
+              echo "Response body: $body"
+              if [ $i -lt 3 ]; then
+                sleep $RETRY_DELAY
+              fi
+            fi
+          done
+          
+          echo "🚨 All attempts failed."
+          exit 1
