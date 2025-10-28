@@ -1,4 +1,3 @@
-from functools import lru_cache
 from offsuit_analyzer import persistence, analytics
 from offsuit_analyzer.config import config
 
@@ -18,7 +17,6 @@ def get_roi_leaderboard(min_rounds_required: int = None):
     roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds, min_rounds_required)
     return roi_leaderboard
 
-@lru_cache(maxsize=1)
 def get_trueskill_leaderboard():
     stored_rounds = persistence.get_all_rounds()
     trueskill_leaderboard = analytics.build_trueskill_leaderboard(stored_rounds)
@@ -39,14 +37,6 @@ def get_itm_percentage_leaderboard(min_rounds_required: int = None):
     stored_rounds = persistence.get_all_rounds()
     itm_percentage_leaderboard = analytics.build_itm_percent_leaderboard(stored_rounds, min_rounds_required, config.PERCENT_FOR_ITM)
     return itm_percentage_leaderboard
-
-def clear_leaderboard_caches():
-    """Clear all leaderboard caches when data is updated."""
-    get_trueskill_leaderboard.cache_clear()
-
-def hydrate_leaderboard_caches():
-    """Pre-load all leaderboard caches for fast response times."""
-    get_trueskill_leaderboard()
 
 def get_network_graph_image(searched_player_name: str = None):
     """

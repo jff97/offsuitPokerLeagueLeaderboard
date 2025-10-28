@@ -1,7 +1,6 @@
 from offsuit_analyzer import data_service
 from offsuit_analyzer import persistence
 from .name_tools_service import check_and_log_clashing_player_names
-from .leaderboard_service import clear_leaderboard_caches, hydrate_leaderboard_caches
 
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
@@ -15,11 +14,6 @@ def refresh_legacy_rounds():
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
-
-def refresh_leaderboard_caches():
-    """Manually refresh leaderboard caches."""
-    clear_leaderboard_caches()
-    hydrate_leaderboard_caches()
 
 def run_name_clash_detection():
     """Manually run name clash detection."""

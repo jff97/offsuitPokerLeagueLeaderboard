@@ -30,12 +30,6 @@ def refresh_legacy_rounds_endpoint():
     admin_service.refresh_legacy_rounds()
     return Response("<h1>Rounds Database Was refreshed for current legacy june months</h1>", mimetype='text/html')
 
-@admin_bp.route('/updatecaches', methods=['POST'])
-@auth.login_required
-def update_caches():
-    """Endpoint to clear and reload all leaderboard caches."""
-    admin_service.refresh_leaderboard_caches()
-    return Response("<h1>Leaderboard caches have been cleared and rehydrated</h1>", mimetype='text/html')
 
 @admin_bp.route('/checknameclashes', methods=['POST'])
 @auth.login_required

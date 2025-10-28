@@ -56,11 +56,11 @@ Production analytics platform powering Microsoft Trueskill player rankings for a
   - Uses fuzzy matching and historical name analysis
 
 - **High-Performance Architecture**
-  - Lightning-fast response times through smart caching strategy
-  - Leaderboards recalculate only when new tournament data arrives
-  - Zero redundant processing
-  - Minimized database interactions
-  - Resource-efficient enough to run on Azure free tier API instance
+  - GitHub Actions processes new tournament data on schedule
+  - Triggers frontend to generate and deploy static JSON files
+  - Fast response times through GitHub Pages CDN
+  - API only active during scheduled updates
+  - Can run on Azure free tier api instance
 
 - **Player Network Analysis System**
   - Weighted spring graph visualization shows strength of TrueSkill confidence
@@ -79,10 +79,10 @@ Production analytics platform powering Microsoft Trueskill player rankings for a
 ## 🛠 Technical Stack
 
 - **Backend**: Python 3.8+, Flask
-- **Database & Caching**: Azure Cosmos DB, In-memory caching
+- **Database & Caching**: Azure Cosmos DB, GitHub Pages caching
 - **Analytics**: NetworkX, Pandas, NumPy
 - **API Integration**: REST APIs, External Data Sources
-- **Performance**: Multi-level caching, Query optimization
+- **Performance**: Static file caching, Query optimization
 - **DevOps**: GitHub Actions, Azure Cloud
 
 ## 🏗 Architecture
