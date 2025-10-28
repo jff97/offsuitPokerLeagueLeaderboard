@@ -72,7 +72,7 @@ Production analytics platform powering Microsoft Trueskill player rankings for a
   - Base URL: [https://api.johnfoxweb.com/](https://api.johnfoxweb.com/)
   - Public Leaderboards:
     - TrueSkill Rankings: [/api/leaderboard/trueskill](https://api.johnfoxweb.com/api/leaderboard/trueskill)
-    - Players Outlasted: [/api/leaderboard/percentile](https://api.johnfoxweb.com/api/leaderboard/percentile)
+    - Players Outlasted: [/api/leaderboard/percentile](https://api.johnfoxweb.com/api/leaderboard/players-outlasted)
   - Admin Functions (Require Authorization):
     - Refresh Rounds: [/api/admin/refreshrounds](https://api.johnfoxweb.com/api/admin/refreshrounds)
 

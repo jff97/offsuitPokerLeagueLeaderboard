@@ -1,13 +1,14 @@
+
 from offsuit_analyzer import persistence, analytics
 from offsuit_analyzer.config import config
 
-def get_percentile_leaderboard(min_rounds_required: int = None):
+def get_players_outlasted_leaderboard(min_rounds_required: int = None):
     if min_rounds_required in (None, 0):
         min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
     stored_rounds = persistence.get_all_rounds()
-    percentile_leaderboard = analytics.build_percentile_leaderboard(stored_rounds, min_rounds_required)
-    return percentile_leaderboard
+    players_outlasted_leaderboard = analytics.build_players_outlasted_leaderboard(stored_rounds, min_rounds_required)
+    return players_outlasted_leaderboard
 
 def get_roi_leaderboard(min_rounds_required: int = None):
     if min_rounds_required in (None, 0):

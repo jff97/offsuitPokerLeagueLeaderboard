@@ -3,12 +3,12 @@ from ..services import leaderboard_service
 
 leaderboard_bp = Blueprint('leaderboard', __name__, url_prefix='/api/leaderboard')
 
-@leaderboard_bp.route('/percentile')
-def percentile():
+@leaderboard_bp.route('/players-outlasted')
+def players_outlasted():
     min_rounds_required = int(request.args.get('minrounds') or 0)
-    percentile_leaderboard_dataframe = leaderboard_service.get_percentile_leaderboard(min_rounds_required)
+    players_outlasted_dataframe = leaderboard_service.get_players_outlasted_leaderboard(min_rounds_required)
     
-    return percentile_leaderboard_dataframe.to_json(orient="records")
+    return players_outlasted_dataframe.to_json(orient="records")
 
 @leaderboard_bp.route('/roi')
 def roi():

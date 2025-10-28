@@ -1,10 +1,8 @@
 import math
 import pandas as pd
 from collections import defaultdict
-from typing import List, Dict, Any
+from typing import List
 from offsuit_analyzer.datamodel import Round
-from offsuit_analyzer.config import config
-from .poker_analyzer import _sort_dataframe_by_percentage_column
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:
@@ -31,34 +29,6 @@ def _generate_normalized_payouts(num_players: int, payout_percent: float, steepn
 
     return payouts
 
-
-def _rank_players_in_each_round(rounds: List[Round]) -> List[Dict[str, Any]]:
-    """
-    Rank players in each round by points and assign placement (handle ties).
-    Return list of dicts with Player, RoundID, BarName, Placement, and PlayerCount.
-    """
-    ranked_results = []
-
-    for round_obj in rounds:
-        players_sorted = sorted(round_obj.players, key=lambda p: p.points, reverse=True)
-        point_to_place = {}
-        for idx, player in enumerate(players_sorted):
-            if player.points not in point_to_place:
-                point_to_place[player.points] = idx + 1
-
-        for player in players_sorted:
-            placement = point_to_place[player.points]
-            ranked_results.append({
-                "Player": player.player_name,
-                "RoundID": round_obj.round_id,
-                "BarName": round_obj.bar_name,
-                "Placement": placement,
-                "PlayerCount": len(players_sorted)
-            })
-
-    return ranked_results
-
-
 def _calculate_net_roi(placement: int, total_players: int, payout_percent: float, steepness: float) -> float:
     """
     Net ROI = (player payout from pool / 1 buy-in) - 1
@@ -78,32 +48,34 @@ def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_
     Output ROI is displayed as a percentage.
     """
     avg_roi_column = "AVG ROI"
-
-    ranked_results = _rank_players_in_each_round(rounds)
     player_totals = defaultdict(lambda: {"TotalNetROI": 0.0, "RoundsPlayed": 0})
 
-    for result in ranked_results:
-        net_roi = _calculate_net_roi(result["Placement"], result["PlayerCount"], payout_percent, steepness)
-        player = result["Player"]
-        player_totals[player]["TotalNetROI"] += net_roi
-        player_totals[player]["RoundsPlayed"] += 1
+    for round_obj in rounds:
+        # Sort players by points and calculate ROI based on placement
+        sorted_players = sorted(round_obj.players, key=lambda p: p.points, reverse=True)
+        total_players = len(sorted_players)
+        
+        for index, player in enumerate(sorted_players):
+            placement = index + 1  # Simple 1-based index for placement
+            net_roi = _calculate_net_roi(placement, total_players, payout_percent, steepness)
+            player_totals[player.player_name]["TotalNetROI"] += net_roi
+            player_totals[player.player_name]["RoundsPlayed"] += 1
 
     records = []
     for player, stats in player_totals.items():
         if stats["RoundsPlayed"] >= min_rounds_required:
-            avg_net_roi = stats["TotalNetROI"] / stats["RoundsPlayed"]
+            avg_net_roi = round((stats["TotalNetROI"] / stats["RoundsPlayed"]) * 100, 2)
             records.append({
                 "Player": player,
-                avg_roi_column: f"{round(avg_net_roi * 100, 2):.2f}%",
+                avg_roi_column: avg_net_roi,  # Store as number
                 "Rounds Played": stats["RoundsPlayed"]
-                
             })
 
     df = pd.DataFrame(records)
-    if df.empty:
-        df = pd.DataFrame([["No players met the minimum round requirement"]], columns=["Message"])
-    else:
-        df = _sort_dataframe_by_percentage_column(df, avg_roi_column)
-
+    if not df.empty:
+        df.sort_values(avg_roi_column, ascending=False, inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        # Format as percentage after sorting
+        df[avg_roi_column] = df[avg_roi_column].apply(lambda x: f"{x:.2f}%")
     return df
 
