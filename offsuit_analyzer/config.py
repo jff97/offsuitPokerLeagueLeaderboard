@@ -15,7 +15,7 @@ class Config:
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.ADMIN_AUTH_TOKEN = os.getenv("ADMIN_AUTH_TOKEN")
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
-        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 24
+        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 39
 
         self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL")
         self.NAME_TOOL_1_LINK = self.POKER_APP_BASE_URL + "api/nametools/getwarnings"
