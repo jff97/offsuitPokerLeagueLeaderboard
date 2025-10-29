@@ -3,7 +3,7 @@ import pandas as pd
 from collections import defaultdict
 from typing import List
 from offsuit_analyzer.datamodel import Round
-from config import config
+from offsuit_analyzer.config import config
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:
