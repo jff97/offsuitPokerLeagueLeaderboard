@@ -3,6 +3,7 @@ import pandas as pd
 from collections import defaultdict
 from typing import List
 from offsuit_analyzer.datamodel import Round
+from config import config
 
 
 def _calculate_num_paid(num_players: int, payout_percent: float) -> int:
@@ -41,7 +42,7 @@ def _calculate_net_roi(placement: int, total_players: int, payout_percent: float
     return -1.0  # No payout = full loss
 
 
-def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_percent: float = 0.18, steepness: float = 1.1) -> pd.DataFrame:
+def build_roi_leaderboard(rounds: List[Round], min_rounds_required: int, payout_percent: float = config.PERCENT_FOR_ROI, steepness: float = config.STEEPNESS_FOR_ROI) -> pd.DataFrame:
     """
     Build a leaderboard showing each player's average net ROI across rounds.
     ROI is based on share of prize pool versus 1 unit buy-in.

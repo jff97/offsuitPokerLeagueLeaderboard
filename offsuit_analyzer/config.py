@@ -24,6 +24,8 @@ class Config:
         self.BETA_TRUESKILL = 21
         self.TAU_TRUESKILL = .4
         self.PERCENT_FOR_ITM = 24
+        self.PERCENT_FOR_ROI = 24
+        self.STEEPNESS_FOR_ROI = 1.06
         self._set_cosmos_config_items()
         self._set_email_stuff()
 
