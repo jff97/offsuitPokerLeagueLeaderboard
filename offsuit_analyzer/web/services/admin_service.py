@@ -15,6 +15,10 @@ def refresh_legacy_rounds():
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
 
+def email_bar_list_to_admin():
+    """Email bar list report to admin."""
+    data_service.email_bar_list_report()
+
 def run_name_clash_detection():
     """Manually run name clash detection."""
     check_and_log_clashing_player_names()

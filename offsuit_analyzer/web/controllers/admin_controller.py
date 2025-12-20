@@ -24,6 +24,12 @@ def email_round_backup():
     admin_service.email_json_rounds_to_admin()
     return Response("<h1>Json file backup was email to admin.</h1>", mimetype='text/html')
 
+@admin_bp.route('/emailbarlist', methods=['POST'])
+@auth.login_required
+def email_bar_list():
+    admin_service.email_bar_list_to_admin()
+    return Response("<h1>Bar list report was emailed to admin.</h1>", mimetype='text/html')
+
 @admin_bp.route('/refreshlegacyrounds', methods=['POST'])
 @auth.login_required
 def refresh_legacy_rounds_endpoint():
