@@ -50,3 +50,11 @@ def get_network_graph_image(searched_player_name: str = None):
 def get_community_disconnectedness_analysis():
     stored_rounds = persistence.get_all_rounds()
     return analytics.get_community_avg_disconnectedness_df(stored_rounds)
+
+def get_placement_distributions(min_rounds_required: int = None):
+    if min_rounds_required in (None, 0):
+        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+    
+    stored_rounds = persistence.get_all_rounds()
+    placement_distributions = analytics.build_placement_distribution_for_all_players(stored_rounds, min_rounds_required)
+    return placement_distributions
