@@ -1,6 +1,7 @@
 from flask import Flask, Response, g
 from flask_cors import CORS
 import time
+import os
 from .controllers.leaderboard_controller import leaderboard_bp
 from .controllers.name_tools_controller import name_tools_bp
 from .controllers.admin_controller import admin_bp
@@ -29,7 +30,6 @@ def home():
 
 def main():
     """Entry point for running the Flask application."""
-    import os
     port = int(os.environ.get('PORT', 8000))
     host = os.environ.get('HOST', '0.0.0.0')
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
