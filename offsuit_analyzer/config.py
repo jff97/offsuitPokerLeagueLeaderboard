@@ -17,7 +17,7 @@ class Config:
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 39
 
-        self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL")
+        self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL", "")
         self.NAME_TOOL_1_LINK = self.POKER_APP_BASE_URL + "api/nametools/getwarnings"
         self.NAME_TOOL_2_LINK = self.POKER_APP_BASE_URL + "api/nametools/ambiguousnamestool"
         self.NAME_SIMILARITY_THRESHOLD = 79.9
@@ -65,6 +65,8 @@ class Config:
     def _get_bar_configs_from_json() -> list[BarConfig]:
         try:
             tokens_json_str = os.getenv("KEEP_THE_SCORE_BAR_TOKEN_WEEKNIGHT_PAIRS_JSON")
+            if not tokens_json_str:
+                return []
             bar_config_entries_json = json.loads(tokens_json_str)
             return [BarConfig(**entry) for entry in bar_config_entries_json]
         except Exception as e:

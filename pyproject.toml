@@ -24,6 +24,7 @@ matplotlib = "*"
 python-louvain = "^0.16"
 torch = "*"
 scipy = "*"
+gunicorn = "*"
 
 [tool.poetry.scripts]
 offsuit-analyzer = "offsuit_analyzer.web.app:main"

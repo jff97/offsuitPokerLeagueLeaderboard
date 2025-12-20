@@ -26,3 +26,11 @@ def after_api_request(response):
 @app.route('/')
 def home():
     return Response("<h1>Hello this is the default endpoint for johns api</h1>", mimetype='text/html')
+
+def main():
+    """Entry point for running the Flask application."""
+    import os
+    port = int(os.environ.get('PORT', 8000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    app.run(host=host, port=port, debug=debug)

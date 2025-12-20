@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.12'
 
       - name: Install Poetry
         run: |
@@ -77,3 +77,4 @@ jobs:
         with:
           app-name: 'OffsuitPokerAnalyzer'
           slot-name: 'Production'
+          startup-command: 'bash startup.sh'
