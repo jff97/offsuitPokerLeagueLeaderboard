@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, request, jsonify
 from ..services import leaderboard_service 
 
 leaderboard_bp = Blueprint('leaderboard', __name__, url_prefix='/api/leaderboard')
@@ -54,3 +54,14 @@ def network_graph():
 def community_disconnectedness():
     disconnectedness_df = leaderboard_service.get_community_disconnectedness_analysis()
     return disconnectedness_df.to_json(orient="records")
+
+@leaderboard_bp.route('/placement-distributions')
+def placement_distributions():
+    """
+    Get KDE distribution curves for all players' placement patterns.
+    Shows how each player's finishes are distributed across percentiles.
+    Query parameter: minrounds - minimum rounds required (default from config)
+    """
+    min_rounds_required = int(request.args.get('minrounds') or 0)
+    distributions = leaderboard_service.get_placement_distributions(min_rounds_required)
+    return jsonify(distributions)

@@ -22,6 +22,8 @@ flask_cors = "*"
 networkx = "*"
 matplotlib = "*"
 python-louvain = "^0.16"
+torch = "*"
+scipy = "*"
 
 [tool.poetry.scripts]
 offsuit-analyzer = "offsuit_analyzer.web.app:main"
