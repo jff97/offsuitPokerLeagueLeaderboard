@@ -62,3 +62,9 @@ def get_placement_distributions(min_rounds_required: int = None):
     stored_rounds = persistence.get_all_rounds()
     placement_distributions = analytics.build_placement_distribution_for_all_players(stored_rounds, min_rounds_required)
     return placement_distributions
+
+def get_months_top_point_players(month: int, year: int):
+    stored_rounds = persistence.get_all_rounds()
+    
+    top_points_players_for_specified_month = analytics.get_top_point_players_for_month(stored_rounds, month, year)
+    return top_points_players_for_specified_month

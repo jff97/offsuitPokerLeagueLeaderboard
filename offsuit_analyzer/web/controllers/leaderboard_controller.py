@@ -65,3 +65,21 @@ def placement_distributions():
     min_rounds_required = int(request.args.get('minrounds') or 0)
     distributions = leaderboard_service.get_placement_distributions(min_rounds_required)
     return jsonify(distributions)
+
+@leaderboard_bp.route('/months-top-point-players', methods=['GET'])
+def months_top_point_players_endpoint():
+    """
+    Endpoint to retrieve the top point players for a specific month.
+    
+    Query Parameters (optional for now):
+        - month: int (1-12)
+        - year: int (e.g., 2025)
+    
+    If no month/year is provided, the service can default to the current month.
+    """
+    # For now, hardcoded month/year (later can be replaced with request.args)
+    month = 12
+    year = 2025
+    top_players = leaderboard_service.get_months_top_point_players(month, year)
+    return top_players.to_json(orient="records")
+
