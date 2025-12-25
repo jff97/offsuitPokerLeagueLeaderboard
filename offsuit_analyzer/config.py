@@ -14,6 +14,7 @@ class Config:
     def __init__(self):
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.ADMIN_AUTH_TOKEN = os.getenv("ADMIN_AUTH_TOKEN")
+        self.OFFSUIT_ADMIN_PASSWORD = os.getenv("OFFSUIT_ADMIN_PASSWORD")
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 39
 
@@ -51,13 +52,15 @@ class Config:
         self.ROUNDS_COLLECTION_NAME = "pokerRoundsCollection" + collection_env_suffix
         self.WARNINGS_COLLECTION_NAME = "warningsCollection" + collection_env_suffix
         self.NAME_INFOS_COLLECTION_NAME = "nameClashesCollection" + collection_env_suffix
+        self.LEAGUE_SEASONS_COLLECTION_NAME = "leagueSeasons" + collection_env_suffix
 
     
 
     @staticmethod
     def _get_is_development_environment() -> bool:
+        return False
         try:
-            return socket.gethostname() == "JohnsPC"
+            return socket.gethostname() == "JohnsPCWin11"
         except Exception:
             return False
 
