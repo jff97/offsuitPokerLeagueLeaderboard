@@ -7,7 +7,6 @@ from offsuit_analyzer.data_service import league_seasons
 
 def get_top_point_players_for_month(stored_rounds: List[Round], month: int, year: int):
     start_date, end_date = league_seasons.get_date_range_for_month(year, month)
-    print(f"Debug: Retrieved date range for {month}/{year} - Start: {start_date}, End: {end_date}")
 
     # Dictionary to accumulate points by player
     player_points = {}

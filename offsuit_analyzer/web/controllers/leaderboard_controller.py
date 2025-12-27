@@ -78,8 +78,12 @@ def months_top_point_players_endpoint():
     If no month/year is provided, the service can default to the current month.
     """
     # For now, hardcoded month/year (later can be replaced with request.args)
-    month = 12
-    year = 2025
-    top_players = leaderboard_service.get_months_top_point_players(month, year)
+    month_param = request.args.get('month')
+    year_param = request.args.get('year')
+
+    if not month_param or not year_param:
+        return jsonify({"error": "Missing required query parameters: month and year"}), 400
+    
+    top_players = leaderboard_service.get_months_top_point_players(month_param, year_param)
     return top_players.to_json(orient="records")
 
