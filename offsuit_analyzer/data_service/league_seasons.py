@@ -24,6 +24,8 @@ def get_date_range_for_month(year: int, month: int) -> tuple[date | None, date |
 
     # Get the calendar for the given year
     calendar_obj: LeagueSeasonCalendar = persistence.get_calendar(year)
+    if not calendar_obj:
+        return None, None
 
     # Map numeric month to month name
     month_name = month_number_to_name.get(month)
