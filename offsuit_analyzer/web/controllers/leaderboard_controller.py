@@ -90,3 +90,24 @@ def months_top_point_players_endpoint():
     top_players = leaderboard_service.get_months_top_point_players(month, year)
     return top_players.to_json(orient="records")
 
+@leaderboard_bp.route('/years-top-point-players', methods=['GET'])
+def years_top_point_players_endpoint():
+    """
+    Endpoint to retrieve the top point players for a specific year.
+    
+    Query Parameters (required):
+        - year: int (e.g., 2025)
+    """
+    year_param = request.args.get('year')
+
+    if not year_param:
+        return jsonify({"error": "Missing required query parameter: year"}), 400
+    
+    try:
+        year = int(year_param)
+    except ValueError:
+        return jsonify({"error": "year must be a valid integer"}), 400
+    
+    top_players = leaderboard_service.get_years_top_point_players(year)
+    return top_players.to_json(orient="records")
+

@@ -68,3 +68,9 @@ def get_months_top_point_players(month: int, year: int):
     
     top_points_players_for_specified_month = analytics.get_top_point_players_for_month(stored_rounds, month, year)
     return top_points_players_for_specified_month
+
+def get_years_top_point_players(year: int):
+    stored_rounds = persistence.get_all_rounds()
+    
+    top_points_players_for_specified_year = analytics.get_top_point_players_for_year(stored_rounds, year)
+    return top_points_players_for_specified_year

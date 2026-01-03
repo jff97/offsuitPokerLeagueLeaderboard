@@ -16,6 +16,7 @@ build_trueskill_leaderboard= trueskill_analyzer.build_trueskill_leaderboard
 build_placement_distribution_for_all_players = placement_distribution_analyzer.build_placement_distribution_for_all_players
 
 get_top_point_players_for_month = monthly_top_points.get_top_point_players_for_month
+get_top_point_players_for_year = monthly_top_points.get_top_point_players_for_year
 
 __all__ = [
     'build_players_outlasted_leaderboard',
@@ -27,5 +28,6 @@ __all__ = [
     'build_player_graph',
     'get_community_avg_disconnectedness_df',
     'build_placement_distribution_for_all_players',
-    'get_top_point_players_for_month'
+    'get_top_point_players_for_month',
+    'get_top_point_players_for_year'
 ]
