@@ -1,0 +1,29 @@
+name: Warmup API
+
+on:
+  workflow_call:
+    inputs:
+      api_url:
+        description: 'API URL to warm up'
+        required: false
+        type: string
+        default: 'https://api.johnfoxweb.com'
+
+jobs:
+  warmup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up API from cold start
+        run: |
+          echo "Warming up API at ${{ inputs.api_url }}"
+          for i in {1..5}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ inputs.api_url }}")
+            if [ "$STATUS" -eq 200 ]; then
+              echo "API is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i failed (HTTP $STATUS), waiting 60 seconds..."
+            sleep 60
+          done
+          echo "API failed to respond after 5 attempts (~5 minutes)"
+          exit 1

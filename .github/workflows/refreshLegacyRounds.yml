@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  warmup:
+    uses: ./.github/workflows/warmup-api.yml
+
   refresh-legacy:
+    needs: warmup
     runs-on: ubuntu-latest
     steps:
       - name: Hit refresh legacy rounds DB endpoint
