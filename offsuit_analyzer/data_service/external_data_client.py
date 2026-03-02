@@ -75,21 +75,6 @@ def _get_list_of_rounds_from_api(api_tokens_with_day: List[Tuple[str, int]]) -> 
 def _email_keep_the_score_error(error_text: str):
     email_smtp_service.send_email(config.ADMIN_EMAIL, "Keep The Score API Error", error_text)
 
-def _email_single_player_round_alert(single_player_rounds: List[Dict[str, Any]]):
-    """Send email notification about rounds with only 1 player."""
-    subject = "Single Player Rounds Detected"
-    body = "The following rounds were found with only 1 player and were excluded:\n\n"
-    
-    for round_obj in single_player_rounds:
-        bar_name = round_obj.get("bar_name", "Unknown Bar")
-        round_date = round_obj.get("round_date", "Unknown Date")
-        player_name = round_obj["scores"][0]["name"] if round_obj["scores"] else "Unknown"
-        body += f"Bar: {bar_name}\nDate: {round_date}\nPlayer: {player_name}\n\n"
-    
-    # Send to full email list
-    for recipient in config.LIST_OF_EMAIL_RECIPIENTS_NAME_CLASH:
-        email_smtp_service.send_email(recipient, subject, body)
-
 def _convert_bar_json_to_round_objects(bar_token: str, target_weekday: int, bar_json: Dict[str, Any]) -> List[Round]:
     """Convert a single bar's API JSON directly to Round objects with correct round dates."""
     # Extract bar info from the JSON
@@ -126,34 +111,11 @@ def _convert_bar_json_to_round_objects(bar_token: str, target_weekday: int, bar_
                 "scores": scores
             })
     
-    # Second pass: apply all round filters
-    filtered_rounds: List[Dict[str, Any]] = _apply_round_filters(temp_rounds)
+    # Second pass: filter out players with 0 total points across all rounds
+    filtered_rounds: List[Dict[str, Any]] = _remove_zero_total_players_from_rounds(temp_rounds)
     
     # Third pass: convert to Round objects using shared function
     return [_create_round_object(round_data) for round_data in filtered_rounds]
-
-def _apply_round_filters(rounds: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Apply all filtering logic to rounds before converting to Round objects."""
-    rounds = _remove_zero_total_players_from_rounds(rounds)
-    rounds = _remove_single_player_rounds(rounds)
-    return rounds
-
-def _remove_single_player_rounds(rounds: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Remove rounds that have less than 2 players."""
-    valid_rounds = []
-    single_player_rounds = []
-    
-    for round_obj in rounds:
-        if len(round_obj["scores"]) < 2:
-            single_player_rounds.append(round_obj)
-        else:
-            valid_rounds.append(round_obj)
-    
-    # Send email if any single player rounds found
-    if single_player_rounds:
-        _email_single_player_round_alert(single_player_rounds)
-    
-    return valid_rounds
 
 def _remove_zero_total_players_from_rounds(rounds: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Remove players who have 0 total points across all rounds."""
