@@ -20,5 +20,3 @@ env/
 # OS
 .DS_Store
 Thumbs.db
-
-poetry.lock

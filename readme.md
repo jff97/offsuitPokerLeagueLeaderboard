@@ -80,7 +80,7 @@ Production analytics platform powering Microsoft Trueskill player rankings for a
 
 - **Backend**: Python 3.8+, Flask
 - **Database & Caching**: Azure Cosmos DB, GitHub Pages caching
-- **Analytics**: NetworkX, Pandas, NumPy
+- **Analytics**: NetworkX, Pandas, NumPy  
 - **API Integration**: REST APIs, External Data Sources
 - **Performance**: Static file caching, Query optimization
 - **DevOps**: GitHub Actions, Azure Cloud
