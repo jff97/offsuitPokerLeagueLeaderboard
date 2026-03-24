@@ -39,13 +39,14 @@ def get_itm_percentage_leaderboard(min_rounds_required: int = None):
     itm_percentage_leaderboard = analytics.build_itm_percent_leaderboard(stored_rounds, min_rounds_required, config.PERCENT_FOR_ITM)
     return itm_percentage_leaderboard
 
-def get_network_graph_image(searched_player_name: str = None):
-    """
-    Generate a player network graph visualization.
-    Returns BytesIO buffer containing the image.
-    """
-    stored_rounds = persistence.get_all_rounds()
-    return analytics.generate_graph_image_buffer(stored_rounds, searched_player_name, "Player Network - TrueSkill Colored")
+# DISABLED: Player graph visualization removed for deployment size optimization
+# def get_network_graph_image(searched_player_name: str = None):
+#     """
+#     Generate a player network graph visualization.
+#     Returns BytesIO buffer containing the image.
+#     """
+#     stored_rounds = persistence.get_all_rounds()
+#     return analytics.generate_graph_image_buffer(stored_rounds, searched_player_name, "Player Network - TrueSkill Colored")
 
 # DISABLED: Community detection removed for deployment size optimization
 # def get_community_disconnectedness_analysis():

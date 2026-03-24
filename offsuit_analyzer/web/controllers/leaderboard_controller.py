@@ -31,24 +31,25 @@ def itmpercent():
     top_percentile_leaderboard_dataframe = leaderboard_service.get_itm_percentage_leaderboard()
     return top_percentile_leaderboard_dataframe.to_json(orient="records")
 
-@leaderboard_bp.route('/network-graph')
-def network_graph():
-    """
-    Generate and return a player network graph visualization.
-    Shows player connections colored by TrueSkill ratings.
-    Query parameter: player_name - highlights the specified player in blue
-    """
-    searched_player_name = request.args.get('player_name')
-    img_buffer = leaderboard_service.get_network_graph_image(searched_player_name)
-    
-    return Response(
-        img_buffer.getvalue(),
-        mimetype='image/png',
-        headers={
-            'Content-Disposition': 'inline; filename="player_network.png"',
-            'Cache-Control': 'public, max-age=3600'  # Cache for 1 hour
-        }
-    )
+# DISABLED: Player graph visualization removed for deployment size optimization
+# @leaderboard_bp.route('/network-graph')
+# def network_graph():
+#     """
+#     Generate and return a player network graph visualization.
+#     Shows player connections colored by TrueSkill ratings.
+#     Query parameter: player_name - highlights the specified player in blue
+#     """
+#     searched_player_name = request.args.get('player_name')
+#     img_buffer = leaderboard_service.get_network_graph_image(searched_player_name)
+#     
+#     return Response(
+#         img_buffer.getvalue(),
+#         mimetype='image/png',
+#         headers={
+#             'Content-Disposition': 'inline; filename="player_network.png"',
+#             'Cache-Control': 'public, max-age=3600'  # Cache for 1 hour
+#         }
+#     )
 
 # DISABLED: Community detection removed for deployment size optimization
 # @leaderboard_bp.route('/community-disconnectedness')
