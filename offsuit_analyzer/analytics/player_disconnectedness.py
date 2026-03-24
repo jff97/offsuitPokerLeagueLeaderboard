@@ -2,7 +2,8 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 from typing import List
-import community as community_louvain
+# DISABLED: python-louvain removed for deployment size optimization
+# import community as community_louvain
 from offsuit_analyzer.datamodel import Round
 from offsuit_analyzer import analytics
 
@@ -32,39 +33,41 @@ def compute_disconnectedness_leaderboard_df(G: nx.Graph) -> pd.DataFrame:
     return df.sort_values("Disconnectedness", ascending=False).reset_index(drop=True)
 
 
-def compute_community_labels(G: nx.Graph) -> pd.DataFrame:
-    partition = community_louvain.best_partition(G, weight='weight', resolution=1.3)
-    df = pd.DataFrame(list(partition.items()), columns=['Player', 'CommunityID'])
-    return df.sort_values(['CommunityID', 'Player']).reset_index(drop=True)
+# DISABLED: Community detection removed for deployment size optimization
+# def compute_community_labels(G: nx.Graph) -> pd.DataFrame:
+#     partition = community_louvain.best_partition(G, weight='weight', resolution=1.3)
+#     df = pd.DataFrame(list(partition.items()), columns=['Player', 'CommunityID'])
+#     return df.sort_values(['CommunityID', 'Player']).reset_index(drop=True)
 
 
-def add_avg_disconnectedness_to_communities(disconnectedness_df: pd.DataFrame,
-                                                   communities_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add average disconnectedness to community dataframe, keep each player's disconnectedness,
-    sort communities by highest average disconnectedness, and sort players within each community
-    by their disconnectedness descending.
-
-    Args:
-        disconnectedness_df: DataFrame with ['Player', 'Disconnectedness']
-        communities_df: DataFrame with ['Player', 'CommunityID']
-
-    Returns:
-        DataFrame with columns ['Player', 'CommunityID', 'Disconnectedness', 'AvgDisconnectedness']
-        sorted as described.
-    """
-    # Merge disconnectedness into communities
-    merged_df = communities_df.merge(disconnectedness_df, on='Player', how='left')
-    
-    # Compute average disconnectedness per community
-    avg_disc = merged_df.groupby('CommunityID')['Disconnectedness'].mean().rename('AvgDisconnectedness')
-    merged_df['AvgDisconnectedness'] = merged_df['CommunityID'].map(avg_disc)
-    
-    # Sort first by community AvgDisconnectedness descending, then by player disconnectedness descending
-    merged_df = merged_df.sort_values(['AvgDisconnectedness', 'Disconnectedness'],
-                                      ascending=[False, False])
-    
-    return merged_df[['Player', 'CommunityID', 'Disconnectedness', 'AvgDisconnectedness']]
+# DISABLED: Community analysis removed for deployment size optimization
+# def add_avg_disconnectedness_to_communities(disconnectedness_df: pd.DataFrame,
+#                                                    communities_df: pd.DataFrame) -> pd.DataFrame:
+#     """
+#     Add average disconnectedness to community dataframe, keep each player's disconnectedness,
+#     sort communities by highest average disconnectedness, and sort players within each community
+#     by their disconnectedness descending.
+#
+#     Args:
+#         disconnectedness_df: DataFrame with ['Player', 'Disconnectedness']
+#         communities_df: DataFrame with ['Player', 'CommunityID']
+#
+#     Returns:
+#         DataFrame with columns ['Player', 'CommunityID', 'Disconnectedness', 'AvgDisconnectedness']
+#         sorted as described.
+#     """
+#     # Merge disconnectedness into communities
+#     merged_df = communities_df.merge(disconnectedness_df, on='Player', how='left')
+#     
+#     # Compute average disconnectedness per community
+#     avg_disc = merged_df.groupby('CommunityID')['Disconnectedness'].mean().rename('AvgDisconnectedness')
+#     merged_df['AvgDisconnectedness'] = merged_df['CommunityID'].map(avg_disc)
+#     
+#     # Sort first by community AvgDisconnectedness descending, then by player disconnectedness descending
+#     merged_df = merged_df.sort_values(['AvgDisconnectedness', 'Disconnectedness'],
+#                                       ascending=[False, False])
+#     
+#     return merged_df[['Player', 'CommunityID', 'Disconnectedness', 'AvgDisconnectedness']]
 
 
 
@@ -77,15 +80,16 @@ def get_player_disconnectedness_df(rounds: List[Round]) -> pd.DataFrame:
     return compute_disconnectedness_leaderboard_df(G)
 
 
-def get_community_detection_df(rounds: List[Round]) -> pd.DataFrame:
-    G = analytics.build_player_graph(rounds)
-    return compute_community_labels(G)
-
-def get_community_avg_disconnectedness_df(rounds: List[Round]) -> pd.DataFrame:
-    G = analytics.build_player_graph(rounds)
-    disc_df = compute_disconnectedness_leaderboard_df(G)
-    comm_df = compute_community_labels(G)
-    return add_avg_disconnectedness_to_communities(disc_df, comm_df)
+# DISABLED: Community detection removed for deployment size optimization
+# def get_community_detection_df(rounds: List[Round]) -> pd.DataFrame:
+#     G = analytics.build_player_graph(rounds)
+#     return compute_community_labels(G)
+#
+# def get_community_avg_disconnectedness_df(rounds: List[Round]) -> pd.DataFrame:
+#     G = analytics.build_player_graph(rounds)
+#     disc_df = compute_disconnectedness_leaderboard_df(G)
+#     comm_df = compute_community_labels(G)
+#     return add_avg_disconnectedness_to_communities(disc_df, comm_df)
 
 def print_community_disconnectedness_over_time(rounds: List[Round], num_slices: int = 5):
     """

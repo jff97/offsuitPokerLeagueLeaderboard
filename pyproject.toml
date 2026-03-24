@@ -15,13 +15,15 @@ flask-httpauth = "*"
 pymongo = "*"
 python-dotenv = "*"
 requests = "*"
+numpy = "*"
 pandas = "*"
 rapidfuzz = "*"
 trueskill = "*"
 flask_cors = "*"
 networkx = "*"
 matplotlib = "*"
-python-louvain = "^0.16"
+# DISABLED: python-louvain removed for deployment size optimization
+# python-louvain = "^0.16"
 scipy = "*"
 
 [tool.poetry.scripts]

@@ -50,10 +50,11 @@ def network_graph():
         }
     )
 
-@leaderboard_bp.route('/community-disconnectedness')
-def community_disconnectedness():
-    disconnectedness_df = leaderboard_service.get_community_disconnectedness_analysis()
-    return disconnectedness_df.to_json(orient="records")
+# DISABLED: Community detection removed for deployment size optimization
+# @leaderboard_bp.route('/community-disconnectedness')
+# def community_disconnectedness():
+#     disconnectedness_df = leaderboard_service.get_community_disconnectedness_analysis()
+#     return disconnectedness_df.to_json(orient="records")
 
 @leaderboard_bp.route('/placement-distributions')
 def placement_distributions():

@@ -26,7 +26,8 @@ __all__ = [
     'build_itm_percent_leaderboard',
     'generate_graph_image_buffer',
     'build_player_graph',
-    'get_community_avg_disconnectedness_df',
+    # DISABLED: Community detection removed for deployment size optimization
+    # 'get_community_avg_disconnectedness_df',
     'build_placement_distribution_for_all_players',
     'get_top_point_players_for_month',
     'get_top_point_players_for_year'
