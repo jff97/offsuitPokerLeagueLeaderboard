@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, request, jsonify
+from flask import Blueprint, Response, request
 from flask_httpauth import HTTPTokenAuth
 import json
 from ..services import admin_service 
@@ -73,55 +73,3 @@ def upsert_season_calendar():
         return Response(json.dumps({"status": "ok"}), status=200, mimetype="application/json")
     except ValueError as e:
         return Response(json.dumps({"error": str(e)}), status=400, mimetype="application/json")
-
-
-@admin_bp.route('/trigger-frontend-update', methods=['POST'])
-def trigger_frontend_update():
-    """
-    Trigger the frontend leaderboards refresh workflow on GitHub.
-    
-    This endpoint dispatches a GitHub workflow that updates the frontend leaderboard caches.
-    The GitHub PAT token is kept secure on the backend only.
-    
-    Request body:
-    {
-        "password": "<admin password>"
-    }
-    
-    Returns:
-        JSON with status and workflow information on success
-        401 Unauthorized if password is invalid
-        500 Internal Server Error if GitHub API call fails
-    """
-    try:
-        data = request.get_json()
-        
-        # Validate request has JSON
-        if not data:
-            return jsonify({"status": "error", "message": "Request body must be valid JSON"}), 400
-        
-        # Validate password
-        if data.get('password') != config.OFFSUIT_ADMIN_PASSWORD:
-            return jsonify({"status": "error", "message": "Invalid password"}), 401
-        
-        # Trigger the GitHub workflow
-        success, message, status_code = admin_service.trigger_frontend_update()
-        
-        if success:
-            return jsonify({
-                "status": "success",
-                "message": message,
-                "workflow_id": "refresh_leaderboards"
-            }), status_code
-        else:
-            return jsonify({
-                "status": "error",
-                "message": message
-            }), status_code
-            
-    except Exception as e:
-        print(f'Error in trigger_frontend_update endpoint: {str(e)}')
-        return jsonify({
-            "status": "error",
-            "message": "Failed to dispatch workflow"
-        }), 500
