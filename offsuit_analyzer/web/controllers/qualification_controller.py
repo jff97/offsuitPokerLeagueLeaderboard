@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify, Response
 import json
 from offsuit_analyzer.config import config
-from ..services import qualification_service
+from ..services import qualification_service, admin_service
 from offsuit_analyzer.persistence import excluded_qualifiers_collection
 
 qualification_bp = Blueprint('qualification', __name__, url_prefix='/api/qualification')
@@ -86,6 +86,9 @@ def update_unavailable_players():
         
         # Update the collection (this replaces the entire list)
         excluded_qualifiers_collection.set_excluded_players(set(unavailable_players))
+        
+        # Refresh rounds to recalculate qualified players with updated exclusions
+        admin_service.refresh_rounds_database()
         
         return Response(
             json.dumps({
