@@ -17,3 +17,8 @@ def ambiguous_names():
 def get_name_clashes():
     name_clashes = name_tools_service.get_all_name_clashes()
     return Response(f"<pre>{name_clashes}</pre>", mimetype='text/html')
+
+@name_tools_bp.route("getallplayernames")
+def get_all_player_names():
+    player_names = name_tools_service.get_all_player_names()
+    return {"playerNames": player_names}

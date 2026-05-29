@@ -31,3 +31,7 @@ def check_and_log_clashing_player_names():
 def delete_warnings():
     """Delete all warning entries from the database."""
     persistence.delete_all_warnings()
+
+def get_all_player_names():
+    """Get all unique player names from all rounds."""
+    return name_tools.get_all_unique_player_names()
