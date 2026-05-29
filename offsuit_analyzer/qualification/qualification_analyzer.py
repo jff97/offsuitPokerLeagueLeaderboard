@@ -100,7 +100,8 @@ def _get_top_3_per_bar(
 
 
 def _resolve_multi_bar_qualifications(
-    top_3_per_bar: Dict[BarName, List[PlayerQualificationTuple]]
+    top_3_per_bar: Dict[BarName, List[PlayerQualificationTuple]],
+    bar_player_points: BarPlayerPoints
 ) -> Dict[BarName, List[PlayerQualification]]:
     """
     Resolve multi-bar qualifications according to rules.
@@ -108,7 +109,7 @@ def _resolve_multi_bar_qualifications(
     If a player qualifies at multiple bars:
     1. They take the spot where they have the best placement (1st > 2nd > 3rd)
     2. If same placement at multiple bars, they take the one with more points
-    3. Other bars get the next-best available player
+    3. Other bars get the next-best available player (4th, 5th, etc.)
     
     Returns:
         Dict mapping bar_name -> [qualified_players]
@@ -135,21 +136,34 @@ def _resolve_multi_bar_qualifications(
             )
             player_chosen_bar[player_name] = best_bar
     
-    # Rebuild qualifiers by bar, only including players who chose that bar
+    # For each bar, fill 3 spots with players who chose that bar
+    # Start with full sorted list (not just top 3) to handle promotions
     final_qualifiers: Dict[BarName, List[PlayerQualification]] = defaultdict(list)
     
-    for bar_name, qualifiers in top_3_per_bar.items():
-        for player_name, placement, points in qualifiers:
+    for bar_name, player_points in bar_player_points.items():
+        # Sort all players at this bar by points descending
+        sorted_all_players = sorted(
+            player_points.items(),
+            key=lambda x: (-x[1], x[0])
+        )
+        
+        # Fill 3 spots with players who chose this bar
+        spots_filled = 0
+        for player_name, points in sorted_all_players:
+            if spots_filled >= 3:
+                break
+            
             # Only include if player chose this bar
             if player_chosen_bar.get(player_name) == bar_name:
                 final_qualifiers[bar_name].append(
                     PlayerQualification(
                         player_name=player_name,
-                        placement=placement,
+                        placement=spots_filled + 1,
                         total_points=points,
                         bar_name=bar_name
                     )
                 )
+                spots_filled += 1
     
     return dict(final_qualifiers)
 
@@ -162,7 +176,8 @@ def get_qualified_players(
     Calculate tournament qualifiers from round results.
     
     Determines top 3 total point holders from each bar. Handles multi-bar
-    qualifications by having each player take their best spot.
+    qualifications by having each player take their best spot, and promotes
+    lower-ranked players to fill any vacated spots.
     
     Args:
         rounds: List of Round objects containing player scores
@@ -180,10 +195,10 @@ def get_qualified_players(
     # Step 1: Aggregate points by bar and player
     bar_player_points = _aggregate_points_by_bar_and_player(rounds, excluded_players)
     
-    # Step 2: Get top 3 per bar
+    # Step 2: Get top 3 per bar (for reference/analysis)
     top_3_per_bar = _get_top_3_per_bar(bar_player_points)
     
-    # Step 3: Resolve multi-bar qualifications
-    final_qualifiers = _resolve_multi_bar_qualifications(top_3_per_bar)
+    # Step 3: Resolve multi-bar qualifications with promotions
+    final_qualifiers = _resolve_multi_bar_qualifications(top_3_per_bar, bar_player_points)
     
     return QualifiedPlayersByBar(qualifiers_by_bar=final_qualifiers)
