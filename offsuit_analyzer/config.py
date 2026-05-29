@@ -15,6 +15,7 @@ class Config:
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.ADMIN_AUTH_TOKEN = os.getenv("ADMIN_AUTH_TOKEN")
         self.OFFSUIT_ADMIN_PASSWORD = os.getenv("OFFSUIT_ADMIN_PASSWORD")
+        self.FRONTEND_PAT = os.getenv("FRONTEND_PAT")
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 39
 

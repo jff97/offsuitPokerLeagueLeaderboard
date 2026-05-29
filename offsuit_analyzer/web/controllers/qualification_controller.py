@@ -87,8 +87,10 @@ def update_unavailable_players():
         # Update the collection (this replaces the entire list)
         excluded_qualifiers_collection.set_excluded_players(set(unavailable_players))
         
-        # Refresh rounds to recalculate qualified players with updated exclusions
-        admin_service.refresh_rounds_database()
+        # Trigger frontend update to refresh leaderboard caches
+        success, message, _ = admin_service.trigger_frontend_update()
+        if not success:
+            print(f"Warning: Failed to trigger frontend update: {message}")
         
         return Response(
             json.dumps({
