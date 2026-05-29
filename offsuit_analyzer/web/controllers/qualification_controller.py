@@ -31,11 +31,42 @@ def get_unavailable_players():
     """
     Get the list of players currently excluded from qualification this month.
     
+    Query parameters or request body:
+    {
+        "password": "<admin password>"
+    }
+    
     Returns:
         JSON array of player names currently excluded from qualification
+        401 Unauthorized if password is invalid
     """
-    excluded = excluded_qualifiers_collection.get_excluded_players()
-    return jsonify(sorted(list(excluded)))
+    try:
+        # Try to get password from JSON body first, then from query parameters
+        data = request.get_json(silent=True) or {}
+        password = data.get('password') or request.args.get('password')
+        
+        # Validate password
+        if password != config.OFFSUIT_ADMIN_PASSWORD:
+            return Response(
+                json.dumps({"error": "Invalid password"}),
+                status=401,
+                mimetype="application/json"
+            )
+        
+        # Get excluded players
+        excluded = excluded_qualifiers_collection.get_excluded_players()
+        return Response(
+            json.dumps(sorted(list(excluded))),
+            status=200,
+            mimetype="application/json"
+        )
+    
+    except Exception as e:
+        return Response(
+            json.dumps({"error": str(e)}),
+            status=500,
+            mimetype="application/json"
+        )
 
 
 @qualification_bp.route('/unavailable-players', methods=['POST'])
