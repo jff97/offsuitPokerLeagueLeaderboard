@@ -179,84 +179,63 @@ def _resolve_multi_bar_conflicts(
 
 def _apply_chronological_lock_in(
     rounds: List[Round],
-    resolved_qualifiers: Dict[BarName, List[PlayerQualificationTuple]]
-) -> Dict[BarName, List[PlayerQualificationTuple]]:
+    resolved_qualifiers: Dict[BarName, List[PlayerQualificationTuple]],
+    bar_player_points: BarPlayerPoints
+) -> Dict[BarName, List[PlayerQualification]]:
     """
     Apply chronological lock-in (Step 3).
     
     Players who qualify earlier in the week (Sat-Thu) are locked in and 
-    excluded from later bars, allowing promotions.
+    excluded from later bars, allowing promotions. Ensures each bar gets exactly 3 qualifiers.
     
     Returns:
-        Dict mapping bar_name -> [(player_name, placement, total_points), ...]
+        Dict mapping bar_name -> [qualified_players] (3 per bar)
     """
-    # Build map of rounds by day
-    rounds_by_day: Dict[int, List[Round]] = defaultdict(list)
-    for round_data in rounds:
-        weekday = _get_weekday_from_date(round_data.round_date)
-        if weekday != -1:
-            rounds_by_day[weekday].append(round_data)
-    
-    # Aggregate points by bar and player for each day
-    day_bars_players: Dict[int, Dict[BarName, Dict[PlayerName, Points]]] = defaultdict(
-        lambda: defaultdict(lambda: defaultdict(int))
-    )
-    for day, day_rounds in rounds_by_day.items():
-        for round_data in day_rounds:
-            bar_name = round_data.bar_name
-            for player_score in round_data.players:
-                player_name = player_score.player_name
-                day_bars_players[day][bar_name][player_name] += player_score.points
-    
     # Track players who have already qualified
     already_qualified: Set[PlayerName] = set()
     
-    # Final qualifiers after chronological processing
-    final_qualifiers: Dict[BarName, List[PlayerQualification]] = defaultdict(list)
+    # Final qualifiers - will be filled incrementally
+    final_qualifiers: Dict[BarName, List[PlayerQualification]] = {}
     
     # Process each day in week order (Sat-Thu)
     for weekday in WEEK_DAY_ORDER:
-        if weekday > 3:  # Thu is 3, skip Fri (4), Sat would be 5, Sun 6
+        if weekday > 3:  # Thu is 3, skip Fri (4)
             continue
         
-        if weekday not in day_bars_players:
-            continue
-        
-        bars_for_day = day_bars_players[weekday]
-        
-        # For each bar with rounds this day
-        for bar_name, player_points in bars_for_day.items():
-            # Get the resolved qualifiers for this bar from step 2
-            if bar_name not in resolved_qualifiers:
+        # Process ALL bars on this day (not just ones with rounds that day)
+        for bar_name, resolved_top_3 in resolved_qualifiers.items():
+            # Skip if we already finalized this bar
+            if bar_name in final_qualifiers:
                 continue
             
-            resolved_top_3 = resolved_qualifiers[bar_name]
+            # Filter resolved top 3, removing already-qualified players
+            available_qualifiers = [
+                (player_name, points)
+                for player_name, _, points in resolved_top_3
+                if player_name not in already_qualified
+            ]
             
-            # Filter out players already qualified, and update with available players
-            available_qualifiers = []
-            for player_name, _, points in resolved_top_3:
-                if player_name not in already_qualified:
-                    available_qualifiers.append((player_name, points))
-            
-            # If we don't have 3, promote from the full sorted list
+            # If we don't have 3 yet, promote from remaining players at this bar
             if len(available_qualifiers) < 3:
-                sorted_all = sorted(
-                    player_points.items(),
+                # Get all players at this bar sorted by total points
+                all_players_at_bar = sorted(
+                    bar_player_points[bar_name].items(),
                     key=lambda x: (-x[1], x[0])
                 )
-                promoted = []
-                for player_name, points in sorted_all:
-                    if player_name not in already_qualified:
-                        if (player_name, points) not in available_qualifiers:
-                            promoted.append((player_name, points))
-                    if len(available_qualifiers) + len(promoted) >= 3:
-                        break
                 
-                available_qualifiers.extend(promoted[:3 - len(available_qualifiers)])
+                # Add players who aren't already qualified and not already selected
+                already_selected = {name for name, _ in available_qualifiers}
+                for player_name, points in all_players_at_bar:
+                    if player_name not in already_qualified and player_name not in already_selected:
+                        available_qualifiers.append((player_name, points))
+                    
+                    if len(available_qualifiers) >= 3:
+                        break
             
-            # Add the qualifiers for this day/bar and lock them in
+            # Take exactly 3 and add to finals
+            bar_qualifiers = []
             for placement, (player_name, points) in enumerate(available_qualifiers[:3], start=1):
-                final_qualifiers[bar_name].append(
+                bar_qualifiers.append(
                     PlayerQualification(
                         player_name=player_name,
                         placement=placement,
@@ -264,9 +243,12 @@ def _apply_chronological_lock_in(
                         bar_name=bar_name
                     )
                 )
+                # Lock in this player
                 already_qualified.add(player_name)
+            
+            final_qualifiers[bar_name] = bar_qualifiers
     
-    return dict(final_qualifiers)
+    return final_qualifiers
 
 
 def get_qualified_players(
@@ -302,6 +284,6 @@ def get_qualified_players(
     resolved_qualifiers = _resolve_multi_bar_conflicts(top_3_per_bar, bar_player_points)
     
     # Step 3: Apply chronological lock-in
-    final_qualifiers = _apply_chronological_lock_in(rounds, resolved_qualifiers)
+    final_qualifiers = _apply_chronological_lock_in(rounds, resolved_qualifiers, bar_player_points)
     
     return QualifiedPlayersByBar(qualifiers_by_bar=final_qualifiers)
