@@ -115,140 +115,200 @@ def _get_top_3_per_bar(
     return top_3_per_bar
 
 
-def _resolve_multi_bar_conflicts(
-    top_3_per_bar: Dict[BarName, List[PlayerQualificationTuple]],
-    bar_player_points: BarPlayerPoints
-) -> Dict[BarName, List[PlayerQualificationTuple]]:
+def _identify_multi_bar_qualifiers(
+    top_3_per_bar: Dict[BarName, List[PlayerQualificationTuple]]
+) -> Dict[PlayerName, List[Tuple[BarName, Placement, Points]]]:
     """
-    Resolve players who qualify at multiple bars (Step 2).
-    
-    Rules:
-    - If a player qualifies at different placements, they take best placement (1 > 2 > 3)
-    - If same placement at multiple bars, they take the one with more points
-    - Other bars get promoted players from their remaining list
+    Find players who appear in multiple bars' top 3.
     
     Returns:
-        Dict mapping bar_name -> [(player_name, placement, total_points), ...]
+        Dict mapping player_name -> [(bar_name, placement, points), ...]
+        for players appearing at multiple bars only
     """
-    # Build map: player -> [(bar_name, placement, points), ...]
-    player_qualifications: Dict[PlayerName, List[PlayerQualificationTuple]] = defaultdict(list)
+    player_qualifications: Dict[PlayerName, List[Tuple[BarName, Placement, Points]]] = defaultdict(list)
     
     for bar_name, qualifiers in top_3_per_bar.items():
         for player_name, placement, points in qualifiers:
             player_qualifications[player_name].append((bar_name, placement, points))
     
-    # For each player, determine which bar they take (if multi-qualified)
+    # Return only those qualifying at multiple bars
+    return {p: bars for p, bars in player_qualifications.items() if len(bars) > 1}
+
+
+def _assign_best_bars_for_qualifiers(
+    top_3_per_bar: Dict[BarName, List[PlayerQualificationTuple]],
+    multi_bar_qualifiers: Dict[PlayerName, List[Tuple[BarName, Placement, Points]]]
+) -> Dict[PlayerName, BarName]:
+    """
+    Determine which bar each player takes (for multi-qualified: best placement/points).
+    
+    For multi-bar qualifiers: choose best by placement first, then by points.
+    For single-bar qualifiers: assign their only bar.
+    
+    Returns:
+        Dict mapping player_name -> best_bar_name
+    """
     player_chosen_bar: Dict[PlayerName, BarName] = {}
     
-    for player_name, bar_placements in player_qualifications.items():
-        if len(bar_placements) == 1:
-            # Only qualifies at one bar
-            player_chosen_bar[player_name] = bar_placements[0][0]
-        else:
-            # Qualifies at multiple bars - choose best by placement, then by points
-            best_bar, best_placement, best_points = min(
-                bar_placements,
-                key=lambda x: (x[1], -x[2])  # placement first, then points desc
-            )
-            player_chosen_bar[player_name] = best_bar
+    # All players from top 3 (single-bar qualifiers)
+    for bar_name, qualifiers in top_3_per_bar.items():
+        for player_name, _, _ in qualifiers:
+            if player_name not in multi_bar_qualifiers:
+                player_chosen_bar[player_name] = bar_name
     
-    # Rebuild top 3 per bar with promotions
-    resolved_qualifiers: Dict[BarName, List[PlayerQualificationTuple]] = {}
+    # Multi-bar qualifiers: choose best bar
+    for player_name, bar_placements in multi_bar_qualifiers.items():
+        best_bar, _, _ = min(
+            bar_placements,
+            key=lambda x: (x[1], -x[2])  # placement first, then points desc
+        )
+        player_chosen_bar[player_name] = best_bar
+    
+    return player_chosen_bar
+
+
+def _build_initial_qualifiers(
+    player_chosen_bar: Dict[PlayerName, BarName],
+    bar_player_points: BarPlayerPoints
+) -> Tuple[Dict[BarName, List[PlayerQualificationTuple]], Set[PlayerName]]:
+    """
+    Build initial qualifiers, selecting only players who chose each bar.
+    
+    Returns:
+        Tuple of (qualifiers, already_assigned) where:
+        - qualifiers: bar_name -> [(player_name, placement, points), ...]
+        - already_assigned: set of player names already assigned to a bar
+    """
+    qualifiers: Dict[BarName, List[PlayerQualificationTuple]] = {}
+    already_assigned: Set[PlayerName] = set()
     
     for bar_name, player_points in bar_player_points.items():
-        # Sort all players at this bar
-        sorted_all_players = sorted(
+        # Sort players by points descending
+        sorted_by_points = sorted(
             player_points.items(),
             key=lambda x: (-x[1], x[0])
         )
         
-        # Fill 3 spots with only players who chose this bar
+        # Take top 3 who chose this bar
         bar_qualifiers = []
-        for player_name, points in sorted_all_players:
+        for player_name, points in sorted_by_points:
             if len(bar_qualifiers) >= 3:
                 break
             
             if player_chosen_bar.get(player_name) == bar_name:
                 placement = len(bar_qualifiers) + 1
                 bar_qualifiers.append((player_name, placement, points))
+                already_assigned.add(player_name)
         
-        resolved_qualifiers[bar_name] = bar_qualifiers
+        qualifiers[bar_name] = bar_qualifiers
     
-    return resolved_qualifiers
+    return qualifiers, already_assigned
 
 
-def _apply_chronological_lock_in(
-    rounds: List[Round],
-    resolved_qualifiers: Dict[BarName, List[PlayerQualificationTuple]],
-    bar_player_points: BarPlayerPoints
-) -> Dict[BarName, List[PlayerQualification]]:
+def _promote_next_available_players(
+    bar_qualifiers: List[PlayerQualificationTuple],
+    bar_name: BarName,
+    sorted_all_players: List[Tuple[PlayerName, Points]],
+    already_assigned: Set[PlayerName],
+    player_chosen_bar: Dict[PlayerName, BarName]
+) -> List[PlayerQualificationTuple]:
     """
-    Apply chronological lock-in (Step 3).
+    Promote additional players to fill a bar's qualifier slots (up to 3).
     
-    Players who qualify earlier in the week (Sat-Thu) are locked in and 
-    excluded from later bars, allowing promotions. Ensures each bar gets exactly 3 qualifiers.
+    Only promotes players who:
+    - Haven't been assigned to another bar
+    - Either didn't qualify elsewhere OR chose this bar
     
     Returns:
-        Dict mapping bar_name -> [qualified_players] (3 per bar)
+        Updated list with promoted players added
     """
-    # Track players who have already qualified
-    already_qualified: Set[PlayerName] = set()
+    promotions = list(bar_qualifiers)  # Copy existing
     
-    # Final qualifiers - will be filled incrementally
-    final_qualifiers: Dict[BarName, List[PlayerQualification]] = {}
-    
-    # Process each day in week order (Sat-Thu)
-    for weekday in WEEK_DAY_ORDER:
-        if weekday > 3:  # Thu is 3, skip Fri (4)
-            continue
+    for player_name, points in sorted_all_players:
+        if len(promotions) >= 3:
+            break
         
-        # Process ALL bars on this day (not just ones with rounds that day)
-        for bar_name, resolved_top_3 in resolved_qualifiers.items():
-            # Skip if we already finalized this bar
-            if bar_name in final_qualifiers:
-                continue
-            
-            # Filter resolved top 3, removing already-qualified players
-            available_qualifiers = [
-                (player_name, points)
-                for player_name, _, points in resolved_top_3
-                if player_name not in already_qualified
-            ]
-            
-            # If we don't have 3 yet, promote from remaining players at this bar
-            if len(available_qualifiers) < 3:
-                # Get all players at this bar sorted by total points
-                all_players_at_bar = sorted(
-                    bar_player_points[bar_name].items(),
-                    key=lambda x: (-x[1], x[0])
-                )
-                
-                # Add players who aren't already qualified and not already selected
-                already_selected = {name for name, _ in available_qualifiers}
-                for player_name, points in all_players_at_bar:
-                    if player_name not in already_qualified and player_name not in already_selected:
-                        available_qualifiers.append((player_name, points))
-                    
-                    if len(available_qualifiers) >= 3:
-                        break
-            
-            # Take exactly 3 and add to finals
-            bar_qualifiers = []
-            for placement, (player_name, points) in enumerate(available_qualifiers[:3], start=1):
-                bar_qualifiers.append(
-                    PlayerQualification(
-                        player_name=player_name,
-                        placement=placement,
-                        total_points=points,
-                        bar_name=bar_name
-                    )
-                )
-                # Lock in this player
-                already_qualified.add(player_name)
-            
-            final_qualifiers[bar_name] = bar_qualifiers
+        # Check if player is available and belongs at this bar
+        is_available = player_name not in already_assigned
+        chose_this_bar = player_chosen_bar.get(player_name, bar_name) == bar_name
+        
+        if is_available and chose_this_bar:
+            placement = len(promotions) + 1
+            promotions.append((player_name, placement, points))
+            already_assigned.add(player_name)
     
-    return final_qualifiers
+    return promotions
+
+
+def _resolve_multi_bar_conflicts(
+    top_3_per_bar: Dict[BarName, List[PlayerQualificationTuple]],
+    bar_player_points: BarPlayerPoints
+) -> Tuple[Dict[BarName, List[PlayerQualificationTuple]], Dict[PlayerName, BarName]]:
+    """
+    Resolve players who qualify at multiple bars and fill gaps to 3 per bar.
+    
+    Process:
+    1. Identify which players qualified at multiple bars
+    2. Assign each multi-bar player to their best bar
+    3. Build initial qualifiers respecting bar assignments
+    4. Promote remaining players to fill gaps
+    
+    Returns:
+        Tuple of (final_qualifiers, player_chosen_bar) where:
+        - final_qualifiers: bar_name -> [(player_name, placement, points), ...]
+        - player_chosen_bar: player_name -> bar_name (their assignment)
+    """
+    # Step 1: Identify conflicts
+    multi_bar_qualifiers = _identify_multi_bar_qualifiers(top_3_per_bar)
+    
+    # Step 2: Assign bars
+    player_chosen_bar = _assign_best_bars_for_qualifiers(top_3_per_bar, multi_bar_qualifiers)
+    
+    # Step 3: Build initial qualifiers
+    initial_qualifiers, already_assigned = _build_initial_qualifiers(
+        player_chosen_bar, bar_player_points
+    )
+    
+    # Step 4: Promote to fill gaps
+    final_qualifiers: Dict[BarName, List[PlayerQualificationTuple]] = {}
+    
+    for bar_name, bar_qualifiers in initial_qualifiers.items():
+        sorted_all = sorted(
+            bar_player_points[bar_name].items(),
+            key=lambda x: (-x[1], x[0])
+        )
+        
+        final_qualifiers[bar_name] = _promote_next_available_players(
+            bar_qualifiers, bar_name, sorted_all, already_assigned, player_chosen_bar
+        )
+    
+    return final_qualifiers, player_chosen_bar
+
+
+def _convert_to_dataclass_objects(
+    final_qualifiers_tuples: Dict[BarName, List[PlayerQualificationTuple]]
+) -> Dict[BarName, List[PlayerQualification]]:
+    """
+    Convert tuple-based qualifiers to PlayerQualification dataclass objects.
+    
+    Args:
+        final_qualifiers_tuples: bar_name -> [(player_name, placement, points), ...]
+    
+    Returns:
+        bar_name -> [PlayerQualification, ...] objects
+    """
+    return {
+        bar_name: [
+            PlayerQualification(
+                player_name=player_name,
+                placement=placement,
+                total_points=points,
+                bar_name=bar_name
+            )
+            for player_name, placement, points in qualifiers
+        ]
+        for bar_name, qualifiers in final_qualifiers_tuples.items()
+    }
 
 
 def get_qualified_players(
@@ -258,10 +318,9 @@ def get_qualified_players(
     """
     Calculate tournament qualifiers from round results.
     
-    Three-step process:
-    1. Calculate top 3 per bar across all rounds (simultaneous)
-    2. Resolve multi-bar conflicts (best placement or most points)
-    3. Apply chronological lock-in (early qualifiers exclude later bars)
+    Two-step process:
+    1. Calculate top 3 per bar by total points across all rounds
+    2. Resolve multi-bar conflicts and fill gaps to exactly 3 per bar
     
     Args:
         rounds: List of Round objects containing player scores
@@ -276,14 +335,14 @@ def get_qualified_players(
     if excluded_players is None:
         excluded_players = set()
     
-    # Step 1: Aggregate all points and get top 3 per bar
+    # Step 1: Aggregate points and get top 3 per bar
     bar_player_points = _aggregate_points_by_bar_and_player(rounds, excluded_players)
     top_3_per_bar = _get_top_3_per_bar(bar_player_points)
     
-    # Step 2: Resolve multi-bar conflicts
-    resolved_qualifiers = _resolve_multi_bar_conflicts(top_3_per_bar, bar_player_points)
+    # Step 2: Resolve multi-bar conflicts and fill gaps
+    final_qualifiers_tuples, _ = _resolve_multi_bar_conflicts(top_3_per_bar, bar_player_points)
     
-    # Step 3: Apply chronological lock-in
-    final_qualifiers = _apply_chronological_lock_in(rounds, resolved_qualifiers, bar_player_points)
+    # Convert to dataclass objects
+    final_qualifiers = _convert_to_dataclass_objects(final_qualifiers_tuples)
     
     return QualifiedPlayersByBar(qualifiers_by_bar=final_qualifiers)
