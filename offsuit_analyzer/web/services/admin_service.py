@@ -9,11 +9,6 @@ def refresh_rounds_database():
     all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
 
-def refresh_legacy_rounds():
-    """Refresh with legacy June data."""
-    all_rounds = data_service.get_june_data_as_rounds()
-    persistence.store_rounds(all_rounds)
-
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
 

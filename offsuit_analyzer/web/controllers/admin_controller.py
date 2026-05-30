@@ -31,13 +31,6 @@ def email_bar_list():
     admin_service.email_bar_list_to_admin()
     return Response("<h1>Bar list report was emailed to admin.</h1>", mimetype='text/html')
 
-@admin_bp.route('/refreshlegacyrounds', methods=['POST'])
-@auth.login_required
-def refresh_legacy_rounds_endpoint():
-    admin_service.refresh_legacy_rounds()
-    return Response("<h1>Rounds Database Was refreshed for current legacy june months</h1>", mimetype='text/html')
-
-
 @admin_bp.route('/checknameclashes', methods=['POST'])
 @auth.login_required
 def check_name_clashes():
