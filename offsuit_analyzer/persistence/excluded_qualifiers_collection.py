@@ -17,7 +17,7 @@ def _should_cleanup() -> bool:
     Returns True if current date is between the 6th and 18th inclusive.
     """
     today = datetime.now().day
-    return 6 <= today <= 18
+    return 6 <= today <= 12
 
 
 def _cleanup_if_needed() -> None:

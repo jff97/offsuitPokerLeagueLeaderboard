@@ -14,9 +14,6 @@ Points = int
 BarPlayerPoints = Dict[BarName, Dict[PlayerName, Points]]
 PlayerQualificationTuple = Tuple[PlayerName, Placement, Points]
 
-# Saturday to Friday week order in Python weekday format (Monday=0, Sunday=6)
-WEEK_DAY_ORDER = [5, 6, 0, 1, 2, 3, 4]  # Sat, Sun, Mon, Tue, Wed, Thu, Fri
-
 
 @dataclass(frozen=True)
 class PlayerQualification:
@@ -45,18 +42,6 @@ class QualifiedPlayersByBar:
             ]
             for bar_name, qualifiers in self.qualifiers_by_bar.items()
         }
-
-
-def _get_weekday_from_date(date_str: str) -> int:
-    """
-    Extract day of week from YYYY-MM-DD date string.
-    Returns weekday as 0=Monday through 6=Sunday.
-    """
-    try:
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-        return date_obj.weekday()
-    except (ValueError, TypeError):
-        return -1
 
 
 def _aggregate_points_by_bar_and_player(

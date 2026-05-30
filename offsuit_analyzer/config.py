@@ -17,7 +17,7 @@ class Config:
         self.OFFSUIT_ADMIN_PASSWORD = os.getenv("OFFSUIT_ADMIN_PASSWORD")
         self.FRONTEND_PAT = os.getenv("FRONTEND_PAT")
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
-        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 39
+        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 60
 
         self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL")
         self.NAME_TOOL_1_LINK = self.POKER_APP_BASE_URL + "api/nametools/getwarnings"
@@ -53,7 +53,6 @@ class Config:
         self.ROUNDS_COLLECTION_NAME = "pokerRoundsCollection" + collection_env_suffix
         self.WARNINGS_COLLECTION_NAME = "warningsCollection" + collection_env_suffix
         self.NAME_INFOS_COLLECTION_NAME = "nameClashesCollection" + collection_env_suffix
-        self.LEAGUE_SEASONS_COLLECTION_NAME = "leagueSeasons" + collection_env_suffix
         self.EXCLUDED_QUALIFIERS_COLLECTION_NAME = "excludedQualifiers" + collection_env_suffix
 
     

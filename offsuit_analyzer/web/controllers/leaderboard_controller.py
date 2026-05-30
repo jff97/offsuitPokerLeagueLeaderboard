@@ -68,28 +68,15 @@ def placement_distributions():
     distributions = leaderboard_service.get_placement_distributions(min_rounds_required)
     return jsonify(distributions)
 
-@leaderboard_bp.route('/months-top-point-players', methods=['GET'])
-def months_top_point_players_endpoint():
+@leaderboard_bp.route('/this-months-top-point-players', methods=['GET'])
+def this_months_top_point_players_endpoint():
     """
-    Endpoint to retrieve the top point players for a specific month.
+    Endpoint to retrieve the top point players for the current month.
     
-    Query Parameters (required):
-        - month: int (1-12)
-        - year: int (e.g., 2025)
+    Returns only rounds currently visible in the API (current month).
+    No parameters required.
     """
-    month_param = request.args.get('month')
-    year_param = request.args.get('year')
-
-    if not month_param or not year_param:
-        return jsonify({"error": "Missing required query parameters: month and year"}), 400
-    
-    try:
-        month = int(month_param)
-        year = int(year_param)
-    except ValueError:
-        return jsonify({"error": "month and year must be valid integers"}), 400
-    
-    top_players = leaderboard_service.get_months_top_point_players(month, year)
+    top_players = leaderboard_service.get_this_months_top_point_players()
     return top_players.to_json(orient="records")
 
 @leaderboard_bp.route('/years-top-point-players', methods=['GET'])

@@ -2,8 +2,7 @@
 from flask import Blueprint, request, jsonify, Response
 import json
 from offsuit_analyzer.config import config
-from ..services import qualification_service, admin_service
-from offsuit_analyzer.persistence import excluded_qualifiers_collection
+from ..services import qualification_service
 
 qualification_bp = Blueprint('qualification', __name__, url_prefix='/api/qualification')
 
@@ -115,13 +114,8 @@ def update_unavailable_players():
                 mimetype="application/json"
             )
         
-        # Update the collection (this replaces the entire list)
-        excluded_qualifiers_collection.set_excluded_players(set(unavailable_players))
-        
-        # Trigger frontend update to refresh leaderboard caches
-        success, message, _ = admin_service.trigger_frontend_update()
-        if not success:
-            print(f"Warning: Failed to trigger frontend update: {message}")
+        # Update unavailable players and refresh frontend
+        qualification_service.update_unavailable_players(unavailable_players)
         
         return Response(
             json.dumps({

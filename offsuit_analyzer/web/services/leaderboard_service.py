@@ -1,8 +1,9 @@
 
+import pandas as pd
 from offsuit_analyzer import persistence, analytics
 from offsuit_analyzer.config import config
 
-def get_players_outlasted_leaderboard(min_rounds_required: int = None):
+def get_players_outlasted_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
     if min_rounds_required in (None, 0):
         min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
@@ -10,7 +11,7 @@ def get_players_outlasted_leaderboard(min_rounds_required: int = None):
     players_outlasted_leaderboard = analytics.build_players_outlasted_leaderboard(stored_rounds, min_rounds_required)
     return players_outlasted_leaderboard
 
-def get_roi_leaderboard(min_rounds_required: int = None):
+def get_roi_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
     if min_rounds_required in (None, 0):
         min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
@@ -18,12 +19,12 @@ def get_roi_leaderboard(min_rounds_required: int = None):
     roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds, min_rounds_required)
     return roi_leaderboard
 
-def get_trueskill_leaderboard():
+def get_trueskill_leaderboard() -> pd.DataFrame:
     stored_rounds = persistence.get_all_rounds()
     trueskill_leaderboard = analytics.build_trueskill_leaderboard(stored_rounds)
     return trueskill_leaderboard
 
-def get_first_place_leaderboard(min_rounds_required: int = None):
+def get_first_place_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
     if min_rounds_required in (None, 0):
         min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
     
@@ -31,7 +32,7 @@ def get_first_place_leaderboard(min_rounds_required: int = None):
     first_place_leaderboard = analytics.build_1st_place_win_leaderboard(stored_rounds, min_rounds_required)
     return first_place_leaderboard
 
-def get_itm_percentage_leaderboard(min_rounds_required: int = None):
+def get_itm_percentage_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
     if min_rounds_required in (None, 0):
         min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
@@ -53,7 +54,7 @@ def get_itm_percentage_leaderboard(min_rounds_required: int = None):
 #     stored_rounds = persistence.get_all_rounds()
 #     return analytics.get_community_avg_disconnectedness_df(stored_rounds)
 
-def get_placement_distributions(min_rounds_required: int = None):
+def get_placement_distributions(min_rounds_required: int = None) -> list:
     """
     Get KDE distribution curves for all players' placement patterns.
     Returns list of player distribution data.
@@ -65,14 +66,9 @@ def get_placement_distributions(min_rounds_required: int = None):
     placement_distributions = analytics.build_placement_distribution_for_all_players(stored_rounds, min_rounds_required)
     return placement_distributions
 
-def get_months_top_point_players(month: int, year: int):
-    stored_rounds = persistence.get_all_rounds()
-    
-    top_points_players_for_specified_month = analytics.get_top_point_players_for_month(stored_rounds, month, year)
-    return top_points_players_for_specified_month
+def get_this_months_top_point_players() -> pd.DataFrame:
+    return analytics.get_this_months_top_point_players()
 
-def get_years_top_point_players(year: int):
+def get_years_top_point_players(year: int) -> pd.DataFrame:
     stored_rounds = persistence.get_all_rounds()
-    
-    top_points_players_for_specified_year = analytics.get_top_point_players_for_year(stored_rounds, year)
-    return top_points_players_for_specified_year
+    return analytics.get_top_point_players_for_year(stored_rounds, year)
