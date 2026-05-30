@@ -1,5 +1,5 @@
 """Qualification service - provides API for tournament qualifier calculation."""
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from offsuit_analyzer import data_service, analytics
 from offsuit_analyzer.persistence import excluded_qualifiers_collection
 from . import admin_service
@@ -23,6 +23,16 @@ def get_tournament_qualifiers():
     
     this_months_rounds = data_service.get_this_months_rounds_for_bars()
     return analytics.get_qualified_players(this_months_rounds, excluded_set)
+
+
+def get_unavailable_players() -> Set[str]:
+    """
+    Get the list of players currently excluded from qualification this month.
+    
+    Returns:
+        Set of player names currently excluded from qualification
+    """
+    return excluded_qualifiers_collection.get_excluded_players()
 
 
 def update_unavailable_players(unavailable_players: List[str]) -> Tuple[bool, str]:

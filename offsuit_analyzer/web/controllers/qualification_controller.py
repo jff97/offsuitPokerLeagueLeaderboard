@@ -53,7 +53,7 @@ def get_unavailable_players():
             )
         
         # Get excluded players
-        excluded = excluded_qualifiers_collection.get_excluded_players()
+        excluded = qualification_service.get_unavailable_players()
         return Response(
             json.dumps(sorted(list(excluded))),
             status=200,
