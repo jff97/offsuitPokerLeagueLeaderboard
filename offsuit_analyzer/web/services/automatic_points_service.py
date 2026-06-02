@@ -1,14 +1,17 @@
 import os
 from cryptography.fernet import Fernet
 from offsuit_analyzer import data_service
+from offsuit_analyzer.config import Config
 from offsuit_analyzer.keepthescore_automatic_scoring import manipulate_leaderboards
+
+config = Config()
 
 
 def _get_cipher():
-    """Get the Fernet cipher instance using the encryption key from environment."""
-    key = os.getenv("TOKEN_ENCRYPTION_KEY")
+    """Get the Fernet cipher instance using the encryption key from config."""
+    key = config.TOKEN_ENCRYPTION_KEY
     if not key:
-        raise ValueError("TOKEN_ENCRYPTION_KEY environment variable not set")
+        raise ValueError("TOKEN_ENCRYPTION_KEY not set in config")
     return Fernet(key.encode() if isinstance(key, str) else key)
 
 

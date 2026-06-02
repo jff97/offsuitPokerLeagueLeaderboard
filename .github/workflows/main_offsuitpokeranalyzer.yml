@@ -34,6 +34,9 @@ jobs:
           poetry config virtualenvs.in-project true
           poetry config cache-dir /tmp/.cache/pypoetry   # ← ONLY CHANGE: forces cache to temp storage
 
+      - name: Update lock file if pyproject.toml changed
+        run: poetry lock
+
       - name: Install dependencies with Poetry
         run: poetry install
 
