@@ -15,10 +15,9 @@ Note: We don't handle validation/mistakes. Users can update bad data via Keep Th
 """
 
 from typing import List, Dict, Any, Set
-from datetime import datetime, timedelta
 from offsuit_analyzer.data_service import keep_the_score_api_client as api
+from offsuit_analyzer.data_service import get_this_months_rounds_for_bars
 from offsuit_analyzer.data_service.external_data_client import normalize_player_name
-from offsuit_analyzer import persistence
 
 
 def _get_player_name_to_id_map(token: str) -> Dict[str, int]:
@@ -180,8 +179,8 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> Dict[str
     """
     Validation hook: check if a round with the same players and points already exists.
     
-    Prevents accidental duplicate entries by checking if any round across all bars
-    within the past month and next month has the exact same players with the exact same points.
+    Prevents accidental duplicate entries by checking current month rounds sourced 
+    directly from the API to catch duplicates before database sync.
     
     Args:
         player_scores: List of dicts with 'name' and 'score' keys
@@ -194,19 +193,13 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> Dict[str
     
     # Convert incoming player data to sortable tuple for comparison, using proper name normalization
     incoming_players = tuple(sorted(
-        (normalize_player_name(p.get("name", "")), p.get("score")) for p in player_scores
+        (normalize_player_name(p.get("name", "")), int(p.get("score", 0))) for p in player_scores
     ))
     
-    # Get all stored rounds and check for duplicates within ±30 days
-    all_rounds = persistence.get_all_rounds()
-    cutoff_date_back = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    cutoff_date_ahead = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+    # Get current month rounds from API (not database) to catch duplicates immediately
+    current_month_rounds = get_this_months_rounds_for_bars()
     
-    for round_obj in all_rounds:
-        # Skip if outside date window (30 days back or ahead)
-        if round_obj.round_date < cutoff_date_back or round_obj.round_date > cutoff_date_ahead:
-            continue
-        
+    for round_obj in current_month_rounds:
         # Compare player sets (Round players are already normalized)
         existing_players = tuple(sorted(
             (p.player_name, p.points) for p in round_obj.players
