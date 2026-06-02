@@ -129,6 +129,23 @@ def update_player_score(token: str, round_id: int, player_id: int, score: int) -
         return {"error": str(e)}
 
 
+def get_board_title(token: str) -> str:
+    """Get the board title from the API.
+    
+    Args:
+        token: The board token
+        
+    Returns:
+        str: The board title, or "Unknown" if not found
+    """
+    board_json = fetch_board_json(token)
+    
+    if "error" in board_json:
+        return "Unknown"
+    
+    return board_json.get("board", {}).get("appearance", {}).get("title", "Unknown")
+
+
 def create_new_player(token: str, player_name: str) -> Dict[str, Any]:
     """
     Create a new player on the board.

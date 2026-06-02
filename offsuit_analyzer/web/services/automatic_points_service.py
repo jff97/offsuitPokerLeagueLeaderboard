@@ -53,7 +53,7 @@ def get_bar_list():
     Returns:
         list: Bar list with tokens encrypted and exposed as bar_id
     """
-    bars = data_service.get_bar_list_public()
+    bars = data_service.get_bar_list_with_private_tokens()
     
     # Encrypt tokens in the web service layer
     for bar in bars:

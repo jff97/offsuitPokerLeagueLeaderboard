@@ -1,11 +1,10 @@
 """Tool for exporting bar list with titles from Keep The Score."""
 import json
-import requests
-import re
 from io import StringIO
 from datetime import datetime
 from offsuit_analyzer.config import config
 from offsuit_analyzer import email_smtp_service
+from offsuit_analyzer.data_service import keep_the_score_api_client as api
 
 DAY_MAP = {
     0: "Monday",
@@ -16,8 +15,6 @@ DAY_MAP = {
     5: "Saturday",
     6: "Sunday",
 }
-
-TITLE_REGEX = re.compile(r"<title>(.*?)</title>", re.IGNORECASE | re.DOTALL)
 
 
 def _weekday_sort_key(bar_config):
@@ -31,25 +28,6 @@ def _weekday_sort_key(bar_config):
         return poker_night + 2
 
 
-def _fetch_bar_title(token: str) -> str:
-    """Fetch the bar title from Keep The Score page.
-    
-    Args:
-        token: The Keep The Score token for the bar
-        
-    Returns:
-        str: The extracted title or error message
-    """
-    url = f"https://keepthescore.com/embed/{token}/"
-    try:
-        resp = requests.get(url, timeout=10)
-        resp.raise_for_status()
-        match = TITLE_REGEX.search(resp.text)
-        return match.group(1).strip() if match else "TITLE NOT FOUND"
-    except Exception as e:
-        return f"ERROR: {str(e)}"
-
-
 def _generate_bar_list_report() -> str:
     """Generate a formatted report of all bars with their details.
     
@@ -61,7 +39,7 @@ def _generate_bar_list_report() -> str:
     bar_data = []
     for bar_config in sorted_bar_configs:
         day_name = DAY_MAP.get(bar_config.poker_night, "Unknown")
-        title = _fetch_bar_title(bar_config.token)
+        title = api.get_board_title(bar_config.token)
         
         bar_data.append({
             "token": bar_config.token,
@@ -94,18 +72,18 @@ def email_bar_list_report() -> None:
         )
 
 
-def get_bar_list_public() -> list:
-    """Get a public list of all bars with their details.
+def get_bar_list_with_private_tokens() -> list:
+    """Get list of all bars with their private tokens (before encryption).
     
     Returns:
-        list: List of bar dictionaries with token and bar details
+        list: List of bar dictionaries with tokens and bar details
     """
     sorted_bar_configs = sorted(config.BAR_CONFIGS, key=_weekday_sort_key)
     
     bar_data = []
     for bar_config in sorted_bar_configs:
         day_name = DAY_MAP.get(bar_config.poker_night, "Unknown")
-        title = _fetch_bar_title(bar_config.token)
+        title = api.get_board_title(bar_config.token)
         
         bar_data.append({
             "token": bar_config.token,
