@@ -19,6 +19,7 @@ pandas = "*"
 rapidfuzz = "*"
 trueskill = "*"
 flask_cors = "*"
+cryptography = "*"
 # DISABLED: networkx removed for deployment size optimization
 # networkx = "*"
 # DISABLED: matplotlib removed for deployment size optimization

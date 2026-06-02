@@ -6,6 +6,6 @@ providing a simple interface for the rest of the application.
 """
 
 from .external_data_client import get_this_months_rounds_for_bars
-from .exportBarListTool import email_bar_list_report
+from .exportBarListTool import email_bar_list_report, get_bar_list_public
 
-__all__ = ["get_this_months_rounds_for_bars", "email_bar_list_report"]
+__all__ = ["get_this_months_rounds_for_bars", "email_bar_list_report", "get_bar_list_public"]

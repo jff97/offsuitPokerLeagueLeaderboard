@@ -92,3 +92,26 @@ def email_bar_list_report() -> None:
             text_file_attachment=text_file, 
             text_file_name=filename
         )
+
+
+def get_bar_list_public() -> list:
+    """Get a public list of all bars with their details.
+    
+    Returns:
+        list: List of bar dictionaries with token and bar details
+    """
+    sorted_bar_configs = sorted(config.BAR_CONFIGS, key=_weekday_sort_key)
+    
+    bar_data = []
+    for bar_config in sorted_bar_configs:
+        day_name = DAY_MAP.get(bar_config.poker_night, "Unknown")
+        title = _fetch_bar_title(bar_config.token)
+        
+        bar_data.append({
+            "token": bar_config.token,
+            "poker_night": bar_config.poker_night,
+            "day": day_name,
+            "bar_title": title
+        })
+    
+    return bar_data
