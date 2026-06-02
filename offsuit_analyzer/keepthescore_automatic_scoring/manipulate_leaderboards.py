@@ -9,12 +9,16 @@ Jobs:
 - Update existing rounds with scores
 - Manage players and scores on boards
 - Expose services via API to frontend
+- Validate rounds to prevent duplicate entries
 
 Note: We don't handle validation/mistakes. Users can update bad data via Keep The Score web page.
 """
 
 from typing import List, Dict, Any, Set
+from datetime import datetime, timedelta
 from offsuit_analyzer.data_service import keep_the_score_api_client as api
+from offsuit_analyzer.data_service.external_data_client import normalize_player_name
+from offsuit_analyzer import persistence
 
 
 def _get_player_name_to_id_map(token: str) -> Dict[str, int]:
@@ -98,6 +102,8 @@ def update_round_scores(token: str, player_scores: List[Dict[str, Any]]) -> Dict
     for player_data in player_scores:
         player_name = player_data.get("name").lower()
         score = player_data.get("score")
+        if player_name not in player_name_to_id:
+            return {"error": f"Player '{player_name}' not found on board", "status": "failed"}
         player_id = player_name_to_id[player_name]
         api.update_player_score(token, round_id, player_id, score)
     
@@ -170,23 +176,76 @@ def _update_scores_in_round(token: str, round_id: int, player_scores: List[Dict[
         api.update_player_score(token, round_id, player_id, score)
 
 
+def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Validation hook: check if a round with the same players and points already exists.
+    
+    Prevents accidental duplicate entries by checking if any round across all bars
+    within the past month and next month has the exact same players with the exact same points.
+    
+    Args:
+        player_scores: List of dicts with 'name' and 'score' keys
+        
+    Returns:
+        Dictionary with 'is_valid' (bool) and 'error' (str, optional) if duplicate found.
+    """
+    if not player_scores:
+        return {"is_valid": True}
+    
+    # Convert incoming player data to sortable tuple for comparison, using proper name normalization
+    incoming_players = tuple(sorted(
+        (normalize_player_name(p.get("name", "")), p.get("score")) for p in player_scores
+    ))
+    
+    # Get all stored rounds and check for duplicates within ±30 days
+    all_rounds = persistence.get_all_rounds()
+    cutoff_date_back = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    cutoff_date_ahead = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+    
+    for round_obj in all_rounds:
+        # Skip if outside date window (30 days back or ahead)
+        if round_obj.round_date < cutoff_date_back or round_obj.round_date > cutoff_date_ahead:
+            continue
+        
+        # Compare player sets (Round players are already normalized)
+        existing_players = tuple(sorted(
+            (p.player_name, p.points) for p in round_obj.players
+        ))
+        
+        if incoming_players == existing_players:
+            return {
+                "is_valid": False,
+                "error": f"Duplicate round detected! Same players and points already exist on {round_obj.round_date} at {round_obj.bar_name}."
+            }
+    
+    return {"is_valid": True}
+
+
 def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Add a new round with player scores.
     
     Orchestrates:
-    1. Add any missing players to the board
-    2. Create a new zeroed-out round
-    3. Update player scores in the new round
+    1. Validate that the round is not a duplicate
+    2. Add any missing players to the board
+    3. Create a new zeroed-out round
+    4. Update player scores in the new round
     
     Args:
         token: The board token
         player_scores: List of dicts with 'name' and 'score' keys
-                       Example: [{"name": "John", "score": 100}, {"name": "Jane", "score": 90}]
-    
+        
     Returns:
-        Dictionary with round_id and status
+        Dictionary with round_id and status, or error if validation fails
     """
+    # Validation hook: check for duplicates
+    validation_result = validate_no_duplicate_round(player_scores)
+    if not validation_result.get("is_valid", False):
+        return {
+            "error": validation_result.get("error", "Validation failed"),
+            "status": "validation_failed"
+        }
+    
     _add_missing_players(token, player_scores)
     round_id = _create_new_round(token)
     _update_scores_in_round(token, round_id, player_scores)
