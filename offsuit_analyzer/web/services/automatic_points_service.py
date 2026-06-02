@@ -1,6 +1,7 @@
 import os
 from cryptography.fernet import Fernet
 from offsuit_analyzer import data_service
+from offsuit_analyzer.keepthescore_automatic_scoring import manipulate_leaderboards
 
 
 def _get_cipher():
@@ -70,3 +71,20 @@ def get_token_from_bar_id(bar_id: str) -> str:
         cryptography.fernet.InvalidToken: If decryption fails
     """
     return decrypt_token(bar_id)
+
+
+def add_new_round_from_bar_id(bar_id: str, player_scores: list) -> dict:
+    """Add a new round to a board using encrypted bar_id.
+    
+    Args:
+        bar_id: The encrypted bar ID from the frontend
+        player_scores: List of dicts with 'name' and 'score' keys
+        
+    Returns:
+        dict: Result from add_new_round with round_id and status
+        
+    Raises:
+        cryptography.fernet.InvalidToken: If decryption fails
+    """
+    token = get_token_from_bar_id(bar_id)
+    return manipulate_leaderboards.add_new_round(token, player_scores)

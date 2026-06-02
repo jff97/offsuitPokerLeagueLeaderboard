@@ -1,7 +1,7 @@
 """Qualification API controller - exposes tournament qualifier endpoints."""
 from flask import Blueprint, request, jsonify, Response
 import json
-from offsuit_analyzer.config import config
+from ..decorators import require_admin_password
 from ..services import qualification_service
 
 qualification_bp = Blueprint('qualification', __name__, url_prefix='/api/qualification')
@@ -26,32 +26,18 @@ def get_tournament_qualifiers():
 
 
 @qualification_bp.route('/unavailable-players', methods=['GET'])
+@require_admin_password
 def get_unavailable_players():
     """
     Get the list of players currently excluded from qualification this month.
     
-    Query parameters or request body:
-    {
-        "password": "<admin password>"
-    }
+    Requires admin password.
     
     Returns:
         JSON array of player names currently excluded from qualification
         401 Unauthorized if password is invalid
     """
     try:
-        # Try to get password from JSON body first, then from query parameters
-        data = request.get_json(silent=True) or {}
-        password = data.get('password') or request.args.get('password')
-        
-        # Validate password
-        if password != config.OFFSUIT_ADMIN_PASSWORD:
-            return Response(
-                json.dumps({"error": "Invalid password"}),
-                status=401,
-                mimetype="application/json"
-            )
-        
         # Get excluded players
         excluded = qualification_service.get_unavailable_players()
         return Response(
@@ -69,12 +55,15 @@ def get_unavailable_players():
 
 
 @qualification_bp.route('/unavailable-players', methods=['POST'])
+@require_admin_password
 def update_unavailable_players():
     """
     Update the list of excluded players for this month.
     
     This is a full sync operation: the provided list becomes the complete
     set of excluded players. Anyone not in the list is un-excluded.
+    
+    Requires admin password.
     
     Request body:
     {
@@ -94,14 +83,6 @@ def update_unavailable_players():
             return Response(
                 json.dumps({"error": "Request body must be valid JSON"}),
                 status=400,
-                mimetype="application/json"
-            )
-        
-        # Validate password
-        if data.get('password') != config.OFFSUIT_ADMIN_PASSWORD:
-            return Response(
-                json.dumps({"error": "Invalid password"}),
-                status=401,
                 mimetype="application/json"
             )
         
