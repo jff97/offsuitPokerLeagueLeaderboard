@@ -2,6 +2,8 @@ import os
 import socket
 from dataclasses import dataclass
 import json
+import hashlib
+import base64
 
 @dataclass
 class BarConfig:
@@ -10,13 +12,31 @@ class BarConfig:
     poker_night: int  # Weekday number: 0=Monday, 1=Tuesday, ..., 6=Sunday
 
 
+def _derive_fernet_key_from_string(input_string: str) -> str:
+    """
+    Derive a valid Fernet key from any input string.
+    Uses SHA-256 to create 32 bytes, then base64-encodes it.
+    Deterministic: same input always produces same key.
+    
+    Args:
+        input_string: Any string (password, passphrase, etc.)
+        
+    Returns:
+        str: A valid Fernet key (44 characters, url-safe base64)
+    """
+    hash_bytes = hashlib.sha256(input_string.encode()).digest()
+    return base64.urlsafe_b64encode(hash_bytes).decode()
+
+
 class Config:
     def __init__(self):
         self.IS_DEVELOPMENT_ENV = self._get_is_development_environment()
         self.ADMIN_AUTH_TOKEN = os.getenv("ADMIN_AUTH_TOKEN")
         self.OFFSUIT_ADMIN_PASSWORD = os.getenv("OFFSUIT_ADMIN_PASSWORD")
         self.FRONTEND_PAT = os.getenv("FRONTEND_PAT")
-        self.TOKEN_ENCRYPTION_KEY = os.getenv("TOKEN_ENCRYPTION_KEY")
+        # Derive encryption key from TOKEN_ENCRYPTION_KEY env var (can be any string)
+        token_key_input = os.getenv("TOKEN_ENCRYPTION_KEY")
+        self.TOKEN_ENCRYPTION_KEY = _derive_fernet_key_from_string(token_key_input) if token_key_input else None
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
         self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 60
 
