@@ -3,6 +3,7 @@ from cryptography.fernet import Fernet
 from offsuit_analyzer import data_service
 from offsuit_analyzer.config import Config
 from offsuit_analyzer.keepthescore_automatic_scoring import manipulate_leaderboards
+from . import admin_service
 
 config = Config()
 
@@ -90,4 +91,13 @@ def add_new_round_from_bar_id(bar_id: str, player_scores: list) -> dict:
         cryptography.fernet.InvalidToken: If decryption fails
     """
     token = get_token_from_bar_id(bar_id)
-    return manipulate_leaderboards.add_new_round(token, player_scores)
+    result = manipulate_leaderboards.add_new_round(token, player_scores)
+    
+    # Refresh rounds and trigger frontend update if add_new_round was successful
+    if result.get("status") == "completed":
+        admin_service.refresh_rounds_database()
+        success, message, _ = admin_service.trigger_frontend_update()
+        if not success:
+            print(f"Warning: Failed to trigger frontend update: {message}")
+    
+    return result
