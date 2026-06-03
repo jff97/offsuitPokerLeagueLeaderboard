@@ -1,5 +1,6 @@
 """Logging service for application-wide logging."""
 from datetime import datetime
+from typing import List
 from offsuit_analyzer.datamodel.log_entry import LogEntry, LogSeverity
 from offsuit_analyzer import persistence
 
@@ -44,3 +45,19 @@ def log_critical(message: str) -> None:
         timestamp=datetime.utcnow()
     )
     persistence.logs_collection.save_log(log_entry)
+
+
+def get_all_logs() -> List[LogEntry]:
+    """Retrieve all log entries.
+    
+    Returns:
+        List of all LogEntry objects
+    """
+    return persistence.logs_collection.get_all_logs()
+
+
+if __name__ == "__main__":
+    logs = get_all_logs()
+    print(f"Total logs: {len(logs)}")
+    for log in logs:
+        print(f"[{log.severity.value}] {log.timestamp}: {log.message}")
