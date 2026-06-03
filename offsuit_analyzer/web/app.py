@@ -1,4 +1,4 @@
-from flask import Flask, Response, g, jsonify
+from flask import Flask, Response, g, request
 from flask_cors import CORS
 import time
 import traceback
@@ -34,7 +34,7 @@ def after_api_request(response):
 @app.errorhandler(Exception)
 def handle_exception(error):
     """Global error handler that logs all uncaught exceptions and returns 500 response."""
-    error_message = f"Unhandled exception: {traceback.format_exc()}"
+    error_message = f"Unhandled exception at {request.method} {request.url}: {traceback.format_exc()}"
     logging_service.log_critical(error_message)
     
     return Response(
