@@ -96,8 +96,6 @@ def add_new_round_from_bar_id(bar_id: str, player_scores: list) -> dict:
     # Refresh rounds and trigger frontend update if add_new_round was successful
     if result.get("status") == "completed":
         admin_service.refresh_rounds_database()
-        success, message, _ = admin_service.trigger_frontend_update()
-        if not success:
-            print(f"Warning: Failed to trigger frontend update: {message}")
+        admin_service.trigger_frontend_update()
     
     return result

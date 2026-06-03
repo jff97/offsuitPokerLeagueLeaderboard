@@ -75,6 +75,7 @@ class Config:
         self.WARNINGS_COLLECTION_NAME = "warningsCollection" + collection_env_suffix
         self.NAME_INFOS_COLLECTION_NAME = "nameClashesCollection" + collection_env_suffix
         self.EXCLUDED_QUALIFIERS_COLLECTION_NAME = "excludedQualifiers" + collection_env_suffix
+        self.LOGS_COLLECTION_NAME = "logsCollection" + collection_env_suffix
 
     
 

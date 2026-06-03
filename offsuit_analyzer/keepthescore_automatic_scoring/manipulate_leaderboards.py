@@ -86,6 +86,10 @@ def update_round_scores(token: str, player_scores: List[Dict[str, Any]]) -> Dict
     
     Returns:
         Dictionary with round_id and update results
+        
+    Raises:
+        ValueError: If no rounds found on the board
+        KeyError: If a player is not found on the board
     """
     # Get name-to-ID mapping
     player_name_to_id = _get_player_name_to_id_map(token)
@@ -93,7 +97,7 @@ def update_round_scores(token: str, player_scores: List[Dict[str, Any]]) -> Dict
     # Get first available round
     round_ids = api.get_all_round_ids(token)
     if not round_ids:
-        return {"error": "No rounds found"}
+        raise ValueError("No rounds found on the board")
     
     round_id = round_ids[0]
     
@@ -102,7 +106,7 @@ def update_round_scores(token: str, player_scores: List[Dict[str, Any]]) -> Dict
         player_name = player_data.get("name").lower()
         score = player_data.get("score")
         if player_name not in player_name_to_id:
-            return {"error": f"Player '{player_name}' not found on board", "status": "failed"}
+            raise KeyError(f"Player '{player_name}' not found on board")
         player_id = player_name_to_id[player_name]
         api.update_player_score(token, round_id, player_id, score)
     
@@ -116,13 +120,18 @@ def _add_missing_players(token: str, player_scores: List[Dict[str, Any]]) -> Non
     Args:
         token: The board token
         player_scores: List of player data with 'name' keys
+        
+    Raises:
+        ValueError: If player creation fails
     """
     existing_names = _get_existing_player_names(token)
     
     for player_data in player_scores:
         player_name = player_data.get("name")
         if player_name.lower() not in existing_names:
-            api.create_new_player(token, player_name)
+            result = api.create_new_player(token, player_name)
+            if "error" in result:
+                raise ValueError(f"Failed to create player '{player_name}': {result['error']}")
 
 
 def _create_new_round(token: str) -> int:
@@ -175,7 +184,7 @@ def _update_scores_in_round(token: str, round_id: int, player_scores: List[Dict[
         api.update_player_score(token, round_id, player_id, score)
 
 
-def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
+def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> None:
     """
     Validation hook: check if a round with the same players and points already exists.
     
@@ -185,11 +194,11 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> Dict[str
     Args:
         player_scores: List of dicts with 'name' and 'score' keys
         
-    Returns:
-        Dictionary with 'is_valid' (bool) and 'error' (str, optional) if duplicate found.
+    Raises:
+        ValueError: If a duplicate round is detected
     """
     if not player_scores:
-        return {"is_valid": True}
+        return  # No data to validate
     
     # Convert incoming player data to sortable tuple for comparison, using proper name normalization
     incoming_players = tuple(sorted(
@@ -206,12 +215,9 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> Dict[str
         ))
         
         if incoming_players == existing_players:
-            return {
-                "is_valid": False,
-                "error": f"Duplicate round detected! Same players and points already exist on {round_obj.round_date} at {round_obj.bar_name}."
-            }
-    
-    return {"is_valid": True}
+            raise ValueError(
+                f"Duplicate round detected! Same players and points already exist on {round_obj.round_date} at {round_obj.bar_name}."
+            )
 
 
 def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -229,18 +235,22 @@ def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, 
         player_scores: List of dicts with 'name' and 'score' keys
         
     Returns:
-        Dictionary with round_id and status, or error if validation fails
+        Dictionary with round_id and status
+        
+    Raises:
+        ValueError: If validation fails, player creation fails, or round creation fails
+        KeyError: If a player cannot be found after creation
     """
-    # Validation hook: check for duplicates
-    validation_result = validate_no_duplicate_round(player_scores)
-    if not validation_result.get("is_valid", False):
-        return {
-            "error": validation_result.get("error", "Validation failed"),
-            "status": "validation_failed"
-        }
+    # Validation: check for duplicates
+    validate_no_duplicate_round(player_scores)
     
+    # Add any missing players (may raise ValueError)
     _add_missing_players(token, player_scores)
+    
+    # Create new round (may raise ValueError)
     round_id = _create_new_round(token)
+    
+    # Update scores (may raise KeyError or ValueError)
     _update_scores_in_round(token, round_id, player_scores)
     
     return {"round_id": round_id, "status": "completed"}
