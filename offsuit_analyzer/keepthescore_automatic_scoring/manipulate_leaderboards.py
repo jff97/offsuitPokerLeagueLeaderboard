@@ -129,9 +129,26 @@ def _add_missing_players(token: str, player_scores: List[Dict[str, Any]]) -> Non
     for player_data in player_scores:
         player_name = player_data.get("name")
         if player_name.lower() not in existing_names:
-            result = api.create_new_player(token, player_name)
+            capitalized_name = _capitalize_name(player_name)
+            result = api.create_new_player(token, capitalized_name)
             if "error" in result:
-                raise ValueError(f"Failed to create player '{player_name}': {result['error']}")
+                raise ValueError(f"Failed to create player '{capitalized_name}': {result['error']}")
+            
+def _capitalize_name(name: str) -> str:
+    """
+    Capitalize a player's name properly (e.g., "john doe" -> "John Doe").
+    
+    Args:
+        name: The original player name
+        
+    Returns:
+        The capitalized player name
+    """
+    name_parts = name.split()
+    capitalized_parts = []
+    for part in name_parts:
+        capitalized_parts.append(part.capitalize())
+    return " ".join(capitalized_parts)
 
 
 def _create_new_round(token: str) -> int:
