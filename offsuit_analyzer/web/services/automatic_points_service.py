@@ -94,7 +94,7 @@ def add_new_round_from_bar_id(bar_id: str, player_scores: list) -> dict:
     result = manipulate_leaderboards.add_new_round(token, player_scores)
     
     # Refresh rounds and trigger frontend update if add_new_round was successful
-    #if result.get("status") == "completed":
+    if result.get("status") == "completed":
         admin_service.refresh_rounds_database()
         admin_service.trigger_frontend_update()
     
