@@ -55,9 +55,20 @@ def get_all_logs() -> List[LogEntry]:
     """
     return persistence.logs_collection.get_all_logs()
 
+def main_to_text_file():
+    logs = get_all_logs()
+
+    output_file = "logs.txt"
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(f"Total logs: {len(logs)}\n\n")
+        for log in logs:
+            f.write(f"[{log.severity.value}] {log.timestamp}: {log.message}\n")
+
+    print(f"Wrote {len(logs)} logs to {output_file}")
 
 if __name__ == "__main__":
-    logs = get_all_logs()
-    print(f"Total logs: {len(logs)}")
-    for log in logs:
-        print(f"[{log.severity.value}] {log.timestamp}: {log.message}")
+    main_to_text_file() 
+
+
+    

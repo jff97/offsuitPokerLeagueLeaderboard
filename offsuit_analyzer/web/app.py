@@ -1,3 +1,5 @@
+from http.client import HTTPException
+
 from flask import Flask, Response, g, request
 from flask_cors import CORS
 import time
@@ -34,6 +36,15 @@ def after_api_request(response):
 @app.errorhandler(Exception)
 def handle_exception(error):
     """Global error handler that logs all uncaught exceptions and returns 500 response."""
+
+    # Don't log expected 404s
+    if isinstance(error, HTTPException) and error.code == 404:
+        return Response(
+            json.dumps({"error": error.description}),
+            status=404,
+            mimetype="application/json"
+        )
+    
     error_message = f"Unhandled exception at {request.method} {request.url}: {traceback.format_exc()}"
     logging_service.log_critical(error_message)
     
