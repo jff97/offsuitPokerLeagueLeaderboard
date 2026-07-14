@@ -3,17 +3,15 @@ import pandas as pd
 from offsuit_analyzer import persistence, analytics
 from offsuit_analyzer.config import config
 
-def get_players_outlasted_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
-    if min_rounds_required in (None, 0):
-        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+def get_players_outlasted_leaderboard() -> pd.DataFrame:
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
     stored_rounds = persistence.get_all_rounds()
     players_outlasted_leaderboard = analytics.build_players_outlasted_leaderboard(stored_rounds, min_rounds_required)
     return players_outlasted_leaderboard
 
-def get_roi_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
-    if min_rounds_required in (None, 0):
-        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+def get_roi_leaderboard() -> pd.DataFrame:
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
     stored_rounds = persistence.get_all_rounds()
     roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds, min_rounds_required)
@@ -24,17 +22,23 @@ def get_trueskill_leaderboard() -> pd.DataFrame:
     trueskill_leaderboard = analytics.build_trueskill_leaderboard(stored_rounds)
     return trueskill_leaderboard
 
-def get_first_place_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
-    if min_rounds_required in (None, 0):
-        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+def get_average_opponent_skill_leaderboard() -> pd.DataFrame:
+    """Get leaderboard showing average opponent skill faced by each player."""
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+    
+    stored_rounds = persistence.get_all_rounds()
+    avg_opponent_skill_leaderboard = analytics.build_average_opponent_skill_leaderboard(stored_rounds, min_rounds_required)
+    return avg_opponent_skill_leaderboard
+
+def get_first_place_leaderboard() -> pd.DataFrame:
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
     
     stored_rounds = persistence.get_all_rounds()
     first_place_leaderboard = analytics.build_1st_place_win_leaderboard(stored_rounds, min_rounds_required)
     return first_place_leaderboard
 
-def get_itm_percentage_leaderboard(min_rounds_required: int = None) -> pd.DataFrame:
-    if min_rounds_required in (None, 0):
-        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+def get_itm_percentage_leaderboard() -> pd.DataFrame:
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
     stored_rounds = persistence.get_all_rounds()
     itm_percentage_leaderboard = analytics.build_itm_percent_leaderboard(stored_rounds, min_rounds_required, config.PERCENT_FOR_ITM)
@@ -54,13 +58,12 @@ def get_itm_percentage_leaderboard(min_rounds_required: int = None) -> pd.DataFr
 #     stored_rounds = persistence.get_all_rounds()
 #     return analytics.get_community_avg_disconnectedness_df(stored_rounds)
 
-def get_placement_distributions(min_rounds_required: int = None) -> list:
+def get_placement_distributions() -> list:
     """
     Get KDE distribution curves for all players' placement patterns.
     Returns list of player distribution data.
     """
-    if min_rounds_required in (None, 0):
-        min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
     stored_rounds = persistence.get_all_rounds()
     placement_distributions = analytics.build_placement_distribution_for_all_players(stored_rounds, min_rounds_required)

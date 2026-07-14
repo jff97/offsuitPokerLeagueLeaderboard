@@ -5,21 +5,33 @@ leaderboard_bp = Blueprint('leaderboard', __name__, url_prefix='/api/leaderboard
 
 @leaderboard_bp.route('/players-outlasted')
 def players_outlasted():
-    min_rounds_required = int(request.args.get('minrounds') or 0)
-    players_outlasted_dataframe = leaderboard_service.get_players_outlasted_leaderboard(min_rounds_required)
+    players_outlasted_dataframe = leaderboard_service.get_players_outlasted_leaderboard()
     
     return players_outlasted_dataframe.to_json(orient="records")
 
 @leaderboard_bp.route('/roi')
 def roi():
-    min_rounds_required = int(request.args.get('minrounds') or 0)
-    roi_leaderboard_dataframe = leaderboard_service.get_roi_leaderboard(min_rounds_required)
+    roi_leaderboard_dataframe = leaderboard_service.get_roi_leaderboard()
     return roi_leaderboard_dataframe.to_json(orient="records")
 
 @leaderboard_bp.route('/trueskill')
 def trueskill():
     trueskill_leaderboard_dataframe = leaderboard_service.get_trueskill_leaderboard()
     return trueskill_leaderboard_dataframe.to_json(orient="records")
+
+@leaderboard_bp.route('/average-opponent-skill')
+def average_opponent_skill():
+    """
+    Get leaderboard showing average opponent skill faced by each player.
+    
+    Uses current TrueSkill ratings (conservative score: mu - 3*sigma) for all players.
+    Calculates the average skill of all opponents a player has faced across all rounds.
+    
+    Returns:
+        JSON array of players with their average opponent skill level
+    """
+    avg_opponent_skill_dataframe = leaderboard_service.get_average_opponent_skill_leaderboard()
+    return avg_opponent_skill_dataframe.to_json(orient="records")
 
 @leaderboard_bp.route('/firstplace')
 def firstplace():
@@ -62,10 +74,8 @@ def placement_distributions():
     """
     Get KDE distribution curves for all players' placement patterns.
     Shows how each player's finishes are distributed across percentiles.
-    Query parameter: minrounds - minimum rounds required (default from config)
     """
-    min_rounds_required = int(request.args.get('minrounds') or 0)
-    distributions = leaderboard_service.get_placement_distributions(min_rounds_required)
+    distributions = leaderboard_service.get_placement_distributions()
     return jsonify(distributions)
 
 @leaderboard_bp.route('/this-months-top-point-players', methods=['GET'])
