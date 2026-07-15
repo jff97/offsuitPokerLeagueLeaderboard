@@ -75,3 +75,15 @@ def get_this_months_top_point_players() -> pd.DataFrame:
 def get_years_top_point_players(year: int) -> pd.DataFrame:
     stored_rounds = persistence.get_all_rounds()
     return analytics.get_top_point_players_for_year(stored_rounds, year)
+
+def get_average_game_size_by_player() -> pd.DataFrame:
+    """
+    Get the average number of players in games for each unique player.
+    
+    Returns:
+        DataFrame with player names and their average game size
+    """
+    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+    
+    stored_rounds = persistence.get_all_rounds()
+    return analytics.build_average_game_size_by_player(stored_rounds, min_rounds_required)

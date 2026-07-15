@@ -110,3 +110,16 @@ def years_top_point_players_endpoint():
     top_players = leaderboard_service.get_years_top_point_players(year)
     return top_players.to_json(orient="records")
 
+@leaderboard_bp.route('/average-game-size-by-player', methods=['GET'])
+def average_game_size_by_player():
+    """
+    Get the average number of players in games for each unique player.
+    
+    For each player, calculates the average size (number of players) of all games they participated in.
+    
+    Returns:
+        JSON array of players with their average game size
+    """
+    result = leaderboard_service.get_average_game_size_by_player()
+    return result.to_json(orient="records")
+
