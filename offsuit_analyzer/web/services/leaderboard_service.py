@@ -10,11 +10,12 @@ def get_players_outlasted_leaderboard() -> pd.DataFrame:
     players_outlasted_leaderboard = analytics.build_players_outlasted_leaderboard(stored_rounds, min_rounds_required)
     return players_outlasted_leaderboard
 
-def get_roi_leaderboard() -> pd.DataFrame:
-    min_rounds_required = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
+def get_roi_leaderboard(min_rounds: int = None) -> pd.DataFrame:
+    if min_rounds is None:
+        min_rounds = config.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER
 
     stored_rounds = persistence.get_all_rounds()
-    roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds, min_rounds_required)
+    roi_leaderboard = analytics.build_roi_leaderboard(stored_rounds, min_rounds)
     return roi_leaderboard
 
 def get_trueskill_leaderboard() -> pd.DataFrame:

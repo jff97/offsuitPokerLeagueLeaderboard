@@ -11,7 +11,8 @@ def players_outlasted():
 
 @leaderboard_bp.route('/roi')
 def roi():
-    roi_leaderboard_dataframe = leaderboard_service.get_roi_leaderboard()
+    min_rounds = request.args.get('min_rounds', type=int, default=None)
+    roi_leaderboard_dataframe = leaderboard_service.get_roi_leaderboard(min_rounds=min_rounds)
     return roi_leaderboard_dataframe.to_json(orient="records")
 
 @leaderboard_bp.route('/trueskill')
