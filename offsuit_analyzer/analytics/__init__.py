@@ -1,6 +1,6 @@
 # TODO: Add proper interface definitions for analytics services
 
-from . import placement_analyzer, win_rate_analyzer, roi_analyzer, trueskill_analyzer, player_disconnectedness, placement_distribution_analyzer, monthly_top_points, qualification_analyzer, average_opponent_skill_analyzer, average_game_size_analyzer
+from . import placement_analyzer, win_rate_analyzer, roi_analyzer, trueskill_analyzer, player_disconnectedness, placement_distribution_analyzer, monthly_top_points, qualification_analyzer, average_opponent_skill_analyzer, average_game_size_analyzer, bar_analyzer
 # DISABLED: player_weighted_spring_graph removed for deployment size optimization
 # from . import player_weighted_spring_graph
 
@@ -19,6 +19,7 @@ build_roi_leaderboard = roi_analyzer.build_roi_leaderboard
 build_trueskill_leaderboard = trueskill_analyzer.build_trueskill_leaderboard
 build_average_opponent_skill_leaderboard = average_opponent_skill_analyzer.build_average_opponent_skill_leaderboard
 build_average_game_size_by_player = average_game_size_analyzer.build_average_game_size_by_player
+build_bar_average_players_leaderboard = bar_analyzer.build_bar_average_players_leaderboard
 build_placement_distribution_for_all_players = placement_distribution_analyzer.build_placement_distribution_for_all_players
 
 get_this_months_top_point_players = monthly_top_points.get_this_months_top_point_players
@@ -32,6 +33,7 @@ __all__ = [
     'build_roi_leaderboard',
     'build_trueskill_leaderboard',
     'build_average_opponent_skill_leaderboard',
+    'build_bar_average_players_leaderboard',
     'build_average_game_size_by_player',
     'build_1st_place_win_leaderboard',
     'build_itm_percent_leaderboard',

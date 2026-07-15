@@ -87,3 +87,16 @@ def get_average_game_size_by_player() -> pd.DataFrame:
     
     stored_rounds = persistence.get_all_rounds()
     return analytics.build_average_game_size_by_player(stored_rounds, min_rounds_required)
+
+def get_bar_average_players_leaderboard() -> pd.DataFrame:
+    """
+    Get the average number of players for each bar.
+    Filters to bars with more than the configured minimum rounds and excludes bars with 'legacy' in the name.
+    
+    Returns:
+        DataFrame with bar names, average players, and rounds played
+    """
+    min_rounds_required = config.MINIMUM_ROUNDS_FOR_BAR_ANALYSIS
+    
+    stored_rounds = persistence.get_all_rounds()
+    return analytics.build_bar_average_players_leaderboard(stored_rounds, min_rounds_required)
