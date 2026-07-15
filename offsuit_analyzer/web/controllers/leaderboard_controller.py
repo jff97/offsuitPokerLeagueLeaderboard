@@ -136,3 +136,17 @@ def bar_average_players():
     result = leaderboard_service.get_bar_average_players_leaderboard()
     return result.to_json(orient="records")
 
+@leaderboard_bp.route('/bar-average-trueskill', methods=['GET'])
+def bar_average_trueskill():
+    """
+    Get the average trueskill score for each bar.
+    
+    Calculates the average trueskill rating across all player appearances at each bar.
+    Filters to bars with more than 4 rounds and excludes bars with 'legacy' in the name.
+    
+    Returns:
+        JSON array of bars with their average trueskill score and rounds played
+    """
+    result = leaderboard_service.get_bar_average_trueskill_leaderboard()
+    return result.to_json(orient="records")
+

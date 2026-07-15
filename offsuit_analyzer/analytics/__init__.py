@@ -20,6 +20,7 @@ build_trueskill_leaderboard = trueskill_analyzer.build_trueskill_leaderboard
 build_average_opponent_skill_leaderboard = average_opponent_skill_analyzer.build_average_opponent_skill_leaderboard
 build_average_game_size_by_player = average_game_size_analyzer.build_average_game_size_by_player
 build_bar_average_players_leaderboard = bar_analyzer.build_bar_average_players_leaderboard
+build_bar_average_trueskill_leaderboard = bar_analyzer.build_bar_average_trueskill_leaderboard
 build_placement_distribution_for_all_players = placement_distribution_analyzer.build_placement_distribution_for_all_players
 
 get_this_months_top_point_players = monthly_top_points.get_this_months_top_point_players
@@ -34,8 +35,7 @@ __all__ = [
     'build_trueskill_leaderboard',
     'build_average_opponent_skill_leaderboard',
     'build_bar_average_players_leaderboard',
-    'build_average_game_size_by_player',
-    'build_1st_place_win_leaderboard',
+    'build_average_game_size_by_player',    'build_bar_average_trueskill_leaderboard',    'build_1st_place_win_leaderboard',
     'build_itm_percent_leaderboard',
     # DISABLED: Player graph visualization removed for deployment size optimization
     # 'generate_graph_image_buffer',

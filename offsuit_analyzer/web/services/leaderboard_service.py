@@ -100,3 +100,17 @@ def get_bar_average_players_leaderboard() -> pd.DataFrame:
     
     stored_rounds = persistence.get_all_rounds()
     return analytics.build_bar_average_players_leaderboard(stored_rounds, min_rounds_required)
+
+def get_bar_average_trueskill_leaderboard() -> pd.DataFrame:
+    """
+    Get the average trueskill score for each bar.
+    Calculates the average trueskill rating across all player appearances at each bar.
+    Filters to bars with more than the configured minimum rounds and excludes bars with 'legacy' in the name.
+    
+    Returns:
+        DataFrame with bar names, average trueskill score, and rounds played
+    """
+    min_rounds_required = config.MINIMUM_ROUNDS_FOR_BAR_ANALYSIS
+    
+    stored_rounds = persistence.get_all_rounds()
+    return analytics.build_bar_average_trueskill_leaderboard(stored_rounds, min_rounds_required)
