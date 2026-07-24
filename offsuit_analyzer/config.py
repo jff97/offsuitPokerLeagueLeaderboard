@@ -50,6 +50,7 @@ class Config:
         self.PERCENT_FOR_ITM = 24
         self.PERCENT_FOR_ROI = .24
         self.STEEPNESS_FOR_ROI = 1.06
+        self.POKER_TIMEZONE = "America/Chicago"  # Central Time for poker night calculations
         self._set_cosmos_config_items()
         self._set_email_stuff()
 
