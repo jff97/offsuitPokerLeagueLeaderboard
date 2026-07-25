@@ -1,7 +1,6 @@
 """Qualification analyzer - determines tournament qualifiers from round results."""
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
-from datetime import datetime
+from typing import Dict, List, Optional, Set, Tuple, NamedTuple
 from collections import defaultdict
 
 from offsuit_analyzer.datamodel.round import Round
@@ -12,7 +11,17 @@ PlayerName = str
 Placement = int
 Points = int
 BarPlayerPoints = Dict[BarName, Dict[PlayerName, Points]]
-PlayerQualificationTuple = Tuple[PlayerName, Placement, Points]
+
+
+class PlayerQualificationTuple(NamedTuple):
+    """Qualification details for a player at a bar."""
+    player_name: PlayerName
+    placement: Placement
+    points: Points
+
+# Constants
+QUALIFICATION_SPOTS = 3
+THIRD_PLACEMENT = 3
 
 
 @dataclass(frozen=True)
@@ -91,7 +100,7 @@ def _get_top_3_per_bar(
         
         # Take top 3 with placement
         top_3 = [
-            (player_name, placement, points)
+            PlayerQualificationTuple(player_name, placement, points)
             for placement, (player_name, points) in enumerate(sorted_players[:3], start=1)
         ]
         
@@ -176,15 +185,15 @@ def _build_initial_qualifiers(
             key=lambda x: (-x[1], x[0])
         )
         
-        # Take top 3 who are locked to this bar
+        # Take top N who are locked to this bar
         bar_qualifiers = []
         for player_name, points in sorted_by_points:
-            if len(bar_qualifiers) >= 3:
+            if len(bar_qualifiers) >= QUALIFICATION_SPOTS:
                 break
             
             if player_qualified_bar.get(player_name) == bar_name:
                 placement = len(bar_qualifiers) + 1
-                bar_qualifiers.append((player_name, placement, points))
+                bar_qualifiers.append(PlayerQualificationTuple(player_name, placement, points))
                 already_assigned.add(player_name)
         
         qualifiers[bar_name] = bar_qualifiers
@@ -200,7 +209,7 @@ def _promote_next_available_players(
     player_qualified_bar: Dict[PlayerName, BarName]
 ) -> List[PlayerQualificationTuple]:
     """
-    Promote additional players to fill a bar's qualifier slots (up to 3).
+    Promote additional players to fill a bar's qualifier slots (up to QUALIFICATION_SPOTS).
     
     Only promotes players who:
     - Haven't been assigned to another bar
@@ -212,7 +221,7 @@ def _promote_next_available_players(
     promotions = list(bar_qualifiers)  # Copy existing
     
     for player_name, points in sorted_all_players:
-        if len(promotions) >= 3:
+        if len(promotions) >= QUALIFICATION_SPOTS:
             break
         
         # Check if player is available (not locked elsewhere)
@@ -221,7 +230,7 @@ def _promote_next_available_players(
         
         if is_available and is_locked_here:
             placement = len(promotions) + 1
-            promotions.append((player_name, placement, points))
+            promotions.append(PlayerQualificationTuple(player_name, placement, points))
             already_assigned.add(player_name)
     
     return promotions
@@ -272,9 +281,156 @@ def _resolve_multi_bar_conflicts(
     return final_qualifiers, player_qualified_bar
 
 
-def _convert_to_dataclass_objects(
-    final_qualifiers_tuples: Dict[BarName, List[PlayerQualificationTuple]]
-) -> Dict[BarName, List[PlayerQualification]]:
+def _get_third_place_points(
+    qualifiers: List[PlayerQualificationTuple]
+) -> Optional[Points]:
+    """
+    Get the points value at 3rd place, if it exists.
+    
+    Args:
+        qualifiers: Current qualifiers for the bar
+    
+    Returns:
+        Points value of 3rd place, or None if fewer than 3 qualifiers
+    """
+    if len(qualifiers) < THIRD_PLACEMENT:
+        return None
+    return qualifiers[THIRD_PLACEMENT - 1].points
+
+
+def _players_qualified_anywhere(
+    all_qualifiers_by_bar: Dict[BarName, List[PlayerQualificationTuple]]
+) -> Set[PlayerName]:
+    """
+    Collect every player who already holds a genuine placement at any bar.
+    
+    Args:
+        all_qualifiers_by_bar: Current qualifiers for every bar so far
+    
+    Returns:
+        Set of player names holding a placement (1st-3rd, including
+        promoted spots) at some bar
+    """
+    return {
+        player_name
+        for qualifiers in all_qualifiers_by_bar.values()
+        for player_name, _, _ in qualifiers
+    }
+
+
+def _get_tied_candidates_for_bar(
+    qualifiers_for_one_bar: List[PlayerQualificationTuple],
+    bar_players: Dict[PlayerName, Points],
+    genuinely_qualified: Set[PlayerName]
+) -> List[Tuple[PlayerName, Points]]:
+    """
+    Find players tied with 3rd place at this bar who are eligible for a
+    tied bonus spot.
+    
+    A player who already holds a genuine placement (1st-3rd, including a
+    promoted spot) at another bar is excluded here - qualifying elsewhere,
+    even for fewer points, always takes priority over a tied bonus spot.
+    
+    Args:
+        qualifiers_for_one_bar: Current (non-tie) qualifiers for the bar
+        bar_players: {player_name -> total_points} for this bar
+        genuinely_qualified: Players holding a real placement at some bar
+    
+    Returns:
+        List of (player_name, points) tied at 3rd place, sorted by name
+    """
+    third_place_points = _get_third_place_points(qualifiers_for_one_bar)
+    if third_place_points is None:
+        return []
+    
+    qualified_here = {player_name for player_name, _, _ in qualifiers_for_one_bar}
+    
+    tied_candidates = [
+        (player_name, points)
+        for player_name, points in bar_players.items()
+        if points == third_place_points
+        and player_name not in qualified_here
+        and player_name not in genuinely_qualified
+    ]
+    
+    return sorted(tied_candidates, key=lambda candidate: candidate[0])
+
+
+def _assign_best_bar_for_tied_candidates(
+    tied_candidates_by_bar: Dict[BarName, List[Tuple[PlayerName, Points]]]
+) -> Dict[PlayerName, BarName]:
+    """
+    Resolve players who are tied for 3rd place at more than one bar.
+    
+    This is a separate case from a genuine placement conflict: since the
+    placement (3rd) is identical at every bar a player tied at, the only
+    tie-breaker is which bar they scored more points at - they get the
+    bonus spot there only, not at every bar they tied at.
+    
+    Args:
+        tied_candidates_by_bar: bar_name -> [(player_name, points), ...] of
+            players eligible for a tied 3rd place bonus at that bar
+    
+    Returns:
+        Dict mapping player_name -> the single bar their tie bonus applies to
+    """
+    bars_by_player: Dict[PlayerName, List[Tuple[BarName, Points]]] = defaultdict(list)
+    for bar_name, tied_candidates in tied_candidates_by_bar.items():
+        for player_name, points in tied_candidates:
+            bars_by_player[player_name].append((bar_name, points))
+    
+    return {
+        player_name: min(bars, key=lambda bar_points: (-bar_points[1], bar_points[0]))[0]
+        for player_name, bars in bars_by_player.items()
+    }
+
+
+def _include_tied_at_3rd_place(
+    final_qualifiers_tuples: Dict[BarName, List[PlayerQualificationTuple]],
+    bar_player_points: BarPlayerPoints
+) -> Dict[BarName, List[PlayerQualificationTuple]]:
+    """
+    Include additional qualifiers tied at 3rd place for each bar.
+    
+    Handles two distinct edge cases so a tied bonus spot never duplicates a player:
+    1. A player already holding a genuine placement at another bar (even a
+       promoted one) never gets a tied bonus spot elsewhere - qualifying
+       somewhere, even for fewer points, always takes priority.
+    2. A player tied for 3rd at more than one bar only gets the bonus spot
+       at the bar where they scored the most points, not every bar they
+       tied at.
+    
+    Args:
+        final_qualifiers_tuples: bar_name -> [(player_name, placement, points), ...]
+        bar_player_points: bar_name -> {player_name -> total_points}
+    
+    Returns:
+        New dict with all tied 3rd place players included
+    """
+    # Case 1: players already holding a real spot elsewhere are off-limits.
+    genuinely_qualified = _players_qualified_anywhere(final_qualifiers_tuples)
+    
+    tied_candidates_by_bar = {
+        bar_name: _get_tied_candidates_for_bar(qualifiers, bar_player_points[bar_name], genuinely_qualified)
+        for bar_name, qualifiers in final_qualifiers_tuples.items()
+    }
+    
+    # Case 2: players tied at more than one bar only get their best bar.
+    best_bar_for_tied_player = _assign_best_bar_for_tied_candidates(tied_candidates_by_bar)
+    
+    qualifiers_with_ties = {}
+    for bar_name, qualifiers in final_qualifiers_tuples.items():
+        tied_qualifications = [
+            PlayerQualificationTuple(player_name, THIRD_PLACEMENT, points)
+            for player_name, points in tied_candidates_by_bar[bar_name]
+            if best_bar_for_tied_player[player_name] == bar_name
+        ]
+        qualifiers_with_ties[bar_name] = qualifiers + tied_qualifications
+    
+    return qualifiers_with_ties
+
+
+def _convert_to_dataclass_objects(final_qualifiers_tuples: Dict[BarName, List[PlayerQualificationTuple]]) -> Dict[BarName, List[PlayerQualification]]:
     """
     Convert tuple-based qualifiers to PlayerQualification dataclass objects.
     
@@ -305,9 +461,10 @@ def get_qualified_players(
     """
     Calculate tournament qualifiers from round results.
     
-    Two-step process:
+    Three-step process:
     1. Calculate top 3 per bar by total points across all rounds
     2. Resolve multi-bar conflicts and fill gaps to exactly 3 per bar
+    3. Include any additional players tied at 3rd place
     
     Args:
         rounds: List of Round objects containing player scores
@@ -328,6 +485,9 @@ def get_qualified_players(
     
     # Step 2: Resolve multi-bar conflicts and fill gaps
     final_qualifiers_tuples, _ = _resolve_multi_bar_conflicts(top_3_per_bar, bar_player_points)
+    
+    # Step 3: Include any players tied at 3rd place
+    final_qualifiers_tuples = _include_tied_at_3rd_place(final_qualifiers_tuples, bar_player_points)
     
     # Convert to dataclass objects
     final_qualifiers = _convert_to_dataclass_objects(final_qualifiers_tuples)
