@@ -27,6 +27,7 @@ cryptography = "*"
 # DISABLED: python-louvain removed for deployment size optimization
 # python-louvain = "^0.16"
 scipy = "*"
+pytz = "*"
 
 [tool.poetry.scripts]
 offsuit-analyzer = "offsuit_analyzer.web.app:main"
