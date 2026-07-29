@@ -128,11 +128,10 @@ def _add_missing_players(token: str, player_scores: List[Dict[str, Any]]) -> Non
     
     for player_data in player_scores:
         player_name = player_data.get("name")
-        if player_name.lower() not in existing_names:
-            capitalized_name = _capitalize_name(player_name)
-            result = api.create_new_player(token, capitalized_name)
+        if player_name not in existing_names:
+            result = api.create_new_player(token, player_name)
             if "error" in result:
-                raise ValueError(f"Failed to create player '{capitalized_name}': {result['error']}")
+                raise ValueError(f"Failed to create player '{player_name}': {result['error']}")
             
 def _capitalize_name(name: str) -> str:
     """
@@ -144,7 +143,8 @@ def _capitalize_name(name: str) -> str:
     Returns:
         The capitalized player name
     """
-    name_parts = name.split()
+    capitalized_name = _capitalize_name(name)
+    name_parts = capitalized_name.split()
     capitalized_parts = []
     for part in name_parts:
         capitalized_parts.append(part.capitalize())
@@ -218,8 +218,7 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> None:
         return  # No data to validate
     
     # Convert incoming player data to sortable tuple for comparison, using proper name normalization
-    incoming_players = tuple(sorted(
-        (normalize_player_name(p.get("name", "")), int(p.get("score", 0))) for p in player_scores
+    incoming_players = tuple(sorted((p.get("name", ""), int(p.get("score", 0))) for p in player_scores
     ))
     
     # Get current month rounds from API (not database) to catch duplicates immediately
@@ -237,11 +236,22 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> None:
             )
 
 
+def normalize_player_scores(player_scores: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Return a new player_scores list with all names normalized.
+    Original structure is preserved.
+    """
+    return [
+        {**p, "name": normalize_player_name(p.get("name", ""))}
+        for p in player_scores
+    ]
+
 def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Add a new round with player scores.
     
     Orchestrates:
+    0. Normalize all player names to ensure consistent capitalization and spacing
     1. Validate that the round is not a duplicate
     2. Add any missing players to the board
     3. Create a new zeroed-out round
@@ -258,6 +268,9 @@ def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, 
         ValueError: If validation fails, player creation fails, or round creation fails
         KeyError: If a player cannot be found after creation
     """
+    # Step 0: Normalize player names
+    player_scores = normalize_player_scores(player_scores)
+
     # Validation: check for duplicates
     validate_no_duplicate_round(player_scores)
     
