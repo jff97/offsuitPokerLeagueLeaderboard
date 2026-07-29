@@ -6,10 +6,10 @@ It uses keep_the_score_api_client for all API interactions and focuses on busine
 
 Jobs:
 - Add new rounds with player scores
-- Update existing rounds with scores
 - Manage players and scores on boards
 - Expose services via API to frontend
 - Validate rounds to prevent duplicate entries
+- Normalize player names for consistency
 
 Note: We don't handle validation/mistakes. Users can update bad data via Keep The Score web page.
 """
@@ -22,30 +22,34 @@ from offsuit_analyzer.data_service.external_data_client import normalize_player_
 
 def _get_player_name_to_id_map(token: str) -> Dict[str, int]:
     """
-    Get a mapping of lowercase player names to their IDs.
+    Get a mapping of normalized player names to their IDs.
     
     Args:
         token: The board token
         
     Returns:
-        Dictionary mapping lowercase name to player ID
+        Dictionary mapping normalized name to player ID
     """
     players = api.get_all_players(token)
-    return {p["name"].lower(): p["id"] for p in players}
+    return {normalize_player_name(p["name"]): p["id"] for p in players}
 
 
 def _get_existing_player_names(token: str) -> Set[str]:
     """
-    Get a set of all existing player names (lowercase).
+    Get a set of all existing player names (normalized).
     
     Args:
         token: The board token
         
     Returns:
-        Set of lowercase player names
+        Set of normalized player names
     """
     players = api.get_all_players(token)
-    return {p["name"].lower() for p in players}
+    existing_names = set()
+    for p in players:
+        normalized_name = normalize_player_name(p["name"])
+        existing_names.add(normalized_name)
+    return existing_names
 
 
 def delete_all_rounds(token: str) -> Dict[str, Any]:
@@ -75,44 +79,6 @@ def delete_all_rounds(token: str) -> Dict[str, Any]:
     }
 
 
-def update_round_scores(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Update player scores in the first available round.
-    
-    Args:
-        token: The board token
-        player_scores: List of dicts with 'name' and 'score' keys
-                       Example: [{"name": "John", "score": 100}, {"name": "Jane", "score": 90}]
-    
-    Returns:
-        Dictionary with round_id and update results
-        
-    Raises:
-        ValueError: If no rounds found on the board
-        KeyError: If a player is not found on the board
-    """
-    # Get name-to-ID mapping
-    player_name_to_id = _get_player_name_to_id_map(token)
-    
-    # Get first available round
-    round_ids = api.get_all_round_ids(token)
-    if not round_ids:
-        raise ValueError("No rounds found on the board")
-    
-    round_id = round_ids[0]
-    
-    # Update scores
-    for player_data in player_scores:
-        player_name = player_data.get("name").lower()
-        score = player_data.get("score")
-        if player_name not in player_name_to_id:
-            raise KeyError(f"Player '{player_name}' not found on board")
-        player_id = player_name_to_id[player_name]
-        api.update_player_score(token, round_id, player_id, score)
-    
-    return {"round_id": round_id, "status": "updated"}
-
-
 def _add_missing_players(token: str, player_scores: List[Dict[str, Any]]) -> None:
     """
     Add any players that don't exist on the board.
@@ -129,9 +95,10 @@ def _add_missing_players(token: str, player_scores: List[Dict[str, Any]]) -> Non
     for player_data in player_scores:
         player_name = player_data.get("name")
         if player_name not in existing_names:
-            result = api.create_new_player(token, player_name)
+            result = api.create_new_player(token, _capitalize_name(player_name))
             if "error" in result:
                 raise ValueError(f"Failed to create player '{player_name}': {result['error']}")
+
             
 def _capitalize_name(name: str) -> str:
     """
@@ -143,7 +110,7 @@ def _capitalize_name(name: str) -> str:
     Returns:
         The capitalized player name
     """
-    capitalized_name = _capitalize_name(name)
+    capitalized_name = normalize_player_name(name)
     name_parts = capitalized_name.split()
     capitalized_parts = []
     for part in name_parts:
@@ -191,7 +158,7 @@ def _update_scores_in_round(token: str, round_id: int, player_scores: List[Dict[
     player_name_to_id = _get_player_name_to_id_map(token)
     
     for player_data in player_scores:
-        player_name = player_data.get("name").lower()
+        player_name = player_data.get("name")
         score = player_data.get("score")
         
         if player_name not in player_name_to_id:
@@ -201,7 +168,7 @@ def _update_scores_in_round(token: str, round_id: int, player_scores: List[Dict[
         api.update_player_score(token, round_id, player_id, score)
 
 
-def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> None:
+def _validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> None:
     """
     Validation hook: check if a round with the same players and points already exists.
     
@@ -236,7 +203,7 @@ def validate_no_duplicate_round(player_scores: List[Dict[str, Any]]) -> None:
             )
 
 
-def normalize_player_scores(player_scores: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _normalize_player_scores(player_scores: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Return a new player_scores list with all names normalized.
     Original structure is preserved.
@@ -245,6 +212,7 @@ def normalize_player_scores(player_scores: List[Dict[str, Any]]) -> List[Dict[st
         {**p, "name": normalize_player_name(p.get("name", ""))}
         for p in player_scores
     ]
+
 
 def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
@@ -269,10 +237,10 @@ def add_new_round(token: str, player_scores: List[Dict[str, Any]]) -> Dict[str, 
         KeyError: If a player cannot be found after creation
     """
     # Step 0: Normalize player names
-    player_scores = normalize_player_scores(player_scores)
+    player_scores = _normalize_player_scores(player_scores)
 
     # Validation: check for duplicates
-    validate_no_duplicate_round(player_scores)
+    _validate_no_duplicate_round(player_scores)
     
     # Add any missing players (may raise ValueError)
     _add_missing_players(token, player_scores)
