@@ -38,7 +38,7 @@ class Config:
         token_key_input = os.getenv("TOKEN_ENCRYPTION_KEY")
         self.TOKEN_ENCRYPTION_KEY = _derive_fernet_key_from_string(token_key_input) if token_key_input else None
         self.BAR_CONFIGS = self._get_bar_configs_from_json()
-        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 60
+        self.MINIMUM_ROUNDS_TO_ANALYZE_PLAYER = 66
         self.MINIMUM_ROUNDS_FOR_BAR_ANALYSIS = 14
 
         self.POKER_APP_BASE_URL = os.getenv("POKER_APP_BASE_URL")
