@@ -79,24 +79,23 @@ def start_new_round(token: str) -> Dict[str, Any]:
         return {"error": str(e)}
 
 
-def get_all_players(token: str) -> List[Dict[str, Any]]:
+def get_all_players(token: str) -> Dict[str, int]:
     """
-    Get all players on the leaderboard with their IDs and names.
+    Get all players on the leaderboard, keyed by their raw (unnormalized) name.
     
     Args:
         token: The board token
         
     Returns:
-        List of player dictionaries with 'id' and 'name' keys
+        Dictionary mapping each player's raw name to their ID
     """
     board_json = fetch_board_json(token)
     
     if "error" in board_json:
-        return []
+        return {}
     
     players = board_json.get("players", [])
-    # Filter to only include id and name fields
-    return [{"id": p.get("id"), "name": p.get("name")} for p in players]
+    return {p.get("name"): p.get("id") for p in players}
 
 
 def update_player_score(token: str, round_id: int, player_id: int, score: int) -> Dict[str, Any]:

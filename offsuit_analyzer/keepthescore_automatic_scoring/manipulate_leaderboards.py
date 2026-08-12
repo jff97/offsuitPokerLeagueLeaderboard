@@ -30,8 +30,22 @@ def _get_player_name_to_id_map(token: str) -> Dict[str, int]:
     Returns:
         Dictionary mapping normalized name to player ID
     """
-    players = api.get_all_players(token)
-    return {normalize_player_name(p["name"]): p["id"] for p in players}
+    raw_name_to_id = api.get_all_players(token)
+    return _deduplicate_by_lower_id(raw_name_to_id)
+
+def _deduplicate_by_lower_id(raw_name_to_id: Dict[str, int]) -> Dict[str, int]:
+    """
+    Collapse raw names that share a normalized name (e.g. "Roger W" vs "Roger W "),
+    keeping the one with the lower id because we dont actually care if the boards format is perfect we 
+    normalize on the backend anyway it just has to be consistent week to week and look right. 
+    """
+    normalized_name_to_id: Dict[str, int] = {}
+    for raw_name, player_id in raw_name_to_id.items():
+        normalized_name = normalize_player_name(raw_name)
+        current_id = normalized_name_to_id.get(normalized_name)
+        if current_id is None or player_id < current_id:
+            normalized_name_to_id[normalized_name] = player_id
+    return normalized_name_to_id
 
 
 def _get_existing_player_names(token: str) -> Set[str]:
@@ -44,12 +58,7 @@ def _get_existing_player_names(token: str) -> Set[str]:
     Returns:
         Set of normalized player names
     """
-    players = api.get_all_players(token)
-    existing_names = set()
-    for p in players:
-        normalized_name = normalize_player_name(p["name"])
-        existing_names.add(normalized_name)
-    return existing_names
+    return set(_get_player_name_to_id_map(token).keys())
 
 
 def delete_all_rounds(token: str) -> Dict[str, Any]:
