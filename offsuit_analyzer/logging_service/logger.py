@@ -68,7 +68,7 @@ def main_to_text_file():
     print(f"Wrote {len(logs)} logs to {output_file}")
 
 if __name__ == "__main__":
-    main_to_text_file() 
+    main_to_text_file()
 
 
     

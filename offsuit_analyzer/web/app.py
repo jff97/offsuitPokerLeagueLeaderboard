@@ -1,4 +1,4 @@
-from http.client import HTTPException
+from werkzeug.exceptions import HTTPException
 
 from flask import Flask, Response, g, request
 from flask_cors import CORS
