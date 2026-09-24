@@ -42,5 +42,10 @@ def check_name_clashes():
 
 @admin_bp.route('/wheelqualifiers', methods=['GET'])
 def get_wheel_qualifiers():
-    """Public endpoint for current-month wheel qualifiers grouped by bar."""
+    """
+    Public endpoint for current-month wheel qualifiers grouped by bar.
+
+    This intentionally does not require admin auth because the wheel qualifier
+    API was requested as a read-only public endpoint.
+    """
     return jsonify(wheel_qualifiers_service.get_wheel_qualifiers_by_bar())
