@@ -48,6 +48,40 @@ def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
     return _get_players_who_played_every_round_by_bar_for_rounds(rounds)
 
 
+def _filter_out_players(
+    players_by_bar: Dict[str, List[str]],
+    players_to_exclude: Set[str],
+) -> Dict[str, List[str]]:
+    """Filter excluded players from each bar and omit empty bars."""
+    filtered_players_by_bar: Dict[str, List[str]] = {}
+    for bar_name, player_names in players_by_bar.items():
+        eligible_players = [
+            player_name
+            for player_name in player_names
+            if player_name not in players_to_exclude
+        ]
+        if eligible_players:
+            filtered_players_by_bar[bar_name] = eligible_players
+
+    return filtered_players_by_bar
+
+
+def _filter_out_qualified_players(
+    players_by_bar: Dict[str, List[str]],
+    qualified_player_names: Set[str],
+) -> Dict[str, List[str]]:
+    """Remove tournament-qualified players from each bar's player list."""
+    return _filter_out_players(players_by_bar, qualified_player_names)
+
+
+def _filter_out_unavailable_players(
+    players_by_bar: Dict[str, List[str]],
+    unavailable_players: Set[str],
+) -> Dict[str, List[str]]:
+    """Remove unavailable players from each bar's player list."""
+    return _filter_out_players(players_by_bar, unavailable_players)
+
+
 def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
     """
     Get wheel qualifiers by bar for the current month.
@@ -67,16 +101,11 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
         for qualifier in bar_qualifiers
     }
 
-    excluded_players: Set[str] = qualified_player_names | unavailable_players
-
-    filtered_players_by_bar: Dict[str, List[str]] = {}
-    for bar_name, player_names in all_round_attendees.items():
-        eligible_players = [
-            player_name
-            for player_name in player_names
-            if player_name not in excluded_players
-        ]
-        if eligible_players:
-            filtered_players_by_bar[bar_name] = eligible_players
-
-    return filtered_players_by_bar
+    players_without_qualified = _filter_out_qualified_players(
+        all_round_attendees,
+        qualified_player_names,
+    )
+    return _filter_out_unavailable_players(
+        players_without_qualified,
+        unavailable_players,
+    )
