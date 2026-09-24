@@ -36,6 +36,18 @@ def _get_players_who_played_every_round_for_bar(bar_rounds: List[Round]) -> List
     return players_in_every_round
 
 
+def _get_players_who_played_every_round_by_bar_for_rounds(rounds: List[Round]) -> Dict[str, List[str]]:
+    """Get players who appeared in every supplied round for each bar."""
+    # Input: list[Round].
+    # Output: dict[bar_name, list[player_name]] for full-month attendees by bar.
+    rounds_by_bar = _group_rounds_by_bar(rounds)
+    players_by_bar: Dict[str, List[str]] = {}
+    for bar_name, bar_rounds in rounds_by_bar.items():
+        players_by_bar[bar_name] = _get_players_who_played_every_round_for_bar(bar_rounds)
+
+    return players_by_bar
+
+
 def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
     """
     Get players who appeared in every current-month round for each bar.
@@ -46,12 +58,7 @@ def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
     # Input: none.
     # Output: dict[bar_name, list[player_name]] for full-month attendees by bar.
     rounds = data_service.get_this_months_rounds_for_bars()
-    rounds_by_bar = _group_rounds_by_bar(rounds)
-    players_by_bar: Dict[str, List[str]] = {}
-    for bar_name, bar_rounds in rounds_by_bar.items():
-        players_by_bar[bar_name] = _get_players_who_played_every_round_for_bar(bar_rounds)
-
-    return players_by_bar
+    return _get_players_who_played_every_round_by_bar_for_rounds(rounds)
 
 
 def _filter_out_qualified_players(player_names: List[str], qualified_player_names: Set[str]) -> List[str]:
@@ -112,7 +119,7 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
     # Input: none.
     # Output: dict[bar_name, list[player_name]] after qualified/unavailable filters are applied.
     rounds = data_service.get_this_months_rounds_for_bars()
-    players_who_played_every_round_by_bar = get_players_who_played_every_round_by_bar()
+    players_who_played_every_round_by_bar = _get_players_who_played_every_round_by_bar_for_rounds(rounds)
     qualified_player_names = _get_qualified_player_names(rounds)
 
     wheel_qualifiers_by_bar: Dict[str, List[str]] = {}
