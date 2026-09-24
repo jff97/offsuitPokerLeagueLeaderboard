@@ -7,33 +7,31 @@ from offsuit_analyzer.datamodel.round import Round
 from . import qualification_service
 
 
-def _get_players_who_played_every_round_by_bar_for_rounds(rounds: List[Round]) -> Dict[str, List[str]]:
-    """
-    Get players who appeared in every supplied round for each bar.
-    """
-    # Input: list[Round]. Output: dict[bar_name, list[player_name]] for players seen in every round at that bar.
+def _group_rounds_by_bar(rounds: List[Round]) -> Dict[str, List[Round]]:
+    """Group supplied rounds by bar name."""
+    # Input: list[Round]. Output: dict[bar_name, list[Round]].
     rounds_by_bar = defaultdict(list)
     for round_obj in rounds:
         rounds_by_bar[round_obj.bar_name].append(round_obj)
+    return dict(rounds_by_bar)
 
-    players_by_bar: Dict[str, List[str]] = {}
-    for bar_name, bar_rounds in rounds_by_bar.items():
-        player_appearances = defaultdict(int)
 
-        for round_obj in bar_rounds:
-            for player_name in {player.player_name for player in round_obj.players}:
-                player_appearances[player_name] += 1
+def _get_players_who_played_every_round_for_bar(bar_rounds: List[Round]) -> List[str]:
+    """Get players who appeared in every supplied round for one bar."""
+    # Input: list[Round] for one bar. Output: list[player_name] seen in every round for that bar.
+    player_appearances = defaultdict(int)
+    for round_obj in bar_rounds:
+        for player_name in {player.player_name for player in round_obj.players}:
+            player_appearances[player_name] += 1
 
-        required_rounds = len(bar_rounds)
-        players_by_bar[bar_name] = sorted(
-            [
-                player_name
-                for player_name, appearances in player_appearances.items()
-                if appearances == required_rounds
-            ]
-        )
-
-    return dict(players_by_bar)
+    required_rounds = len(bar_rounds)
+    return sorted(
+        [
+            player_name
+            for player_name, appearances in player_appearances.items()
+            if appearances == required_rounds
+        ]
+    )
 
 
 def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
@@ -45,39 +43,31 @@ def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
     """
     # Input: none. Output: dict[bar_name, list[player_name]] for full-month attendees by bar.
     rounds = data_service.get_this_months_rounds_for_bars()
-    return _get_players_who_played_every_round_by_bar_for_rounds(rounds)
+    rounds_by_bar = _group_rounds_by_bar(rounds)
+    return {
+        bar_name: _get_players_who_played_every_round_for_bar(bar_rounds)
+        for bar_name, bar_rounds in rounds_by_bar.items()
+    }
 
 
-def _filter_out_qualified_players(players_by_bar: Dict[str, List[str]], qualified_player_names: Set[str]) -> Dict[str, List[str]]:
-    """Remove tournament-qualified players from each bar's player list."""
-    # Input: dict[bar_name, list[player_name]] and set[player_name]. Output: same dict shape without tournament-qualified players.
-    filtered_players_by_bar: Dict[str, List[str]] = {}
-    for bar_name, player_names in players_by_bar.items():
-        eligible_players = [
-            player_name
-            for player_name in player_names
-            if player_name not in qualified_player_names
-        ]
-        if eligible_players:
-            filtered_players_by_bar[bar_name] = eligible_players
-
-    return filtered_players_by_bar
+def _filter_out_qualified_players(player_names: List[str], qualified_player_names: Set[str]) -> List[str]:
+    """Remove tournament-qualified players from one bar's player list."""
+    # Input: list[player_name] for one bar and set[player_name]. Output: filtered list[player_name].
+    return [player_name for player_name in player_names if player_name not in qualified_player_names]
 
 
-def _filter_out_unavailable_players(players_by_bar: Dict[str, List[str]], unavailable_players: Set[str]) -> Dict[str, List[str]]:
-    """Remove unavailable players from each bar's player list."""
-    # Input: dict[bar_name, list[player_name]] and set[player_name]. Output: same dict shape without unavailable players.
-    filtered_players_by_bar: Dict[str, List[str]] = {}
-    for bar_name, player_names in players_by_bar.items():
-        eligible_players = [
-            player_name
-            for player_name in player_names
-            if player_name not in unavailable_players
-        ]
-        if eligible_players:
-            filtered_players_by_bar[bar_name] = eligible_players
+def _filter_out_unavailable_players(player_names: List[str], unavailable_players: Set[str]) -> List[str]:
+    """Remove unavailable players from one bar's player list."""
+    # Input: list[player_name] for one bar and set[player_name]. Output: filtered list[player_name].
+    return [player_name for player_name in player_names if player_name not in unavailable_players]
 
-    return filtered_players_by_bar
+
+def _get_wheel_qualifiers_for_bar(bar_rounds: List[Round], qualified_player_names: Set[str], unavailable_players: Set[str]) -> List[str]:
+    """Get wheel qualifiers for one bar after attendance and filter rules."""
+    # Input: list[Round] for one bar plus qualified/unavailable player sets. Output: filtered list[player_name] for that bar.
+    player_names = _get_players_who_played_every_round_for_bar(bar_rounds)
+    player_names = _filter_out_qualified_players(player_names, qualified_player_names)
+    return _filter_out_unavailable_players(player_names, unavailable_players)
 
 
 def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
@@ -90,7 +80,7 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
     """
     # Input: none. Output: dict[bar_name, list[player_name]] after qualified/unavailable filters are applied.
     rounds = data_service.get_this_months_rounds_for_bars()
-    all_round_attendees = _get_players_who_played_every_round_by_bar_for_rounds(rounds)
+    rounds_by_bar = _group_rounds_by_bar(rounds)
 
     unavailable_players = qualification_service.get_unavailable_players()
     qualified_players = analytics.get_qualified_players(rounds, unavailable_players)
@@ -100,5 +90,10 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
         for qualifier in bar_qualifiers
     }
 
-    players_without_qualified = _filter_out_qualified_players(all_round_attendees, qualified_player_names)
-    return _filter_out_unavailable_players(players_without_qualified, unavailable_players)
+    qualifiers_by_bar: Dict[str, List[str]] = {}
+    for bar_name, bar_rounds in rounds_by_bar.items():
+        wheel_qualifiers = _get_wheel_qualifiers_for_bar(bar_rounds, qualified_player_names, unavailable_players)
+        if wheel_qualifiers:
+            qualifiers_by_bar[bar_name] = wheel_qualifiers
+
+    return qualifiers_by_bar
