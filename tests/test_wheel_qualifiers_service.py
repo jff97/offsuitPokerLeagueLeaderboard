@@ -59,19 +59,21 @@ class WheelQualifierServiceTests(unittest.TestCase):
                 "Bar A",
                 [("alice", 10), ("bob", 9), ("carol", 8), ("dave", 7), ("erin", 6)],
             ),
+            make_round("3", "Bar B", [("frank", 20), ("grace", 19)]),
+            make_round("4", "Bar B", [("frank", 18), ("grace", 17)]),
         ]
 
         result = wheel_qualifiers_service.get_wheel_qualifiers_by_bar()
 
         self.assertEqual(result, {"Bar A": ["erin"]})
 
-    def test_admin_endpoint_exposes_wheel_qualifiers_without_auth(self):
+    def test_admin_endpoint_is_public_without_auth_header(self):
         with patch(
             "offsuit_analyzer.web.controllers.admin_controller.wheel_qualifiers_service.get_wheel_qualifiers_by_bar",
             return_value={"Bar A": ["erin"]},
         ):
             with app.test_client() as client:
-                response = client.get("/api/admin/wheelqualifiers")
+                response = client.get("/api/admin/wheelqualifiers", headers={})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json(), {"Bar A": ["erin"]})

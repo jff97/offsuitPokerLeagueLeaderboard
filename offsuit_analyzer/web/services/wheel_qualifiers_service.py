@@ -64,11 +64,14 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
 
     excluded_players: Set[str] = qualified_player_names | unavailable_players
 
-    return {
-        bar_name: [
+    filtered_players_by_bar: Dict[str, List[str]] = {}
+    for bar_name, player_names in all_round_attendees.items():
+        eligible_players = [
             player_name
             for player_name in player_names
             if player_name not in excluded_players
         ]
-        for bar_name, player_names in all_round_attendees.items()
-    }
+        if eligible_players:
+            filtered_players_by_bar[bar_name] = eligible_players
+
+    return filtered_players_by_bar
