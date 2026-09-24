@@ -66,10 +66,11 @@ def _filter_out_qualified_players(player_names: List[str], qualified_player_name
     return filtered_player_names
 
 
-def _filter_out_unavailable_players(player_names: List[str], unavailable_players: Set[str]) -> List[str]:
+def _filter_out_unavailable_players(player_names: List[str]) -> List[str]:
     """Remove unavailable players from one bar's player list."""
-    # Input: list[player_name] for one bar and set[player_name].
+    # Input: list[player_name] for one bar.
     # Output: filtered list[player_name].
+    unavailable_players = qualification_service.get_unavailable_players()
     filtered_player_names: List[str] = []
     for player_name in player_names:
         if player_name not in unavailable_players:
@@ -78,10 +79,11 @@ def _filter_out_unavailable_players(player_names: List[str], unavailable_players
     return filtered_player_names
 
 
-def _get_qualified_player_names(rounds: List[Round], unavailable_players: Set[str]) -> Set[str]:
+def _get_qualified_player_names(rounds: List[Round]) -> Set[str]:
     """Get the set of tournament-qualified player names for the month."""
-    # Input: list[Round] and set[player_name].
+    # Input: list[Round].
     # Output: set[player_name] that already qualify through the tournament flow.
+    unavailable_players = qualification_service.get_unavailable_players()
     qualified_players = analytics.get_qualified_players(rounds, unavailable_players)
     qualified_player_names: Set[str] = set()
     for bar_qualifiers in qualified_players.qualifiers_by_bar.values():
@@ -91,13 +93,12 @@ def _get_qualified_player_names(rounds: List[Round], unavailable_players: Set[st
     return qualified_player_names
 
 
-def _get_wheel_qualifiers_for_bar(bar_rounds: List[Round], qualified_player_names: Set[str], unavailable_players: Set[str]) -> List[str]:
-    """Get wheel qualifiers for one bar after attendance and filter rules."""
-    # Input: list[Round] for one bar plus qualified/unavailable player sets.
+def _get_wheel_qualifiers_for_bar(player_names_for_bar: List[str], qualified_player_names: Set[str]) -> List[str]:
+    """Get wheel qualifiers for one bar after filter rules."""
+    # Input: list[player_name] for one bar and set[player_name].
     # Output: filtered list[player_name] for that bar.
-    player_names = _get_players_who_played_every_round_for_bar(bar_rounds)
-    player_names = _filter_out_qualified_players(player_names, qualified_player_names)
-    return _filter_out_unavailable_players(player_names, unavailable_players)
+    wheel_qualifier_player_names = _filter_out_qualified_players(player_names_for_bar, qualified_player_names)
+    return _filter_out_unavailable_players(wheel_qualifier_player_names)
 
 
 def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
@@ -111,15 +112,13 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
     # Input: none.
     # Output: dict[bar_name, list[player_name]] after qualified/unavailable filters are applied.
     rounds = data_service.get_this_months_rounds_for_bars()
-    rounds_by_bar = _group_rounds_by_bar(rounds)
+    players_who_played_every_round_by_bar = get_players_who_played_every_round_by_bar()
+    qualified_player_names = _get_qualified_player_names(rounds)
 
-    unavailable_players = qualification_service.get_unavailable_players()
-    qualified_player_names = _get_qualified_player_names(rounds, unavailable_players)
+    wheel_qualifiers_by_bar: Dict[str, List[str]] = {}
+    for bar_name, player_names_for_bar in players_who_played_every_round_by_bar.items():
+        wheel_qualifiers_for_bar = _get_wheel_qualifiers_for_bar(player_names_for_bar, qualified_player_names)
+        if wheel_qualifiers_for_bar:
+            wheel_qualifiers_by_bar[bar_name] = wheel_qualifiers_for_bar
 
-    qualifiers_by_bar: Dict[str, List[str]] = {}
-    for bar_name, bar_rounds in rounds_by_bar.items():
-        wheel_qualifiers = _get_wheel_qualifiers_for_bar(bar_rounds, qualified_player_names, unavailable_players)
-        if wheel_qualifiers:
-            qualifiers_by_bar[bar_name] = wheel_qualifiers
-
-    return qualifiers_by_bar
+    return wheel_qualifiers_by_bar
