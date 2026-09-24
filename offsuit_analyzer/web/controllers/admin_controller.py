@@ -1,7 +1,8 @@
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, jsonify, request
 from flask_httpauth import HTTPTokenAuth
 import json
 from ..services import admin_service 
+from ..services import wheel_qualifiers_service
 from offsuit_analyzer.config import config
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
@@ -37,3 +38,9 @@ def check_name_clashes():
     """Endpoint to run name clash detection."""
     admin_service.run_name_clash_detection()
     return Response("<h1>Name clash detection has been run</h1>", mimetype='text/html')
+
+
+@admin_bp.route('/wheelqualifiers', methods=['GET'])
+def get_wheel_qualifiers():
+    """Public endpoint for current-month wheel qualifiers grouped by bar."""
+    return jsonify(wheel_qualifiers_service.get_wheel_qualifiers_by_bar())
