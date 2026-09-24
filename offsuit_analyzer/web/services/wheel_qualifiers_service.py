@@ -1,24 +1,18 @@
 """Wheel qualifier service built from current-month rounds."""
 from collections import defaultdict
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 
 from offsuit_analyzer import analytics, data_service
 from offsuit_analyzer.datamodel.round import Round
-from offsuit_analyzer.persistence import excluded_qualifiers_collection
+from . import qualification_service
 
 
-def get_players_who_played_every_round_by_bar(
-    rounds: Optional[List[Round]] = None
+def _get_players_who_played_every_round_by_bar_for_rounds(
+    rounds: List[Round],
 ) -> Dict[str, List[str]]:
     """
-    Get players who appeared in every current-month round for each bar.
-
-    This is intentionally unfiltered so it can be reused later for other
-    displays that need every full-month attendee regardless of wheel criteria.
+    Get players who appeared in every supplied round for each bar.
     """
-    if rounds is None:
-        rounds = data_service.get_this_months_rounds_for_bars()
-
     rounds_by_bar = defaultdict(list)
     for round_obj in rounds:
         rounds_by_bar[round_obj.bar_name].append(round_obj)
@@ -43,6 +37,17 @@ def get_players_who_played_every_round_by_bar(
     return dict(players_by_bar)
 
 
+def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
+    """
+    Get players who appeared in every current-month round for each bar.
+
+    This is intentionally unfiltered so it can be reused later for other
+    displays that need every full-month attendee regardless of wheel criteria.
+    """
+    rounds = data_service.get_this_months_rounds_for_bars()
+    return _get_players_who_played_every_round_by_bar_for_rounds(rounds)
+
+
 def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
     """
     Get wheel qualifiers by bar for the current month.
@@ -52,9 +57,9 @@ def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
     - players currently marked unavailable
     """
     rounds = data_service.get_this_months_rounds_for_bars()
-    all_round_attendees = get_players_who_played_every_round_by_bar(rounds)
+    all_round_attendees = _get_players_who_played_every_round_by_bar_for_rounds(rounds)
 
-    unavailable_players = excluded_qualifiers_collection.get_excluded_players()
+    unavailable_players = qualification_service.get_unavailable_players()
     qualified_players = analytics.get_qualified_players(rounds, unavailable_players)
     qualified_player_names = {
         qualifier.player_name
