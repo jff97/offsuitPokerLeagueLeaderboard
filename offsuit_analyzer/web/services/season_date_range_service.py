@@ -1,35 +1,54 @@
 """Determine and persist current season date ranges from incoming API rounds."""
+from datetime import date, datetime
 from typing import List, Tuple
 
 from offsuit_analyzer.datamodel import Round, SeasonDateRange
 from offsuit_analyzer.persistence import season_date_ranges_collection
 
 
-def current_season_has_dated_rounds(rounds: List[Round]) -> bool:
+def update_current_season_date_range(rounds: List[Round]) -> bool:
+    """Persist the current season date range using the latest incoming API rounds."""
+    dated_round_days = _get_dated_round_days(rounds)
+    if not dated_round_days:
+        return False
+
+    observed_season_date_range = _build_current_season_date_range(dated_round_days)
+    saved_season_date_range = season_date_ranges_collection.get_season_date_range(
+        observed_season_date_range.season_month
+    )
+    merged_season_date_range = observed_season_date_range
+    if saved_season_date_range is not None:
+        merged_season_date_range = _merge_season_date_ranges(
+            saved_season_date_range,
+            observed_season_date_range,
+        )
+    season_date_ranges_collection.save_season_date_range(merged_season_date_range)
+    return True
+
+
+def _current_season_has_dated_rounds(round_days: List[date]) -> bool:
     """Return True when at least one round has a usable date."""
-    return len(_get_dated_round_values(rounds)) > 0
+    return len(round_days) > 0
 
 
-def determine_current_season_date_bounds(rounds: List[Round]) -> Tuple[str, str]:
+def _determine_current_season_date_bounds(round_days: List[date]) -> Tuple[date, date]:
     """Return the earliest and latest round_date values found in rounds."""
-    dated_round_values = _get_dated_round_values(rounds)
-
-    if not dated_round_values:
+    if not _current_season_has_dated_rounds(round_days):
         raise ValueError("Current season rounds do not contain any round_date values.")
 
-    return min(dated_round_values), max(dated_round_values)
+    return min(round_days), max(round_days)
 
 
-def build_current_season_date_range(rounds: List[Round]) -> SeasonDateRange:
+def _build_current_season_date_range(round_days: List[date]) -> SeasonDateRange:
     """Build the current season date range from the incoming current-season rounds."""
-    start_date, end_date = determine_current_season_date_bounds(rounds)
+    start_date, end_date = _determine_current_season_date_bounds(round_days)
     return SeasonDateRange(
         start_date=start_date,
         end_date=end_date,
     )
 
 
-def merge_season_date_ranges(
+def _merge_season_date_ranges(
     stored_season_date_range: SeasonDateRange,
     observed_season_date_range: SeasonDateRange
 ) -> SeasonDateRange:
@@ -45,40 +64,10 @@ def merge_season_date_ranges(
         end_date=max(stored_season_date_range.end_date, observed_season_date_range.end_date),
     )
 
-
-def update_current_season_date_range(rounds: List[Round]) -> bool:
-    """Persist the current season date range using the latest incoming API rounds."""
-    if not current_season_has_dated_rounds(rounds):
-        return False
-
-    observed_season_date_range = build_current_season_date_range(rounds)
-    saved_season_date_range = _get_saved_season_date_range(observed_season_date_range.season_month)
-    merged_season_date_range = observed_season_date_range
-    if saved_season_date_range is not None:
-        merged_season_date_range = merge_season_date_ranges(
-            saved_season_date_range,
-            observed_season_date_range,
-        )
-    season_date_ranges_collection.save_season_date_range(merged_season_date_range)
-    return True
-
-
-def _get_dated_round_values(rounds: List[Round]) -> List[str]:
-    """Extract round_date values that are present."""
-    return [round_obj.round_date for round_obj in rounds if round_obj.round_date]
-
-
-def _get_saved_season_date_range(season_month: int):
-    """Return the single saved season range for season_month, or None when absent."""
-    saved_season_date_ranges = season_date_ranges_collection.get_season_date_ranges(season_month)
-
-    if not saved_season_date_ranges:
-        return None
-
-    if len(saved_season_date_ranges) != 1:
-        raise ValueError(
-            f"Expected at most one saved season date range for {season_month}, "
-            f"but found {len(saved_season_date_ranges)}."
-        )
-
-    return saved_season_date_ranges[0]
+def _get_dated_round_days(rounds: List[Round]) -> List[date]:
+    """Extract round_date values that are present as date objects."""
+    return [
+        datetime.strptime(round_obj.round_date, "%Y-%m-%d").date()
+        for round_obj in rounds
+        if round_obj.round_date
+    ]

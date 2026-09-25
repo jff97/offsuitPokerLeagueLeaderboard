@@ -24,7 +24,7 @@ clear_all_logs = logs_collection.clear_all_logs
 email_json_rounds_backup = export_rounds_tool.email_json_rounds_backup
 
 save_season_date_range = season_date_ranges_collection.save_season_date_range
-get_season_date_ranges = season_date_ranges_collection.get_season_date_ranges
+get_season_date_range = season_date_ranges_collection.get_season_date_range
 
 __all__ = [
     'store_rounds',
@@ -43,5 +43,5 @@ __all__ = [
     'clear_all_logs',
     'email_json_rounds_backup',
     'save_season_date_range',
-    'get_season_date_ranges',
+    'get_season_date_range',
 ]
