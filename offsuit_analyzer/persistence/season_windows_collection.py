@@ -24,19 +24,26 @@ def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
         for season_window in normalized_season_windows
     ]
     collection.bulk_write(operations, ordered=False)
+    collection.delete_many({
+        "$or": [
+            {"season_month": {"$exists": True}},
+            {"year": {"$exists": False}},
+            {"month": {"$exists": False}},
+        ]
+    })
 
-    stale_ids = [
-        doc["_id"]
-        for doc in collection.find({}, {"_id": 1, "year": 1, "month": 1})
-        if (doc.get("year"), doc.get("month")) not in valid_year_month_pairs
-    ]
-    if stale_ids:
-        collection.delete_many({"_id": {"$in": stale_ids}})
+    collection.delete_many({
+        "$and": [
+            {"year": {"$exists": True}},
+            {"month": {"$exists": True}},
+            {"$nor": [{"year": year, "month": month} for year, month in valid_year_month_pairs]},
+        ]
+    })
 
 
 def get_all_season_windows() -> List[SeasonWindow]:
     collection = cosmos_client.db[cosmos_client.config.SEASON_WINDOWS_COLLECTION_NAME]
-    docs = collection.find({})
+    docs = collection.find({"year": {"$exists": True}, "month": {"$exists": True}})
     return sorted(
         (SeasonWindow.from_dict(doc) for doc in docs),
         key=lambda season_window: (season_window.year, season_window.month),
