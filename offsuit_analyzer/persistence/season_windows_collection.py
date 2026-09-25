@@ -36,7 +36,16 @@ def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
         "$and": [
             {"year": {"$exists": True}},
             {"month": {"$exists": True}},
-            {"$nor": [{"year": year, "month": month} for year, month in valid_year_month_pairs]},
+            {
+                "$expr": {
+                    "$not": {
+                        "$in": [
+                            {"$concat": [{"$toString": "$year"}, "-", {"$toString": "$month"}]},
+                            [f"{year}-{month}" for year, month in valid_year_month_pairs],
+                        ]
+                    }
+                }
+            },
         ]
     })
 
