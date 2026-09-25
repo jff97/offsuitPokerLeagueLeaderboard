@@ -21,7 +21,7 @@ class SeasonWindow:
         derived_year, derived_month = _derive_year_month(start_day, end_day)
         if self.year != derived_year or self.month != derived_month:
             raise ValueError(
-                "year/month must match midpoint-derived season month: "
+                "year/month must match midpoint-derived year/month: "
                 f"({self.year}, {self.month}) != ({derived_year}, {derived_month})"
             )
 
