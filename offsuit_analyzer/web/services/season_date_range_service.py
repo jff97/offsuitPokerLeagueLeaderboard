@@ -5,14 +5,19 @@ from typing import List, Tuple
 from offsuit_analyzer.datamodel import Round, SeasonDateRange
 from offsuit_analyzer.persistence import season_date_ranges_collection
 
+NEAR_EMPTY_ROUND_RESET_THRESHOLD = 1
+
 
 def update_current_season_date_range(rounds: List[Round]) -> bool:
     """Persist the current season date range using the latest incoming API rounds."""
     dated_round_days = _get_dated_round_days(rounds)
     if not dated_round_days:
-        return False
+        return _seed_current_season_date_range()
 
     observed_season_date_range = _build_current_season_date_range(dated_round_days)
+    if _should_seed_new_current_season(dated_round_days, observed_season_date_range):
+        return _seed_current_season_date_range()
+
     saved_season_date_range = season_date_ranges_collection.get_season_date_range(
         observed_season_date_range.season_month
     )
@@ -46,6 +51,33 @@ def _build_current_season_date_range(round_days: List[date]) -> SeasonDateRange:
         start_date=start_date,
         end_date=end_date,
     )
+
+
+def _seed_current_season_date_range() -> bool:
+    """Ensure the current month has a seeded season date range for rollover transitions."""
+    today = date.today()
+    current_season_date_range = SeasonDateRange(
+        start_date=today,
+        end_date=today,
+    )
+    saved_season_date_range = season_date_ranges_collection.get_season_date_range(
+        current_season_date_range.season_month
+    )
+    if saved_season_date_range is None:
+        season_date_ranges_collection.save_season_date_range(current_season_date_range)
+    return True
+
+
+def _should_seed_new_current_season(
+    round_days: List[date],
+    observed_season_date_range: SeasonDateRange,
+) -> bool:
+    """Return True when a tiny stale carryover should seed a fresh current-month season."""
+    if len(round_days) > NEAR_EMPTY_ROUND_RESET_THRESHOLD:
+        return False
+
+    current_season_month = int(date.today().strftime("%Y%m"))
+    return observed_season_date_range.season_month != current_season_month
 
 
 def _merge_season_date_ranges(
