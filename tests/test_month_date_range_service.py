@@ -1,5 +1,6 @@
 import os
 import unittest
+from unittest import mock
 
 os.environ.setdefault("KEEP_THE_SCORE_BAR_TOKEN_WEEKNIGHT_PAIRS_JSON", "[]")
 os.environ.setdefault("OFFSUIT_ANALYZER_COSMOS_DB_CONNECTION_STRING", "mongodb://localhost:27017")
@@ -63,6 +64,50 @@ class MonthDateRangeServiceTests(unittest.TestCase):
                 existing_month_date_range,
                 observed_month_date_range,
             )
+
+    def test_update_current_month_date_range_merges_and_saves_observed_range(self):
+        rounds = [
+            _build_round("1", "2026-08-29"),
+            _build_round("2", "2026-09-25"),
+        ]
+        existing_month_date_range = month_date_range_service.MonthDateRange(
+            month_key=202609,
+            start_date="2026-08-31",
+            end_date="2026-09-20",
+        )
+
+        with mock.patch.object(
+            month_date_range_service.month_date_ranges_collection,
+            "get_month_date_range",
+            return_value=existing_month_date_range,
+        ) as mock_get_month_date_range, mock.patch.object(
+            month_date_range_service.month_date_ranges_collection,
+            "save_month_date_range",
+        ) as mock_save_month_date_range:
+            saved_month_date_range = month_date_range_service.update_current_month_date_range(rounds)
+
+        self.assertIsNotNone(saved_month_date_range)
+        self.assertEqual(202609, saved_month_date_range.month_key)
+        self.assertEqual("2026-08-29", saved_month_date_range.start_date)
+        self.assertEqual("2026-09-25", saved_month_date_range.end_date)
+        mock_get_month_date_range.assert_called_once_with(202609)
+        mock_save_month_date_range.assert_called_once_with(saved_month_date_range)
+
+    def test_update_current_month_date_range_is_no_op_without_dated_rounds(self):
+        rounds = [_build_round("1", None)]
+
+        with mock.patch.object(
+            month_date_range_service.month_date_ranges_collection,
+            "get_month_date_range",
+        ) as mock_get_month_date_range, mock.patch.object(
+            month_date_range_service.month_date_ranges_collection,
+            "save_month_date_range",
+        ) as mock_save_month_date_range:
+            saved_month_date_range = month_date_range_service.update_current_month_date_range(rounds)
+
+        self.assertIsNone(saved_month_date_range)
+        mock_get_month_date_range.assert_not_called()
+        mock_save_month_date_range.assert_not_called()
 
 
 if __name__ == "__main__":
