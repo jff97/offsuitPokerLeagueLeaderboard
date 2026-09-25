@@ -64,7 +64,7 @@ class _FakeSeasonWindowCollection(_FakeBoardWipeCollection):
 
         valid_pairs = {
             (doc["year"], doc["month"])
-            for doc in filter_dict["$and"][2]["$nor"]
+            for doc in filter_dict["$nor"]
         }
         self.docs = [
             doc
@@ -206,6 +206,7 @@ class SeasonWindowsTests(unittest.TestCase):
             [
                 SeasonWindow(year=2024, month=1, start_date="2024-01-06", end_date="2024-01-19").to_dict(),
                 SeasonWindow(year=2024, month=2, start_date="2024-02-03", end_date="2024-02-09").to_dict(),
+                {"year": 2024, "start_date": "2024-03-01", "end_date": "2024-03-07"},
             ]
         )
         fake_db = _FakeDb({"seasonWindowsCollectionProd": collection})

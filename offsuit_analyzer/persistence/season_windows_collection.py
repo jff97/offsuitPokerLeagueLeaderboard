@@ -27,14 +27,7 @@ def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
 
     valid_year_month_filters = [{"year": year, "month": month} for year, month in valid_year_month_pairs]
     if valid_year_month_filters:
-        stale_filter = {
-            "$and": [
-                {"year": {"$exists": True}},
-                {"month": {"$exists": True}},
-                {"$nor": valid_year_month_filters},
-            ]
-        }
-        collection.delete_many(stale_filter)
+        collection.delete_many({"$nor": valid_year_month_filters})
 
 
 def get_all_season_windows() -> List[SeasonWindow]:
