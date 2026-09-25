@@ -96,19 +96,29 @@ class BoardWipeEventsTests(unittest.TestCase):
 
     def test_refresh_rounds_database_preserves_existing_board_wipe_history(self):
         refreshed_rounds = [Round("2", "A", "2024-01-13", "bar-1", ())]
+        call_order = []
 
         with patch.object(admin_service.data_service, "get_this_months_rounds_for_bars", return_value=refreshed_rounds), \
-             patch.object(admin_service.persistence, "store_rounds") as store_mock, \
+             patch.object(
+                 admin_service.persistence,
+                 "get_all_round_dates",
+                 side_effect=lambda: call_order.append("get_all_round_dates") or ["2024-01-13"],
+             ), \
+             patch.object(
+                 admin_service.persistence,
+                 "store_rounds",
+                 side_effect=lambda rounds: call_order.append(("store_rounds", rounds)),
+             ) as store_mock, \
              patch.object(
                  admin_service.persistence,
                  "get_all_board_wipe_events",
                  return_value=[BoardWipeEvent("2023-12-30"), BoardWipeEvent("2024-01-06")],
              ), \
-             patch.object(admin_service.persistence, "get_all_round_dates", return_value=["2024-01-13"]), \
              patch.object(admin_service.persistence, "record_board_wipe_events") as record_mock:
             admin_service.refresh_rounds_database()
 
         store_mock.assert_called_once_with(refreshed_rounds)
+        self.assertEqual(["get_all_round_dates", ("store_rounds", refreshed_rounds)], call_order)
         record_mock.assert_called_once_with(["2023-12-30", "2024-01-06", "2024-01-13"])
 
 
