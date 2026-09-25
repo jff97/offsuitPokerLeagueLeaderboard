@@ -1,5 +1,6 @@
 """Persistence package - maintains backward compatibility with existing imports."""
 from . import rounds_collection, warnings_collection, name_clashes_collection, logs_collection
+from . import month_date_ranges_collection
 from . import export_rounds_tool
 
 store_rounds = rounds_collection.store_rounds
@@ -22,6 +23,9 @@ clear_all_logs = logs_collection.clear_all_logs
 
 email_json_rounds_backup = export_rounds_tool.email_json_rounds_backup
 
+save_month_date_range = month_date_ranges_collection.save_month_date_range
+get_month_date_range = month_date_ranges_collection.get_month_date_range
+
 __all__ = [
     'store_rounds',
     'get_all_rounds',
@@ -38,4 +42,6 @@ __all__ = [
     'get_logs_by_severity',
     'clear_all_logs',
     'email_json_rounds_backup',
+    'save_month_date_range',
+    'get_month_date_range',
 ]
