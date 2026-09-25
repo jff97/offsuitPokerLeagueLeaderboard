@@ -32,22 +32,14 @@ def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
         ]
     })
 
-    collection.delete_many({
-        "$and": [
-            {"year": {"$exists": True}},
-            {"month": {"$exists": True}},
-            {
-                "$expr": {
-                    "$not": {
-                        "$in": [
-                            {"$concat": [{"$toString": "$year"}, "-", {"$toString": "$month"}]},
-                            [f"{year}-{month}" for year, month in valid_year_month_pairs],
-                        ]
-                    }
-                }
-            },
-        ]
-    })
+    stale_filter = {"$and": [{"year": {"$exists": True}}, {"month": {"$exists": True}}]}
+    if len(valid_year_month_pairs) == 1:
+        year, month = next(iter(valid_year_month_pairs))
+        stale_filter["$and"].append({"$or": [{"year": {"$ne": year}}, {"month": {"$ne": month}}]})
+    else:
+        stale_filter["$and"].append({"$nor": [{"year": year, "month": month} for year, month in valid_year_month_pairs]})
+
+    collection.delete_many(stale_filter)
 
 
 def get_all_season_windows() -> List[SeasonWindow]:
