@@ -7,7 +7,7 @@ def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
     all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
-    persistence.record_event_dates(season_history.get_event_dates_to_record(all_rounds))
+    persistence.record_board_wipe_events(season_history.get_board_wipe_dates_to_record(all_rounds))
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()

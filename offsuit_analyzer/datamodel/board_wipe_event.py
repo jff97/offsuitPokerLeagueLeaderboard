@@ -4,21 +4,21 @@ from typing import Any, Dict, Union
 
 
 @dataclass(frozen=True)
-class EventDate:
-    """Stored event date observed during a refresh."""
-    event_date: date
+class BoardWipeEvent:
+    """Stored board-wipe event observed during a refresh."""
+    board_wipe_date: date
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "event_date", _normalize_day(self.event_date))
+        object.__setattr__(self, "board_wipe_date", _normalize_day(self.board_wipe_date))
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "event_date": self.event_date.isoformat(),
+            "board_wipe_date": self.board_wipe_date.isoformat(),
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EventDate":
-        return cls(event_date=data["event_date"])
+    def from_dict(cls, data: Dict[str, Any]) -> "BoardWipeEvent":
+        return cls(board_wipe_date=data["board_wipe_date"])
 
 
 def _normalize_day(day_value: Union[str, date]) -> date:
