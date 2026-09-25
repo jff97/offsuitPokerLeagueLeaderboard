@@ -8,6 +8,8 @@ get_all_rounds = rounds_collection.get_all_rounds
 get_all_round_dates = rounds_collection.get_all_round_dates
 record_board_wipe_events = board_wipe_events_collection.record_board_wipe_events
 get_all_board_wipe_events = board_wipe_events_collection.get_all_board_wipe_events
+record_event_dates = record_board_wipe_events
+get_all_event_dates = get_all_board_wipe_events
 
 save_warnings = warnings_collection.save_warnings
 get_all_warnings = warnings_collection.get_all_warnings
@@ -34,6 +36,8 @@ __all__ = [
     'get_all_round_dates',
     'record_board_wipe_events',
     'get_all_board_wipe_events',
+    'record_event_dates',
+    'get_all_event_dates',
     'save_warnings',
     'get_all_warnings',
     'delete_all_warnings',

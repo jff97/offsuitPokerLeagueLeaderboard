@@ -18,7 +18,8 @@ class BoardWipeEvent:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BoardWipeEvent":
-        return cls(board_wipe_date=data["board_wipe_date"])
+        board_wipe_date = data["board_wipe_date"] if "board_wipe_date" in data else data["event_date"]
+        return cls(board_wipe_date=board_wipe_date)
 
 
 def _normalize_day(day_value: Union[str, date]) -> date:
