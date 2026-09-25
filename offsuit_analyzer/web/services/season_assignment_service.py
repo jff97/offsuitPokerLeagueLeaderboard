@@ -13,7 +13,7 @@ def assign_season_windows_from_history(boundary_weekday: int = DEFAULT_BOUNDARY_
 
 
 def calculate_season_windows(
-    board_wipe_dates: Iterable[Union[str, date]],
+    event_dates: Iterable[Union[str, date]],
     boundary_weekday: int = DEFAULT_BOUNDARY_WEEKDAY,
 ) -> List[SeasonWindow]:
-    return season_history.calculate_season_windows(board_wipe_dates, boundary_weekday=boundary_weekday)
+    return season_history.calculate_season_windows(event_dates, boundary_weekday=boundary_weekday)
