@@ -17,6 +17,8 @@ def get_board_wipe_dates_to_record(
         board_wipe_event.board_wipe_date.isoformat()
         for board_wipe_event in persistence.get_all_board_wipe_events()
     }
-    historical_round_dates = stored_round_dates if stored_round_dates is not None else persistence.get_all_round_dates()
+    if stored_board_wipe_dates:
+        return sorted(set(current_board_wipe_dates) | stored_board_wipe_dates)
 
-    return sorted(set(current_board_wipe_dates) | stored_board_wipe_dates | set(historical_round_dates))
+    historical_round_dates = stored_round_dates if stored_round_dates is not None else persistence.get_all_round_dates()
+    return sorted(set(current_board_wipe_dates) | set(historical_round_dates))

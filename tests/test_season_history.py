@@ -72,6 +72,23 @@ class BoardWipeEventsTests(unittest.TestCase):
                 board_wipe_events.get_board_wipe_dates_to_record(rounds),
             )
 
+    def test_get_board_wipe_dates_to_record_ignores_round_history_once_events_exist(self):
+        rounds = [Round("2", "A", "2024-01-13", "bar-1", ())]
+
+        with patch.object(
+            board_wipe_events.persistence,
+            "get_all_board_wipe_events",
+            return_value=[BoardWipeEvent("2023-12-30"), BoardWipeEvent("2024-01-06")],
+        ), patch.object(
+            board_wipe_events.persistence,
+            "get_all_round_dates",
+            return_value=["2024-01-06", "2024-01-10", "2024-01-13"],
+        ):
+            self.assertEqual(
+                ["2023-12-30", "2024-01-06", "2024-01-13"],
+                board_wipe_events.get_board_wipe_dates_to_record(rounds),
+            )
+
     def test_record_board_wipe_events_replaces_stale_dates(self):
         collection = _FakeBoardWipeCollection(
             [
@@ -102,7 +119,7 @@ class BoardWipeEventsTests(unittest.TestCase):
              patch.object(
                  admin_service.persistence,
                  "get_all_round_dates",
-                 side_effect=lambda: call_order.append("get_all_round_dates") or ["2024-01-13"],
+                 side_effect=lambda: call_order.append("get_all_round_dates") or ["2024-01-06"],
              ), \
              patch.object(
                  admin_service.persistence,
