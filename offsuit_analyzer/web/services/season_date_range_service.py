@@ -75,10 +75,7 @@ def _seed_current_season_date_range() -> bool:
     return True
 
 
-def _is_near_empty_round_observation(
-    rounds: List[Round],
-    observed_season_date_range: SeasonDateRange,
-) -> bool:
+def _is_near_empty_round_observation(rounds: List[Round], observed_season_date_range: SeasonDateRange) -> bool:
     """Return True when only a couple uncleared previous-month bars remain populated."""
     current_poker_date = _get_current_poker_date()
     previous_season_month = _get_previous_season_month(current_poker_date)
@@ -132,10 +129,7 @@ def _all_active_bars_have_stale_round_counts(rounds_by_bar: Dict[str, List[Round
     return all(len(bar_rounds) >= MIN_ROUNDS_PER_STALE_BAR for bar_rounds in rounds_by_bar.values())
 
 
-def _merge_season_date_ranges(
-    stored_season_date_range: SeasonDateRange,
-    observed_season_date_range: SeasonDateRange
-) -> SeasonDateRange:
+def _merge_season_date_ranges(stored_season_date_range: SeasonDateRange, observed_season_date_range: SeasonDateRange) -> SeasonDateRange:
     """Merge a stored season range with the newly observed current season range."""
     if stored_season_date_range.season_month != observed_season_date_range.season_month:
         raise ValueError(
