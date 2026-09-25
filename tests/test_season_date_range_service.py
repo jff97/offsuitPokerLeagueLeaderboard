@@ -131,6 +131,32 @@ class SeasonDateRangeServiceTests(unittest.TestCase):
             )
         )
 
+    def test_single_older_historical_round_does_not_trigger_rollover_seed(self):
+        historical_round = self._round("historical-round", "2026-08-31")
+        current_poker_date = date(2026, 10, 1)
+
+        with patch.object(
+                 season_date_range_service,
+                 "_get_current_poker_date",
+                 return_value=current_poker_date,
+             ), patch.object(
+                 season_date_range_service.season_date_ranges_collection,
+                 "get_season_date_range",
+                 return_value=None,
+             ) as get_season_date_range, patch.object(
+                 season_date_range_service.season_date_ranges_collection,
+                 "save_season_date_range",
+             ) as save_season_date_range:
+            result = season_date_range_service.update_current_season_date_range([historical_round])
+
+        self.assertTrue(result)
+        expected_range = SeasonDateRange(
+            start_date=date(2026, 8, 31),
+            end_date=date(2026, 8, 31),
+        )
+        get_season_date_range.assert_called_once_with(expected_range.season_month)
+        save_season_date_range.assert_called_once_with(expected_range)
+
     @staticmethod
     def _round(round_id: str, round_date: str) -> Round:
         return Round(

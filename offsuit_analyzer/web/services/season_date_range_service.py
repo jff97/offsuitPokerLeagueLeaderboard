@@ -1,5 +1,5 @@
 """Determine and persist current season date ranges from incoming API rounds."""
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List, Tuple
 
 from offsuit_analyzer.datamodel import Round, SeasonDateRange
@@ -76,8 +76,9 @@ def _should_seed_new_current_season(
     if len(round_days) > NEAR_EMPTY_ROUND_RESET_THRESHOLD:
         return False
 
-    current_season_month = int(_get_current_poker_date().strftime("%Y%m"))
-    return observed_season_date_range.season_month != current_season_month
+    current_poker_date = _get_current_poker_date()
+    previous_season_month = _get_previous_season_month(current_poker_date)
+    return observed_season_date_range.season_month == previous_season_month
 
 
 def _get_current_poker_date() -> date:
@@ -86,6 +87,12 @@ def _get_current_poker_date() -> date:
     from offsuit_analyzer.config import config
 
     return datetime.now(pytz.timezone(config.POKER_TIMEZONE)).date()
+
+
+def _get_previous_season_month(current_poker_date: date) -> int:
+    """Return the YYYYMM key for the month immediately before the current poker date."""
+    previous_month_day = current_poker_date.replace(day=1) - timedelta(days=1)
+    return int(previous_month_day.strftime("%Y%m"))
 
 
 def _merge_season_date_ranges(
