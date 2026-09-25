@@ -8,8 +8,8 @@ from . import month_date_range_service
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
     all_rounds = data_service.get_this_months_rounds_for_bars()  
-    month_date_range_service.update_current_month_date_range(all_rounds)
     persistence.store_rounds(all_rounds)
+    month_date_range_service.update_current_month_date_range(all_rounds)
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
