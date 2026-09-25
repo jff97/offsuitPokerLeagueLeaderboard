@@ -8,7 +8,40 @@ os.environ.setdefault("POKER_APP_BASE_URL", "")
 
 from offsuit_analyzer.datamodel import BoardWipeEvent, Round, SeasonWindow
 from offsuit_analyzer.datamodel.season_window import derive_year_month
+from offsuit_analyzer.persistence import board_wipe_events_collection
 from offsuit_analyzer.season_history import board_wipe_events, season_windows
+
+
+class _FakeBoardWipeCollection:
+    def __init__(self, docs=None):
+        self.docs = list(docs or [])
+
+    def bulk_write(self, operations, ordered=False):
+        for operation in operations:
+            target_value = operation._filter["board_wipe_date"]
+            replacement = dict(operation._doc)
+            for index, doc in enumerate(self.docs):
+                if doc.get("board_wipe_date") == target_value:
+                    self.docs[index] = replacement
+                    break
+            else:
+                self.docs.append(replacement)
+
+    def delete_many(self, filter_dict):
+        if not filter_dict:
+            self.docs = []
+            return
+
+        excluded_dates = set(filter_dict["board_wipe_date"]["$nin"])
+        self.docs = [doc for doc in self.docs if doc.get("board_wipe_date") in excluded_dates]
+
+    def find(self, filter_dict=None):
+        return list(self.docs)
+
+
+class _FakeDb(dict):
+    def __getitem__(self, name):
+        return dict.__getitem__(self, name)
 
 
 class BoardWipeEventsTests(unittest.TestCase):
@@ -24,6 +57,28 @@ class BoardWipeEventsTests(unittest.TestCase):
                 ["2023-12-30", "2024-01-06", "2024-01-13"],
                 board_wipe_events.get_board_wipe_dates_to_record(rounds),
             )
+
+    def test_record_board_wipe_events_replaces_stale_dates(self):
+        collection = _FakeBoardWipeCollection(
+            [
+                {"board_wipe_date": "2023-12-30"},
+                {"board_wipe_date": "2024-01-06"},
+            ]
+        )
+        fake_db = _FakeDb({"boardWipeEventsCollectionProd": collection})
+
+        with patch.object(board_wipe_events_collection.cosmos_client, "db", fake_db), \
+             patch.object(
+                 board_wipe_events_collection.cosmos_client.config,
+                 "BOARD_WIPE_EVENTS_COLLECTION_NAME",
+                 "boardWipeEventsCollectionProd",
+             ):
+            board_wipe_events_collection.record_board_wipe_events(["2024-01-06", "2024-01-13"])
+
+        self.assertEqual(
+            ["2024-01-06", "2024-01-13"],
+            [doc["board_wipe_date"] for doc in collection.find({})],
+        )
 
 
 class SeasonWindowsTests(unittest.TestCase):

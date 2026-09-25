@@ -13,10 +13,11 @@ def record_board_wipe_events(board_wipe_dates: Iterable[Union[str, date]]) -> No
         {BoardWipeEvent(board_wipe_date=board_wipe_date) for board_wipe_date in board_wipe_dates},
         key=_sort_key,
     )
+    collection = cosmos_client.db[cosmos_client.config.BOARD_WIPE_EVENTS_COLLECTION_NAME]
     if not normalized_board_wipe_events:
+        collection.delete_many({})
         return
 
-    collection = cosmos_client.db[cosmos_client.config.BOARD_WIPE_EVENTS_COLLECTION_NAME]
     operations = [
         ReplaceOne(
             filter={"board_wipe_date": board_wipe_event.board_wipe_date.isoformat()},
@@ -26,6 +27,9 @@ def record_board_wipe_events(board_wipe_dates: Iterable[Union[str, date]]) -> No
         for board_wipe_event in normalized_board_wipe_events
     ]
     collection.bulk_write(operations, ordered=False)
+    collection.delete_many(
+        {"board_wipe_date": {"$nin": [board_wipe_event.board_wipe_date.isoformat() for board_wipe_event in normalized_board_wipe_events]}}
+    )
 
 
 def get_all_board_wipe_events() -> List[BoardWipeEvent]:
