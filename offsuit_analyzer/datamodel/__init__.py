@@ -7,11 +7,15 @@ from .player_score import PlayerScore
 from .round import Round
 from .name_clash import NameClash
 from .log_entry import LogEntry, LogSeverity
+from .event_date import EventDate
+from .season_window import SeasonWindow
 
 __all__ = [
     'PlayerScore',
     'Round',
     'NameClash',
     'LogEntry',
-    'LogSeverity'
+    'LogSeverity',
+    'EventDate',
+    'SeasonWindow'
 ]
