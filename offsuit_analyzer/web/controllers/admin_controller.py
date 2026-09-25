@@ -1,6 +1,5 @@
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response
 from flask_httpauth import HTTPTokenAuth
-import json
 from ..services import admin_service 
 from offsuit_analyzer.config import config
 
