@@ -1,5 +1,6 @@
 import requests
 from offsuit_analyzer import data_service
+from offsuit_analyzer import logging_service
 from offsuit_analyzer import persistence
 from offsuit_analyzer.config import config
 from .name_tools_service import check_and_log_clashing_player_names
@@ -9,7 +10,10 @@ def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
     all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
-    month_date_range_service.update_current_month_date_range(all_rounds)
+    try:
+        month_date_range_service.update_current_month_date_range(all_rounds)
+    except ValueError as error:
+        logging_service.log_warning(f"Failed to update month date range: {error}")
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()

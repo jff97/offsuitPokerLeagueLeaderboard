@@ -1,9 +1,7 @@
 """Determine and persist current month season date ranges from incoming API rounds."""
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from typing import List, Optional, Tuple
-import pytz
 
-from offsuit_analyzer.config import config
 from offsuit_analyzer.datamodel import Round
 from offsuit_analyzer.datamodel.month_date_range import MonthDateRange
 from offsuit_analyzer.persistence import month_date_ranges_collection
@@ -43,7 +41,7 @@ def build_current_month_date_range(rounds: List[Round]) -> Optional[MonthDateRan
 
     start_date, end_date = date_bounds
     return MonthDateRange(
-        month_key=_get_current_month_key(),
+        month_key=_derive_month_key_from_date_bounds(start_date, end_date),
         start_date=start_date,
         end_date=end_date,
     )
@@ -102,8 +100,16 @@ def update_current_month_date_range(rounds: List[Round]) -> Optional[MonthDateRa
     return merged_month_date_range
 
 
-def _get_current_month_key() -> int:
-    """Return the current season key as YYYYMM in the configured poker timezone."""
-    poker_timezone = pytz.timezone(config.POKER_TIMEZONE)
-    current_time = datetime.now(poker_timezone)
-    return int(current_time.strftime("%Y%m"))
+def _derive_month_key_from_date_bounds(start_date: str, end_date: str) -> int:
+    """Derive the YYYYMM season key from the midpoint of the observed date range."""
+    start_day = datetime.strptime(start_date, "%Y-%m-%d").date()
+    end_day = datetime.strptime(end_date, "%Y-%m-%d").date()
+    midpoint_day = _calculate_midpoint_day(start_day, end_day)
+    return int(midpoint_day.strftime("%Y%m"))
+
+
+def _calculate_midpoint_day(start_day: date, end_day: date) -> date:
+    """Return the midpoint day between the observed start and end dates."""
+    day_span: timedelta = end_day - start_day
+    midpoint_offset = timedelta(days=day_span.days // 2)
+    return start_day + midpoint_offset
