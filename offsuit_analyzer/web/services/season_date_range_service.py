@@ -53,10 +53,12 @@ def update_current_season_date_range(rounds: List[Round]) -> bool:
 
     observed_season_date_range = build_current_season_date_range(rounds)
     saved_season_date_range = _get_saved_season_date_range(observed_season_date_range.season_month)
-    merged_season_date_range = _get_merged_season_date_range(
-        saved_season_date_range,
-        observed_season_date_range,
-    )
+    merged_season_date_range = observed_season_date_range
+    if saved_season_date_range is not None:
+        merged_season_date_range = merge_season_date_ranges(
+            saved_season_date_range,
+            observed_season_date_range,
+        )
     season_date_ranges_collection.save_season_date_range(merged_season_date_range)
     return True
 
@@ -80,11 +82,3 @@ def _get_saved_season_date_range(season_month: int):
         )
 
     return saved_season_date_ranges[0]
-
-
-def _get_merged_season_date_range(saved_season_date_range, observed_season_date_range: SeasonDateRange) -> SeasonDateRange:
-    """Return the observed season range or merge it with an existing saved range."""
-    if saved_season_date_range is None:
-        return observed_season_date_range
-
-    return merge_season_date_ranges(saved_season_date_range, observed_season_date_range)
