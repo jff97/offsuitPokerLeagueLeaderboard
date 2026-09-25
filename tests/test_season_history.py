@@ -10,6 +10,7 @@ from offsuit_analyzer.datamodel import BoardWipeEvent, Round, SeasonWindow
 from offsuit_analyzer.datamodel.season_window import derive_year_month
 from offsuit_analyzer.persistence import board_wipe_events_collection
 from offsuit_analyzer.season_history import board_wipe_events, season_windows
+from offsuit_analyzer.web.services import admin_service
 
 
 class _FakeBoardWipeCollection:
@@ -58,6 +59,19 @@ class BoardWipeEventsTests(unittest.TestCase):
                 board_wipe_events.get_board_wipe_dates_to_record(rounds),
             )
 
+    def test_get_board_wipe_dates_to_record_keeps_persisted_history_on_partial_refresh(self):
+        rounds = [Round("2", "A", "2024-01-13", "bar-1", ())]
+
+        with patch.object(
+            board_wipe_events.persistence,
+            "get_all_board_wipe_events",
+            return_value=[BoardWipeEvent("2023-12-30"), BoardWipeEvent("2024-01-06")],
+        ), patch.object(board_wipe_events.persistence, "get_all_round_dates", return_value=["2024-01-13"]):
+            self.assertEqual(
+                ["2023-12-30", "2024-01-06", "2024-01-13"],
+                board_wipe_events.get_board_wipe_dates_to_record(rounds),
+            )
+
     def test_record_board_wipe_events_replaces_stale_dates(self):
         collection = _FakeBoardWipeCollection(
             [
@@ -79,6 +93,23 @@ class BoardWipeEventsTests(unittest.TestCase):
             ["2024-01-06", "2024-01-13"],
             [doc["board_wipe_date"] for doc in collection.find({})],
         )
+
+    def test_refresh_rounds_database_preserves_existing_board_wipe_history(self):
+        refreshed_rounds = [Round("2", "A", "2024-01-13", "bar-1", ())]
+
+        with patch.object(admin_service.data_service, "get_this_months_rounds_for_bars", return_value=refreshed_rounds), \
+             patch.object(admin_service.persistence, "store_rounds") as store_mock, \
+             patch.object(
+                 admin_service.persistence,
+                 "get_all_board_wipe_events",
+                 return_value=[BoardWipeEvent("2023-12-30"), BoardWipeEvent("2024-01-06")],
+             ), \
+             patch.object(admin_service.persistence, "get_all_round_dates", return_value=["2024-01-13"]), \
+             patch.object(admin_service.persistence, "record_board_wipe_events") as record_mock:
+            admin_service.refresh_rounds_database()
+
+        store_mock.assert_called_once_with(refreshed_rounds)
+        record_mock.assert_called_once_with(["2023-12-30", "2024-01-06", "2024-01-13"])
 
 
 class SeasonWindowsTests(unittest.TestCase):

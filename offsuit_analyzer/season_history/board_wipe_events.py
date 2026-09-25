@@ -16,7 +16,4 @@ def get_board_wipe_dates_to_record(current_rounds: Iterable[Round]) -> List[str]
     }
     stored_round_dates = persistence.get_all_round_dates()
 
-    if set(stored_round_dates).issubset(stored_board_wipe_dates):
-        return current_board_wipe_dates
-
-    return sorted(set(current_board_wipe_dates) | set(stored_round_dates))
+    return sorted(set(current_board_wipe_dates) | stored_board_wipe_dates | set(stored_round_dates))
