@@ -65,6 +65,9 @@ def merge_month_date_ranges(
     if existing_month_date_range is None:
         return observed_month_date_range
 
+    if existing_month_date_range.month_key != observed_month_date_range.month_key:
+        return observed_month_date_range
+
     return MonthDateRange(
         month_key=observed_month_date_range.month_key,
         start_date=min(existing_month_date_range.start_date, observed_month_date_range.start_date),
