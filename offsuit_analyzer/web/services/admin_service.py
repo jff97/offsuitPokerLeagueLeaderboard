@@ -1,4 +1,5 @@
 import requests
+from pymongo.errors import PyMongoError
 from offsuit_analyzer import data_service
 from offsuit_analyzer import logging_service
 from offsuit_analyzer import persistence
@@ -12,7 +13,7 @@ def refresh_rounds_database():
     persistence.store_rounds(all_rounds)
     try:
         month_date_range_service.update_current_month_date_range(all_rounds)
-    except Exception as error:
+    except (ValueError, PyMongoError) as error:
         warning_message = f"Failed to update month date range: {error}"
         try:
             logging_service.log_warning(warning_message)

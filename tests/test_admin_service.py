@@ -34,7 +34,7 @@ class AdminServiceTests(unittest.TestCase):
         ) as mock_store_rounds, mock.patch.object(
             admin_service.month_date_range_service,
             "update_current_month_date_range",
-            side_effect=RuntimeError("boom"),
+            side_effect=ValueError("boom"),
         ) as mock_update_current_month_date_range, mock.patch.object(
             admin_service.logging_service,
             "log_warning",

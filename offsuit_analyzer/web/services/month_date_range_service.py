@@ -104,6 +104,10 @@ def _derive_month_key_from_date_bounds(start_date: str, end_date: str) -> int:
     """Derive the YYYYMM season key from the midpoint of the observed date range."""
     start_day = datetime.strptime(start_date, "%Y-%m-%d").date()
     end_day = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    if start_day > end_day:
+        raise ValueError(f"start_date must be on or before end_date: {start_date} > {end_date}")
+
     midpoint_day = _calculate_midpoint_day(start_day, end_day)
     return int(midpoint_day.strftime("%Y%m"))
 

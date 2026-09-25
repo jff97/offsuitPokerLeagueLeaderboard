@@ -109,6 +109,13 @@ class MonthDateRangeServiceTests(unittest.TestCase):
         mock_get_month_date_range.assert_not_called()
         mock_save_month_date_range.assert_not_called()
 
+    def test_derive_month_key_from_date_bounds_raises_for_reversed_dates(self):
+        with self.assertRaises(ValueError):
+            month_date_range_service._derive_month_key_from_date_bounds(
+                "2026-09-25",
+                "2026-08-29",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
