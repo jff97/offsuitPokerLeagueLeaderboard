@@ -1,4 +1,5 @@
 """Business logic for season-window rebuilding from board-wipe history."""
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Dict, Iterable, List, Tuple, Union
 
@@ -7,6 +8,12 @@ from offsuit_analyzer.datamodel import BoardWipeEvent, SeasonWindow
 from offsuit_analyzer.datamodel.season_window import derive_year_month
 
 DEFAULT_BOUNDARY_WEEKDAY = 5  # Saturday
+
+
+@dataclass(frozen=True)
+class _SeasonBounds:
+    start_date: date
+    end_date: date
 
 
 def assign_season_windows_from_history(boundary_weekday: int = DEFAULT_BOUNDARY_WEEKDAY) -> List[SeasonWindow]:
@@ -31,24 +38,27 @@ def calculate_season_windows(
     if not normalized_board_wipe_dates:
         return []
 
-    season_bounds: Dict[Tuple[int, int], Dict[str, date]] = {}
+    season_bounds: Dict[Tuple[int, int], _SeasonBounds] = {}
     for board_wipe_date in normalized_board_wipe_dates:
         week_start = _get_week_start(board_wipe_date, boundary_weekday)
         week_end = week_start + timedelta(days=6)
         year_month = derive_year_month(week_start, week_end)
         if year_month not in season_bounds:
-            season_bounds[year_month] = {"start_date": week_start, "end_date": week_end}
+            season_bounds[year_month] = _SeasonBounds(start_date=week_start, end_date=week_end)
             continue
 
-        season_bounds[year_month]["start_date"] = min(season_bounds[year_month]["start_date"], week_start)
-        season_bounds[year_month]["end_date"] = max(season_bounds[year_month]["end_date"], week_end)
+        current_bounds = season_bounds[year_month]
+        season_bounds[year_month] = _SeasonBounds(
+            start_date=min(current_bounds.start_date, week_start),
+            end_date=max(current_bounds.end_date, week_end),
+        )
 
     return [
         SeasonWindow(
             year=year,
             month=month,
-            start_date=bounds["start_date"],
-            end_date=bounds["end_date"],
+            start_date=bounds.start_date,
+            end_date=bounds.end_date,
         )
         for (year, month), bounds in sorted(season_bounds.items())
     ]

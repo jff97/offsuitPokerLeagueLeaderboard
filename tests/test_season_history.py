@@ -8,7 +8,7 @@ os.environ.setdefault("POKER_APP_BASE_URL", "")
 
 from offsuit_analyzer.datamodel import BoardWipeEvent, Round, SeasonWindow
 from offsuit_analyzer.datamodel.season_window import derive_year_month
-from offsuit_analyzer.persistence import board_wipe_events_collection
+from offsuit_analyzer.persistence import board_wipe_events_collection, season_windows_collection
 from offsuit_analyzer.season_history import board_wipe_events, season_windows
 from offsuit_analyzer.web.services import admin_service, season_assignment_service
 
@@ -43,6 +43,34 @@ class _FakeBoardWipeCollection:
 class _FakeDb(dict):
     def __getitem__(self, name):
         return dict.__getitem__(self, name)
+
+
+class _FakeSeasonWindowCollection(_FakeBoardWipeCollection):
+    def bulk_write(self, operations, ordered=False):
+        for operation in operations:
+            target_value = (operation._filter["year"], operation._filter["month"])
+            replacement = dict(operation._doc)
+            for index, doc in enumerate(self.docs):
+                if (doc.get("year"), doc.get("month")) == target_value:
+                    self.docs[index] = replacement
+                    break
+            else:
+                self.docs.append(replacement)
+
+    def delete_many(self, filter_dict):
+        if not filter_dict:
+            self.docs = []
+            return
+
+        valid_pairs = {
+            (doc["year"], doc["month"])
+            for doc in filter_dict["$and"][2]["$nor"]
+        }
+        self.docs = [
+            doc
+            for doc in self.docs
+            if (doc.get("year"), doc.get("month")) in valid_pairs
+        ]
 
 
 class BoardWipeEventsTests(unittest.TestCase):
@@ -169,6 +197,29 @@ class SeasonWindowsTests(unittest.TestCase):
         self.assertEqual("2024-01-06", result[0].start_date.isoformat())
         self.assertEqual("2024-01-19", result[0].end_date.isoformat())
         save_mock.assert_called_once_with(result)
+
+    def test_save_season_windows_keeps_upserted_pairs_when_deleting_stale_docs(self):
+        collection = _FakeSeasonWindowCollection(
+            [
+                SeasonWindow(year=2024, month=1, start_date="2024-01-06", end_date="2024-01-19").to_dict(),
+                SeasonWindow(year=2024, month=2, start_date="2024-02-03", end_date="2024-02-09").to_dict(),
+            ]
+        )
+        fake_db = _FakeDb({"seasonWindowsCollectionProd": collection})
+        updated_window = SeasonWindow(year=2024, month=1, start_date="2024-01-06", end_date="2024-01-26")
+
+        with patch.object(season_windows_collection.cosmos_client, "db", fake_db), \
+             patch.object(
+                 season_windows_collection.cosmos_client.config,
+                 "SEASON_WINDOWS_COLLECTION_NAME",
+                 "seasonWindowsCollectionProd",
+             ):
+            season_windows_collection.save_season_windows([updated_window])
+
+        self.assertEqual(
+            [updated_window.to_dict()],
+            sorted(collection.find({}), key=lambda doc: (doc["year"], doc["month"])),
+        )
 
 
 class SeasonAssignmentServiceTests(unittest.TestCase):
