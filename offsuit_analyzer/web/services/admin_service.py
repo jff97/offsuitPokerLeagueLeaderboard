@@ -12,8 +12,12 @@ def refresh_rounds_database():
     persistence.store_rounds(all_rounds)
     try:
         month_date_range_service.update_current_month_date_range(all_rounds)
-    except ValueError as error:
-        logging_service.log_warning(f"Failed to update month date range: {error}")
+    except Exception as error:
+        warning_message = f"Failed to update month date range: {error}"
+        try:
+            logging_service.log_warning(warning_message)
+        except Exception:
+            print(warning_message)
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
