@@ -66,7 +66,10 @@ def merge_month_date_ranges(
         return observed_month_date_range
 
     if existing_month_date_range.month_key != observed_month_date_range.month_key:
-        return observed_month_date_range
+        raise ValueError(
+            "Cannot merge month date ranges with different month keys: "
+            f"{existing_month_date_range.month_key} != {observed_month_date_range.month_key}"
+        )
 
     return MonthDateRange(
         month_key=observed_month_date_range.month_key,
