@@ -8,7 +8,7 @@ def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
     all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
-    persistence.record_event_dates(_get_observed_event_dates(all_rounds))
+    persistence.record_event_dates(_get_event_dates_to_record(all_rounds))
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
@@ -24,6 +24,17 @@ def run_name_clash_detection():
 
 def _get_observed_event_dates(all_rounds):
     return sorted({round_obj.round_date for round_obj in all_rounds if round_obj.round_date})
+
+
+def _get_event_dates_to_record(current_rounds):
+    current_event_dates = _get_observed_event_dates(current_rounds)
+    stored_event_dates = {event_date.event_date.isoformat() for event_date in persistence.get_all_event_dates()}
+    stored_round_dates = persistence.get_all_round_dates()
+
+    if set(stored_round_dates).issubset(stored_event_dates):
+        return current_event_dates
+
+    return sorted(set(current_event_dates) | set(stored_round_dates))
 
 
 def trigger_frontend_update():

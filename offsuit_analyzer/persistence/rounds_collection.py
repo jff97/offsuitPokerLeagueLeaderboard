@@ -47,6 +47,12 @@ def get_all_rounds() -> List[Round]:
     docs = list(collection.find({}))
     return [Round.from_dict(doc) for doc in docs]
 
+
+def get_all_round_dates() -> List[str]:
+    collection = cosmos_client.db[cosmos_client.config.ROUNDS_COLLECTION_NAME]
+    round_dates = collection.distinct("round_date", {"round_date": {"$ne": None}})
+    return sorted(round_date for round_date in round_dates if round_date)
+
 def clear_rounds_cache() -> None:
     """Clear the cached rounds data."""
     get_all_rounds.cache_clear()

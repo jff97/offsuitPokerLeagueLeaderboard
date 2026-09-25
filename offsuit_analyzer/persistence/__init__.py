@@ -5,6 +5,7 @@ from . import export_rounds_tool
 
 store_rounds = rounds_collection.store_rounds
 get_all_rounds = rounds_collection.get_all_rounds
+get_all_round_dates = rounds_collection.get_all_round_dates
 record_event_dates = event_dates_collection.record_event_dates
 get_all_event_dates = event_dates_collection.get_all_event_dates
 
@@ -30,6 +31,7 @@ get_all_season_windows = season_windows_collection.get_all_season_windows
 __all__ = [
     'store_rounds',
     'get_all_rounds',
+    'get_all_round_dates',
     'record_event_dates',
     'get_all_event_dates',
     'save_warnings',

@@ -8,10 +8,13 @@ from . import cosmos_client
 
 def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
     normalized_season_windows = list(season_windows)
-    if not normalized_season_windows:
+    collection = cosmos_client.db[cosmos_client.config.SEASON_WINDOWS_COLLECTION_NAME]
+    season_months = [season_window.season_month for season_window in normalized_season_windows]
+
+    if not season_months:
+        collection.delete_many({})
         return
 
-    collection = cosmos_client.db[cosmos_client.config.SEASON_WINDOWS_COLLECTION_NAME]
     operations = [
         ReplaceOne(
             filter={"season_month": season_window.season_month},
@@ -21,6 +24,7 @@ def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
         for season_window in normalized_season_windows
     ]
     collection.bulk_write(operations, ordered=False)
+    collection.delete_many({"season_month": {"$nin": season_months}})
 
 
 def get_all_season_windows() -> List[SeasonWindow]:
