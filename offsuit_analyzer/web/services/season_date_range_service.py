@@ -55,7 +55,7 @@ def _build_current_season_date_range(round_days: List[date]) -> SeasonDateRange:
 
 def _seed_current_season_date_range() -> bool:
     """Ensure the current month has a seeded season date range for rollover transitions."""
-    today = date.today()
+    today = _get_current_poker_date()
     current_season_date_range = SeasonDateRange(
         start_date=today,
         end_date=today,
@@ -76,8 +76,16 @@ def _should_seed_new_current_season(
     if len(round_days) > NEAR_EMPTY_ROUND_RESET_THRESHOLD:
         return False
 
-    current_season_month = int(date.today().strftime("%Y%m"))
+    current_season_month = int(_get_current_poker_date().strftime("%Y%m"))
     return observed_season_date_range.season_month != current_season_month
+
+
+def _get_current_poker_date() -> date:
+    """Return today's date in the configured poker timezone."""
+    import pytz
+    from offsuit_analyzer.config import config
+
+    return datetime.now(pytz.timezone(config.POKER_TIMEZONE)).date()
 
 
 def _merge_season_date_ranges(

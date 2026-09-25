@@ -22,21 +22,19 @@ sys.modules.setdefault(
 from offsuit_analyzer.web.services import season_date_range_service
 
 
-class FixedOctoberDate(date):
-    @classmethod
-    def today(cls):
-        return cls(2026, 10, 1)
-
-
 class SeasonDateRangeServiceTests(unittest.TestCase):
     def test_empty_rounds_create_seeded_current_month_record_when_missing(self):
+        current_poker_date = date(2026, 10, 1)
         expected_range = SeasonDateRange(
-            start_date=FixedOctoberDate(2026, 10, 1),
-            end_date=FixedOctoberDate(2026, 10, 1),
+            start_date=current_poker_date,
+            end_date=current_poker_date,
         )
 
-        with patch.object(season_date_range_service, "date", FixedOctoberDate), \
-             patch.object(
+        with patch.object(
+                 season_date_range_service,
+                 "_get_current_poker_date",
+                 return_value=current_poker_date,
+             ), patch.object(
                  season_date_range_service.season_date_ranges_collection,
                  "get_season_date_range",
                  return_value=None,
@@ -56,9 +54,13 @@ class SeasonDateRangeServiceTests(unittest.TestCase):
             start_date=date(2026, 10, 1),
             end_date=date(2026, 10, 15),
         )
+        current_poker_date = date(2026, 10, 1)
 
-        with patch.object(season_date_range_service, "date", FixedOctoberDate), \
-             patch.object(
+        with patch.object(
+                 season_date_range_service,
+                 "_get_current_poker_date",
+                 return_value=current_poker_date,
+             ), patch.object(
                  season_date_range_service.season_date_ranges_collection,
                  "get_season_date_range",
                  return_value=existing_range,
@@ -75,13 +77,17 @@ class SeasonDateRangeServiceTests(unittest.TestCase):
 
     def test_near_empty_previous_month_rounds_seed_current_month_record(self):
         stale_round = self._round("stale-round", "2026-09-30")
+        current_poker_date = date(2026, 10, 1)
         expected_range = SeasonDateRange(
-            start_date=FixedOctoberDate(2026, 10, 1),
-            end_date=FixedOctoberDate(2026, 10, 1),
+            start_date=current_poker_date,
+            end_date=current_poker_date,
         )
 
-        with patch.object(season_date_range_service, "date", FixedOctoberDate), \
-             patch.object(
+        with patch.object(
+                 season_date_range_service,
+                 "_get_current_poker_date",
+                 return_value=current_poker_date,
+             ), patch.object(
                  season_date_range_service.season_date_ranges_collection,
                  "get_season_date_range",
                  return_value=None,
