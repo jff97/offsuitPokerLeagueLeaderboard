@@ -163,7 +163,10 @@ class BoardWipeEventsTests(unittest.TestCase):
             admin_service.refresh_rounds_database()
 
         store_mock.assert_called_once_with(refreshed_rounds)
-        self.assertEqual([("store_rounds", refreshed_rounds), "get_all_round_dates"], call_order)
+        self.assertEqual(
+            ["get_all_round_dates", ("store_rounds", refreshed_rounds), "get_all_round_dates"],
+            call_order,
+        )
         record_mock.assert_called_once_with(["2023-12-30", "2024-01-06", "2024-01-13"])
 
 

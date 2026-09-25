@@ -5,9 +5,16 @@ from .name_tools_service import check_and_log_clashing_player_names
 
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
+    existing_round_dates = persistence.get_all_round_dates()
     all_rounds = data_service.get_this_months_rounds_for_bars()  
     persistence.store_rounds(all_rounds)
-    persistence.record_board_wipe_events(season_history.get_board_wipe_dates_to_record(all_rounds))
+    updated_round_dates = persistence.get_all_round_dates()
+    persistence.record_board_wipe_events(
+        season_history.get_board_wipe_dates_to_record(
+            all_rounds,
+            stored_round_dates=sorted(set(existing_round_dates) | set(updated_round_dates)),
+        )
+    )
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
