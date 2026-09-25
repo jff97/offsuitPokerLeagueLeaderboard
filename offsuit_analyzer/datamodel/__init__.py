@@ -10,6 +10,8 @@ from .log_entry import LogEntry, LogSeverity
 from .board_wipe_event import BoardWipeEvent
 from .season_window import SeasonWindow
 
+EventDate = BoardWipeEvent
+
 __all__ = [
     'PlayerScore',
     'Round',
@@ -17,5 +19,6 @@ __all__ = [
     'LogEntry',
     'LogSeverity',
     'BoardWipeEvent',
+    'EventDate',
     'SeasonWindow'
 ]
