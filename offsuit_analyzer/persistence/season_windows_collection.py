@@ -25,13 +25,13 @@ def save_season_windows(season_windows: Iterable[SeasonWindow]) -> None:
     ]
     collection.bulk_write(operations, ordered=False)
 
-    stale_filter = {"$and": [{"year": {"$exists": True}}, {"month": {"$exists": True}}]}
-    if len(valid_year_month_pairs) == 1:
-        year, month = next(iter(valid_year_month_pairs))
-        stale_filter["$and"].append({"$or": [{"year": {"$ne": year}}, {"month": {"$ne": month}}]})
-    else:
-        stale_filter["$and"].append({"$nor": [{"year": year, "month": month} for year, month in valid_year_month_pairs]})
-
+    stale_filter = {
+        "$and": [
+            {"year": {"$exists": True}},
+            {"month": {"$exists": True}},
+            {"$nor": [{"year": year, "month": month} for year, month in valid_year_month_pairs]},
+        ]
+    }
     collection.delete_many(stale_filter)
 
 

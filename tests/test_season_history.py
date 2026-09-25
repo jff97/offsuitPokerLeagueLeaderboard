@@ -10,7 +10,7 @@ from offsuit_analyzer.datamodel import BoardWipeEvent, Round, SeasonWindow
 from offsuit_analyzer.datamodel.season_window import derive_year_month
 from offsuit_analyzer.persistence import board_wipe_events_collection
 from offsuit_analyzer.season_history import board_wipe_events, season_windows
-from offsuit_analyzer.web.services import admin_service
+from offsuit_analyzer.web.services import admin_service, season_assignment_service
 
 
 class _FakeBoardWipeCollection:
@@ -169,6 +169,35 @@ class SeasonWindowsTests(unittest.TestCase):
         self.assertEqual("2024-01-06", result[0].start_date.isoformat())
         self.assertEqual("2024-01-19", result[0].end_date.isoformat())
         save_mock.assert_called_once_with(result)
+
+
+class SeasonAssignmentServiceTests(unittest.TestCase):
+    def test_assign_season_windows_from_history_delegates_to_season_history(self):
+        expected = [SeasonWindow(year=2024, month=1, start_date=date(2024, 1, 6), end_date=date(2024, 1, 19))]
+
+        with patch.object(
+            season_assignment_service.season_history,
+            "assign_season_windows_from_history",
+            return_value=expected,
+        ) as assign_mock:
+            result = season_assignment_service.assign_season_windows_from_history(boundary_weekday=6)
+
+        self.assertEqual(expected, result)
+        assign_mock.assert_called_once_with(boundary_weekday=6)
+
+    def test_calculate_season_windows_delegates_to_season_history(self):
+        board_wipe_dates = ["2024-01-06", "2024-01-13"]
+        expected = [SeasonWindow(year=2024, month=1, start_date=date(2024, 1, 6), end_date=date(2024, 1, 19))]
+
+        with patch.object(
+            season_assignment_service.season_history,
+            "calculate_season_windows",
+            return_value=expected,
+        ) as calculate_mock:
+            result = season_assignment_service.calculate_season_windows(board_wipe_dates, boundary_weekday=2)
+
+        self.assertEqual(expected, result)
+        calculate_mock.assert_called_once_with(board_wipe_dates, boundary_weekday=2)
 
 
 if __name__ == "__main__":
