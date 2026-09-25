@@ -7,7 +7,7 @@ from .player_score import PlayerScore
 from .round import Round
 from .name_clash import NameClash
 from .log_entry import LogEntry, LogSeverity
-from .month_date_range import MonthDateRange
+from .season_date_range import SeasonDateRange
 
 __all__ = [
     'PlayerScore',
@@ -15,5 +15,5 @@ __all__ = [
     'NameClash',
     'LogEntry',
     'LogSeverity',
-    'MonthDateRange'
+    'SeasonDateRange'
 ]

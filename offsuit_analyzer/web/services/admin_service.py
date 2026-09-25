@@ -1,24 +1,15 @@
 import requests
-from pymongo.errors import PyMongoError
 from offsuit_analyzer import data_service
-from offsuit_analyzer import logging_service
 from offsuit_analyzer import persistence
 from offsuit_analyzer.config import config
 from .name_tools_service import check_and_log_clashing_player_names
-from . import month_date_range_service
+from . import season_date_range_service
 
 def refresh_rounds_database():
-    """Refresh the rounds database with latest data from this months Keep the score API"""
-    all_rounds = data_service.get_this_months_rounds_for_bars()  
-    persistence.store_rounds(all_rounds)
-    try:
-        month_date_range_service.update_current_month_date_range(all_rounds)
-    except (ValueError, PyMongoError) as error:
-        warning_message = f"Failed to update month date range: {error}"
-        try:
-            logging_service.log_warning(warning_message)
-        except Exception:
-            print(warning_message)
+    """Refresh the rounds database with latest data from the current season boards."""
+    current_season_rounds = data_service.get_this_months_rounds_for_bars()
+    persistence.store_rounds(current_season_rounds)
+    season_date_range_service.update_current_season_date_range(current_season_rounds)
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
