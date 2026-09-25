@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, Union
+from typing import Any, Dict, Tuple, Union
 
 
 @dataclass(frozen=True)
 class SeasonWindow:
-    """Stored season window keyed by YYYYMM."""
-    season_month: int
+    """Stored season window keyed by year and month."""
+    year: int
+    month: int
     start_date: date
     end_date: date
 
@@ -17,11 +18,11 @@ class SeasonWindow:
         if start_day > end_day:
             raise ValueError(f"start_date must be on or before end_date: {self.start_date} > {self.end_date}")
 
-        derived_season_month = _derive_season_month(start_day, end_day)
-        if self.season_month != derived_season_month:
+        derived_year, derived_month = _derive_year_month(start_day, end_day)
+        if self.year != derived_year or self.month != derived_month:
             raise ValueError(
-                "season_month must match midpoint-derived season month: "
-                f"{self.season_month} != {derived_season_month}"
+                "year/month must match midpoint-derived season month: "
+                f"({self.year}, {self.month}) != ({derived_year}, {derived_month})"
             )
 
         object.__setattr__(self, "start_date", start_day)
@@ -29,7 +30,8 @@ class SeasonWindow:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "season_month": self.season_month,
+            "year": self.year,
+            "month": self.month,
             "start_date": self.start_date.isoformat(),
             "end_date": self.end_date.isoformat(),
         }
@@ -37,19 +39,20 @@ class SeasonWindow:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "SeasonWindow":
         return cls(
-            season_month=data["season_month"],
+            year=data["year"],
+            month=data["month"],
             start_date=data["start_date"],
             end_date=data["end_date"],
         )
 
 
-def derive_season_month(start_date: Union[str, date], end_date: Union[str, date]) -> int:
-    return _derive_season_month(_normalize_day(start_date), _normalize_day(end_date))
+def derive_year_month(start_date: Union[str, date], end_date: Union[str, date]) -> Tuple[int, int]:
+    return _derive_year_month(_normalize_day(start_date), _normalize_day(end_date))
 
 
-def _derive_season_month(start_day: date, end_day: date) -> int:
+def _derive_year_month(start_day: date, end_day: date) -> Tuple[int, int]:
     midpoint_day = start_day + timedelta(days=(end_day - start_day).days // 2)
-    return int(midpoint_day.strftime("%Y%m"))
+    return midpoint_day.year, midpoint_day.month
 
 
 def _normalize_day(day_value: Union[str, date]) -> date:

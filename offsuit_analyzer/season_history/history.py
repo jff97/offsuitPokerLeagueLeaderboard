@@ -1,10 +1,10 @@
 """Business logic for season-history persistence and season-window rebuilding."""
 from datetime import date, timedelta
-from typing import Dict, Iterable, List, Union
+from typing import Dict, Iterable, List, Tuple, Union
 
 from offsuit_analyzer import persistence
 from offsuit_analyzer.datamodel import EventDate, Round, SeasonWindow
-from offsuit_analyzer.datamodel.season_window import derive_season_month
+from offsuit_analyzer.datamodel.season_window import derive_year_month
 
 DEFAULT_BOUNDARY_WEEKDAY = 5  # Saturday
 
@@ -26,25 +26,26 @@ def calculate_season_windows(
     if not normalized_event_dates:
         return []
 
-    season_bounds: Dict[int, Dict[str, date]] = {}
+    season_bounds: Dict[Tuple[int, int], Dict[str, date]] = {}
     for event_date in normalized_event_dates:
         week_start = _get_week_start(event_date, boundary_weekday)
         week_end = week_start + timedelta(days=6)
-        season_month = derive_season_month(week_start, week_end)
-        if season_month not in season_bounds:
-            season_bounds[season_month] = {"start_date": week_start, "end_date": week_end}
+        year_month = derive_year_month(week_start, week_end)
+        if year_month not in season_bounds:
+            season_bounds[year_month] = {"start_date": week_start, "end_date": week_end}
             continue
 
-        season_bounds[season_month]["start_date"] = min(season_bounds[season_month]["start_date"], week_start)
-        season_bounds[season_month]["end_date"] = max(season_bounds[season_month]["end_date"], week_end)
+        season_bounds[year_month]["start_date"] = min(season_bounds[year_month]["start_date"], week_start)
+        season_bounds[year_month]["end_date"] = max(season_bounds[year_month]["end_date"], week_end)
 
     return [
         SeasonWindow(
-            season_month=season_month,
+            year=year,
+            month=month,
             start_date=bounds["start_date"],
             end_date=bounds["end_date"],
         )
-        for season_month, bounds in sorted(season_bounds.items())
+        for (year, month), bounds in sorted(season_bounds.items())
     ]
 
 
