@@ -37,9 +37,11 @@ def _get_list_of_rounds_from_api(bar_configs: List[BarConfig]) -> List[Round]:
     for bar_config in bar_configs:
         bar_json_from_api: Dict[str, Any] = keep_the_score_api_client.fetch_board_json(bar_config.token)
         if "error" in bar_json_from_api:
-            _email_keep_the_score_error(f"Error fetching token {bar_config.token}: {bar_json_from_api['error']}")
-            continue
-        
+            error_message = f"Error fetching token {bar_config.token}: {bar_json_from_api['error']}"
+            _email_keep_the_score_error(error_message)
+            # A partial fetch would look like a board wipe downstream, so fail hard instead of continuing.
+            raise RuntimeError(error_message)
+
         # Convert this bar's data directly to Round objects
         bar_rounds: List[Round] = _convert_bar_json_to_round_objects(bar_config, bar_json_from_api)
         all_rounds.extend(bar_rounds)

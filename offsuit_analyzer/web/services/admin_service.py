@@ -1,13 +1,15 @@
 import requests
-from offsuit_analyzer import data_service
-from offsuit_analyzer import persistence
+from offsuit_analyzer import data_service, persistence
 from offsuit_analyzer.config import config
 from .name_tools_service import check_and_log_clashing_player_names
+from .season_assignment_service import refresh_board_wipe_events_and_season_windows
 
 def refresh_rounds_database():
     """Refresh the rounds database with latest data from this months Keep the score API"""
-    all_rounds = data_service.get_this_months_rounds_for_bars()  
-    persistence.store_rounds(all_rounds)
+    this_months_rounds = data_service.get_this_months_rounds_for_bars()
+    persistence.store_rounds(this_months_rounds)
+
+    refresh_board_wipe_events_and_season_windows(this_months_rounds)
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()

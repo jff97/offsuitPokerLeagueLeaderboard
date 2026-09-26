@@ -74,6 +74,8 @@ class Config:
 
         collection_env_suffix = "Dev" if self.IS_DEVELOPMENT_ENV else "Prod"
         self.ROUNDS_COLLECTION_NAME = "pokerRoundsCollection" + collection_env_suffix
+        self.BOARD_WIPE_EVENTS_COLLECTION_NAME = "boardWipeEventsCollection" + collection_env_suffix
+        self.SEASON_WINDOWS_COLLECTION_NAME = "seasonWindowsCollection" + collection_env_suffix
         self.WARNINGS_COLLECTION_NAME = "warningsCollection" + collection_env_suffix
         self.NAME_INFOS_COLLECTION_NAME = "nameClashesCollection" + collection_env_suffix
         self.EXCLUDED_QUALIFIERS_COLLECTION_NAME = "excludedQualifiers" + collection_env_suffix
