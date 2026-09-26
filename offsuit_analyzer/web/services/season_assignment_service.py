@@ -1,19 +1,11 @@
 """Season-history service wrappers."""
-from datetime import date
-from typing import Iterable, List, Union
+from typing import List
 
 from offsuit_analyzer import season_history
-from offsuit_analyzer.datamodel import SeasonWindow
+from offsuit_analyzer.datamodel import Round
 
-DEFAULT_BOUNDARY_WEEKDAY = season_history.DEFAULT_BOUNDARY_WEEKDAY
-
-
-def assign_season_windows_from_history(boundary_weekday: int = DEFAULT_BOUNDARY_WEEKDAY) -> List[SeasonWindow]:
-    return season_history.assign_season_windows_from_history(boundary_weekday=boundary_weekday)
-
-
-def calculate_season_windows(
-    board_wipe_dates: Iterable[Union[str, date]],
-    boundary_weekday: int = DEFAULT_BOUNDARY_WEEKDAY,
-) -> List[SeasonWindow]:
-    return season_history.calculate_season_windows(board_wipe_dates, boundary_weekday=boundary_weekday)
+def refresh_board_wipe_events_and_season_windows(this_months_rounds: List[Round]) -> None:
+    """Detect a season-ending board wipe from freshly fetched rounds, then rebuild season windows if one occurred."""
+    new_wipe_detected = season_history.record_board_wipe_events(this_months_rounds)
+    if new_wipe_detected:
+        season_history.assign_season_windows_from_history()
