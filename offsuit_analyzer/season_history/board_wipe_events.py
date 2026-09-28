@@ -54,3 +54,19 @@ def _count_cleared_bars(this_months_rounds: List[Round], total_bar_count: int) -
 def get_all_board_wipe_dates() -> List[date]:
     """Return every recorded board-wipe date."""
     return [board_wipe_event.board_wipe_date for board_wipe_event in persistence.get_all_board_wipe_events()]
+
+
+def main_to_text_file() -> None:
+    board_wipe_dates = sorted(get_all_board_wipe_dates())
+
+    output_file = "board_wipe_events.txt"
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(f"Total board wipe events: {len(board_wipe_dates)}\n\n")
+        for board_wipe_date in board_wipe_dates:
+            f.write(f"{board_wipe_date.isoformat()}\n")
+
+    print(f"Wrote {len(board_wipe_dates)} board wipe events to {output_file}")
+
+
+if __name__ == "__main__":
+    main_to_text_file()

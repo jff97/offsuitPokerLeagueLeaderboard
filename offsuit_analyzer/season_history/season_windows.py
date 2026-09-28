@@ -13,6 +13,7 @@ DEFAULT_BOUNDARY_WEEKDAY = 5  # Saturday
 def assign_season_windows_from_history() -> None:
     """Read full board-wipe history, rebuild season windows, and persist them."""
     board_wipe_dates = board_wipe_events.get_all_board_wipe_dates()
+    print(f"Board wipe dates: {board_wipe_dates}")
     season_windows = _calculate_season_windows(board_wipe_dates)
     persistence.save_season_windows(season_windows)
 
@@ -42,4 +43,20 @@ def _calculate_season_windows(board_wipe_dates: List[date]) -> List[SeasonWindow
 def _get_week_start(board_wipe_date: date, boundary_weekday: int) -> date:
     days_back = (board_wipe_date.weekday() - boundary_weekday) % 7
     return board_wipe_date - timedelta(days=days_back)
+
+
+def main_to_text_file() -> None:
+    season_windows = persistence.get_all_season_windows()
+
+    output_file = "season_windows.txt"
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(f"Total season windows: {len(season_windows)}\n\n")
+        for season_window in season_windows:
+            f.write(f"{season_window.year}-{season_window.month:02d}: {season_window.start_date.isoformat()} to {season_window.end_date.isoformat()}\n")
+
+    print(f"Wrote {len(season_windows)} season windows to {output_file}")
+
+
+if __name__ == "__main__":
+    main_to_text_file()
 
