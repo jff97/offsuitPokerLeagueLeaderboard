@@ -6,7 +6,7 @@ from typing import Dict, List, Set, Tuple
 from offsuit_analyzer import analytics, data_service, persistence
 from offsuit_analyzer.datamodel.round import Round
 from offsuit_analyzer.season_history import season_windows
-from . import qualification_service
+from offsuit_analyzer.web.services import qualification_service
 
 
 def _group_rounds_by_bar(rounds: List[Round]) -> Dict[str, List[Round]]:
