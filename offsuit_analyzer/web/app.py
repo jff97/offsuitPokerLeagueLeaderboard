@@ -10,6 +10,7 @@ from .controllers.name_tools_controller import name_tools_bp
 from .controllers.admin_controller import admin_bp
 from .controllers.qualification_controller import qualification_bp
 from .controllers.automatic_points_controller import automatic_points_bp
+from .controllers.gold_names_controller import gold_names_bp
 from offsuit_analyzer import logging_service
 
 app = Flask(__name__)
@@ -20,6 +21,7 @@ app.register_blueprint(name_tools_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(qualification_bp)
 app.register_blueprint(automatic_points_bp)
+app.register_blueprint(gold_names_bp)
 
 @app.before_request
 def before_api_request():

@@ -1,9 +1,11 @@
 """Wheel qualifier service built from current-month rounds."""
+from datetime import date
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple
 
-from offsuit_analyzer import analytics, data_service
+from offsuit_analyzer import analytics, data_service, persistence
 from offsuit_analyzer.datamodel.round import Round
+from offsuit_analyzer.season_history import season_windows
 from . import qualification_service
 
 
@@ -48,17 +50,27 @@ def _get_players_who_played_every_round_by_bar_for_rounds(rounds: List[Round]) -
     return players_by_bar
 
 
-def get_players_who_played_every_round_by_bar() -> Dict[str, List[str]]:
+def get_players_who_played_every_round_last_season_by_bar() -> Dict[str, List[str]]:
     """
-    Get players who appeared in every current-month round for each bar.
+    Get players who appeared in every round of last season for each bar.
 
-    This is intentionally unfiltered so it can be reused later for other
-    displays that need every full-month attendee regardless of wheel criteria.
+    A new gold-name list is only meaningful once a season has closed, so this
+    looks at last season's window rather than the still-open current one. This
+    is intentionally unfiltered so it can be reused later for other displays
+    that need every full-season attendee regardless of wheel criteria.
     """
     # Input: none.
-    # Output: dict[bar_name, list[player_name]] for full-month attendees by bar.
-    rounds = data_service.get_this_months_rounds_for_bars()
-    return _get_players_who_played_every_round_by_bar_for_rounds(rounds)
+    # Output: dict[bar_name, list[player_name]] for last-season attendees by bar.
+    last_season_window = season_windows.get_last_season_window()
+    if last_season_window is None:
+        return {}
+
+    all_rounds = persistence.get_all_rounds()
+    last_season_rounds = [
+        round_obj for round_obj in all_rounds
+        if last_season_window.start_date <= date.fromisoformat(round_obj.round_date) <= last_season_window.end_date
+    ]
+    return _get_players_who_played_every_round_by_bar_for_rounds(last_season_rounds)
 
 
 def _filter_out_qualified_players(player_names: List[str], qualified_player_names: Set[str]) -> List[str]:

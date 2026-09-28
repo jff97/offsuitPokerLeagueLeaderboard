@@ -1,6 +1,6 @@
 """Business logic for season-window rebuilding from board-wipe history."""
 from datetime import date, timedelta
-from typing import List
+from typing import List, Optional
 
 from offsuit_analyzer import persistence
 from offsuit_analyzer.datamodel import SeasonWindow
@@ -13,7 +13,6 @@ DEFAULT_BOUNDARY_WEEKDAY = 5  # Saturday
 def assign_season_windows_from_history() -> None:
     """Read full board-wipe history, rebuild season windows, and persist them."""
     board_wipe_dates = board_wipe_events.get_all_board_wipe_dates()
-    print(f"Board wipe dates: {board_wipe_dates}")
     season_windows = _calculate_season_windows(board_wipe_dates)
     persistence.save_season_windows(season_windows)
 
@@ -43,6 +42,21 @@ def _calculate_season_windows(board_wipe_dates: List[date]) -> List[SeasonWindow
 def _get_week_start(board_wipe_date: date, boundary_weekday: int) -> date:
     days_back = (board_wipe_date.weekday() - boundary_weekday) % 7
     return board_wipe_date - timedelta(days=days_back)
+
+
+def get_last_season_window() -> Optional[SeasonWindow]:
+    """Return the closed season window nearest in the past to today, or None if none exist."""
+    all_season_windows = persistence.get_all_season_windows()
+    today = date.today()
+
+    last_season_window = None
+    for season_window in all_season_windows:
+        if season_window.end_date >= today:
+            continue
+        if last_season_window is None or season_window.end_date > last_season_window.end_date:
+            last_season_window = season_window
+
+    return last_season_window
 
 
 def main_to_text_file() -> None:
