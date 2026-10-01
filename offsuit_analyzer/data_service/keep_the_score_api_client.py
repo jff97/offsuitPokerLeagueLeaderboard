@@ -30,7 +30,7 @@ def delete_round(token: str, round_id: int) -> Dict[str, Any]:
     Returns:
         Dictionary with response or error
     """
-    url = f"{BASE_URL}/{token}/board/round/{round_id}"
+    url = f"{BASE_URL}/{token}/board/round/{round_id}/"
     headers = {"accept": "*/*"}
     
     try:
@@ -211,3 +211,5 @@ def create_new_player(token: str, player_name: str) -> Dict[str, Any]:
         return response.json() if response.text else {"success": True}
     except requests.RequestException as e:
         return {"error": str(e)}
+
+    

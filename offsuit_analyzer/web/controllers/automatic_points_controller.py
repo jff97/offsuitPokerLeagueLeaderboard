@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, Response
 import json
 from ..decorators import require_admin_password
-from ..services import automatic_points_service
+from ..services import automatic_points_service, admin_service
 
 automatic_points_bp = Blueprint('automatic_points', __name__, url_prefix='/api/automatic-points')
 
@@ -54,6 +54,26 @@ def add_round():
     result = automatic_points_service.add_new_round_from_bar_id(bar_id, player_scores)
     return Response(
         json.dumps(result),
+        status=200,
+        mimetype="application/json"
+    )
+
+
+@automatic_points_bp.route('/clear-all-rounds', methods=['POST'])
+@require_admin_password
+def clear_all_rounds():
+    """Delete every round on every configured bar's board. Irreversible on the live boards.
+    
+    Requires admin password.
+    
+    Request body:
+    {
+        "password": "<admin password>"
+    }
+    """
+    results = admin_service.clear_all_bars_rounds()
+    return Response(
+        json.dumps(results),
         status=200,
         mimetype="application/json"
     )

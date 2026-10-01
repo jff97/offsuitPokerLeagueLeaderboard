@@ -1,6 +1,7 @@
 import requests
 from offsuit_analyzer import data_service, persistence
 from offsuit_analyzer.config import config
+from offsuit_analyzer.keepthescore_automatic_scoring import manipulate_leaderboards
 from .name_tools_service import check_and_log_clashing_player_names
 from .season_assignment_service import refresh_board_wipe_events_and_season_windows
 
@@ -10,6 +11,17 @@ def refresh_rounds_database():
     persistence.store_rounds(this_months_rounds)
 
     refresh_board_wipe_events_and_season_windows(this_months_rounds)
+
+def clear_all_bars_rounds() -> dict:
+    """Delete every round on every configured bar's board, then refresh caches."""
+    results_by_token = {}
+    for bar_config in config.BAR_CONFIGS:
+        results_by_token[bar_config.token] = manipulate_leaderboards.delete_all_rounds(bar_config.token)
+
+    refresh_rounds_database()
+    trigger_frontend_update()
+
+    return results_by_token
 
 def email_json_rounds_to_admin():
     persistence.email_json_rounds_backup()
