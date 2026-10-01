@@ -1,6 +1,8 @@
 import requests
 from typing import List, Dict, Any
 
+from offsuit_analyzer.config import config
+
 BASE_URL = "https://keepthescore.com/api"
 
 def fetch_board_json(token: str) -> dict:
@@ -144,6 +146,46 @@ def get_board_title(token: str) -> str:
     
     return board_json.get("board", {}).get("appearance", {}).get("title", "Unknown")
 
+def _set_player_text_color(bar_token: str, player_id: int, color: str) -> Dict[str, Any]:
+    url = f"{BASE_URL}/{bar_token}/player/{player_id}"
+    headers = {"accept": "*/*", "Content-Type": "application/json"}
+
+    payload = {
+        "text_color": color
+    }
+
+    try:
+        response = requests.patch(url, json=payload, headers=headers)
+        response.raise_for_status()
+        return response.json() if response.text else {"success": True}
+    except requests.RequestException as e:
+        return {"error": str(e)}
+
+def make_player_name_gold_at_bar(bar_token: str, player_id: int) -> Dict[str, Any]:
+    """
+    Set a player's display name color to gold on the board.
+
+    Args:
+        bar_token: The board token
+        player_id: The ID of the player
+
+    Returns:
+        Dictionary with response data or error
+    """
+    return _set_player_text_color(bar_token, player_id, config.GOLD_NAME_COLOR)
+
+def make_player_name_default_color_at_bar(bar_token: str, player_id: int) -> Dict[str, Any]:
+    """
+    Revert a player's display name to the default color.
+
+    Args:
+        bar_token: The board token
+        player_id: The ID of the player
+
+    Returns:
+        Dictionary with response data or error
+    """
+    return _set_player_text_color(bar_token, player_id, "")
 
 def create_new_player(token: str, player_name: str) -> Dict[str, Any]:
     """

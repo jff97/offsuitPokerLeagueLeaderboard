@@ -1,6 +1,6 @@
 """Persistence package exports."""
 from . import rounds_collection, warnings_collection, name_clashes_collection, logs_collection
-from . import board_wipe_events_collection, season_windows_collection
+from . import board_wipe_events_collection, season_windows_collection, excluded_qualifiers_collection
 from . import export_rounds_tool
 
 store_rounds = rounds_collection.store_rounds
@@ -28,6 +28,9 @@ email_json_rounds_backup = export_rounds_tool.email_json_rounds_backup
 save_season_windows = season_windows_collection.save_season_windows
 get_all_season_windows = season_windows_collection.get_all_season_windows
 
+get_excluded_players = excluded_qualifiers_collection.get_excluded_players
+set_excluded_players = excluded_qualifiers_collection.set_excluded_players
+
 __all__ = [
     'store_rounds',
     'get_all_rounds',
@@ -49,4 +52,6 @@ __all__ = [
     'email_json_rounds_backup',
     'save_season_windows',
     'get_all_season_windows',
+    'get_excluded_players',
+    'set_excluded_players',
 ]

@@ -3,7 +3,6 @@ from flask import Blueprint, request, jsonify, Response
 import json
 from ..decorators import require_admin_password
 from ..services import qualification_service
-from ..services import wheel_qualifiers_service
 
 qualification_bp = Blueprint('qualification', __name__, url_prefix='/api/qualification')
 
@@ -34,7 +33,7 @@ def get_wheel_qualifiers():
     Returns players who played every round at a bar this month after removing
     tournament-qualified and unavailable players.
     """
-    wheel_qualifiers = wheel_qualifiers_service.get_wheel_qualifiers_by_bar()
+    wheel_qualifiers = qualification_service.get_wheel_qualifiers_by_bar()
     return jsonify(wheel_qualifiers)
 
 

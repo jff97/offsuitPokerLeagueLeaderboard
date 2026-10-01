@@ -1,8 +1,9 @@
 """Qualification service - provides API for tournament qualifier calculation."""
-from typing import List, Tuple, Set
-from offsuit_analyzer import data_service, analytics
-from offsuit_analyzer.persistence import excluded_qualifiers_collection
+from typing import List, Tuple, Set, Dict
+from offsuit_analyzer import data_service, qualification
+from offsuit_analyzer.the_wheel import wheel_qualification_service
 from . import admin_service
+
 
 
 def get_tournament_qualifiers():
@@ -12,17 +13,16 @@ def get_tournament_qualifiers():
     Determines top 3 point holders from each bar, handling players who
     qualify at multiple bars by giving them their best placement.
     
-    Exclusions are managed via excluded_qualifiers_collection which provides
+    Exclusions are managed via the qualification package which provides
     a cleanup hook to wipe old exclusions mid-month (6th-18th).
     
     Returns:
         QualifiedPlayersByBar object with qualified players organized by bar
     """
-    # Get excluded players from persistent collection (runs cleanup hook)
-    excluded_set = excluded_qualifiers_collection.get_excluded_players()
+    excluded_set = qualification.get_unavailable_players()
     
     this_months_rounds = data_service.get_this_months_rounds_for_bars()
-    return analytics.get_qualified_players(this_months_rounds, excluded_set)
+    return qualification.get_qualified_players(this_months_rounds, excluded_set)
 
 
 def get_unavailable_players() -> Set[str]:
@@ -32,7 +32,7 @@ def get_unavailable_players() -> Set[str]:
     Returns:
         Set of player names currently excluded from qualification
     """
-    return excluded_qualifiers_collection.get_excluded_players()
+    return qualification.get_unavailable_players()
 
 
 def update_unavailable_players(unavailable_players: List[str]) -> Tuple[bool, str]:
@@ -49,7 +49,7 @@ def update_unavailable_players(unavailable_players: List[str]) -> Tuple[bool, st
         tuple: (success: bool, message: str)
     """
     # Update the collection (this replaces the entire list)
-    excluded_qualifiers_collection.set_excluded_players(set(unavailable_players))
+    qualification.update_unavailable_players(unavailable_players)
     
     # Trigger frontend update to refresh leaderboard caches
     success, message, _ = admin_service.trigger_frontend_update()
@@ -57,3 +57,8 @@ def update_unavailable_players(unavailable_players: List[str]) -> Tuple[bool, st
         print(f"Warning: Failed to trigger frontend update: {message}")
     
     return success, message
+
+def get_wheel_qualifiers_by_bar() -> Dict[str, List[str]]:
+    return wheel_qualification_service.get_wheel_qualifiers_by_bar()
+
+

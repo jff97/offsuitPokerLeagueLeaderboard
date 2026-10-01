@@ -1,6 +1,6 @@
 # TODO: Add proper interface definitions for analytics services
 
-from . import placement_analyzer, win_rate_analyzer, roi_analyzer, trueskill_analyzer, player_disconnectedness, placement_distribution_analyzer, monthly_top_points, qualification_analyzer, average_opponent_skill_analyzer, average_game_size_analyzer, bar_analyzer
+from . import placement_analyzer, win_rate_analyzer, roi_analyzer, trueskill_analyzer, player_disconnectedness, placement_distribution_analyzer, monthly_top_points, average_opponent_skill_analyzer, average_game_size_analyzer, bar_analyzer
 # DISABLED: player_weighted_spring_graph removed for deployment size optimization
 # from . import player_weighted_spring_graph
 
@@ -26,9 +26,6 @@ build_placement_distribution_for_all_players = placement_distribution_analyzer.b
 get_this_months_top_point_players = monthly_top_points.get_this_months_top_point_players
 get_top_point_players_for_year = monthly_top_points.get_top_point_players_for_year
 
-get_qualified_players = qualification_analyzer.get_qualified_players
-QualifiedPlayersByBar = qualification_analyzer.QualifiedPlayersByBar
-
 __all__ = [
     'build_players_outlasted_leaderboard',
     'build_roi_leaderboard',
@@ -45,6 +42,4 @@ __all__ = [
     'build_placement_distribution_for_all_players',
     'get_this_months_top_point_players',
     'get_top_point_players_for_year',
-    'get_qualified_players',
-    'QualifiedPlayersByBar',
 ]

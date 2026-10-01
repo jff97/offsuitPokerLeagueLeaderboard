@@ -3,10 +3,9 @@ from datetime import date
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple
 
-from offsuit_analyzer import analytics, data_service, persistence
+from offsuit_analyzer import data_service, persistence, qualification
 from offsuit_analyzer.datamodel.round import Round
 from offsuit_analyzer.season_history import season_windows
-from offsuit_analyzer.web.services import qualification_service
 
 
 def _group_rounds_by_bar(rounds: List[Round]) -> Dict[str, List[Round]]:
@@ -101,8 +100,8 @@ def _get_wheel_qualifier_filter_sets(rounds: List[Round]) -> Tuple[Set[str], Set
     """Get the player sets needed to filter wheel qualifiers."""
     # Input: list[Round].
     # Output: tuple[qualified_player_names, unavailable_player_names].
-    unavailable_player_names = qualification_service.get_unavailable_players()
-    qualified_players = analytics.get_qualified_players(rounds, unavailable_player_names)
+    unavailable_player_names = qualification.get_unavailable_players()
+    qualified_players = qualification.get_qualified_players(rounds, unavailable_player_names)
     qualified_player_names: Set[str] = set()
     for bar_qualifiers in qualified_players.qualifiers_by_bar.values():
         for qualifier in bar_qualifiers:
